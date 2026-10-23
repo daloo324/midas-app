@@ -22,12 +22,14 @@ test("the CEO invites a designer, who sets a password and lands in the Design St
 
   const since = new Date();
   const invite = page.locator("form", {
-    has: page.getByRole("button", { name: "Send invite" }),
+    has: page.getByRole("button", { name: "Send invite", exact: true }),
   });
   await invite.getByLabel("Name").fill("New Test Designer");
   await invite.getByLabel("Email").fill(email);
   await invite.getByLabel("Role").selectOption("designer");
-  await invite.getByRole("button", { name: "Send invite" }).click();
+  await invite
+    .getByRole("button", { name: "Send invite", exact: true })
+    .click();
   await expect(page.getByText(`Invite sent to ${email}.`)).toBeVisible();
   await expect(
     page
@@ -67,12 +69,14 @@ test("inviting an email that already has a login is refused", async ({
   await signInStaff(page, STAFF.ceo);
   await page.goto("/admin/team");
   const invite = page.locator("form", {
-    has: page.getByRole("button", { name: "Send invite" }),
+    has: page.getByRole("button", { name: "Send invite", exact: true }),
   });
   await invite.getByLabel("Name").fill("Duplicate");
   await invite.getByLabel("Email").fill(STAFF.designer);
   await invite.getByLabel("Role").selectOption("designer");
-  await invite.getByRole("button", { name: "Send invite" }).click();
+  await invite
+    .getByRole("button", { name: "Send invite", exact: true })
+    .click();
   await expect(formAlert(page)).toHaveText(
     "That email already has a login. Use a different email address.",
   );

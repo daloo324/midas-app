@@ -4,7 +4,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(53);
+select plan(56);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (as the database owner)
@@ -75,7 +75,7 @@ select results_eq(
   $$ values ('b0000000-0000-4000-8000-000000000001'::uuid) $$,
   'AE one sees only their own client');
 select results_eq(
-  $$ select client_id from public.client_users where full_name like 'Client % User' $$,
+  $$ select distinct client_id from public.client_users where full_name like 'Client % User' $$,
   $$ values ('b0000000-0000-4000-8000-000000000001'::uuid) $$,
   'AE one sees only their client''s logins');
 select is((select count(*)::int from public.status_events where client_id = 'b0000000-0000-4000-8000-000000000002'), 0,

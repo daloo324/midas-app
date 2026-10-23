@@ -108,12 +108,14 @@ test("the CEO invites, changes a role and deactivates staff", async ({
   await signInStaff(page, "ceo@example.com");
   await page.goto("/admin/team");
   const invite = page.locator("form", {
-    has: page.getByRole("button", { name: "Send invite" }),
+    has: page.getByRole("button", { name: "Send invite", exact: true }),
   });
   await invite.getByLabel("Name").fill("Demo New Designer");
   await invite.getByLabel("Email").fill("new.designer@example.com");
   await invite.getByLabel("Role").selectOption("designer");
-  await invite.getByRole("button", { name: "Send invite" }).click();
+  await invite
+    .getByRole("button", { name: "Send invite", exact: true })
+    .click();
   await expect(page.getByText("Demo New Designer was added.")).toBeVisible();
   const row = page.getByRole("row", { name: /Demo New Designer/ });
   await expect(row.getByText("Invite pending")).toBeVisible();

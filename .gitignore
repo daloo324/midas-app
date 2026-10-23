@@ -16,3 +16,4 @@ supabase/.branches/
 *.pem
 *.tsbuildinfo
 next-env.d.ts
+.outbox/
