@@ -1,12 +1,17 @@
+import { TimerBar } from "@/components/creative/timer";
 import { Masthead } from "@/components/shared/masthead";
 import { MastNav, type NavItem } from "@/components/shared/nav-links";
+import { ToastProvider } from "@/components/shared/toast";
 import { requireArea } from "@/lib/auth/session";
+import { getRunningTimer } from "@/lib/data/creative";
 
-// Design Studio (design-studio.html): menu pills in the masthead.
+// Design Studio (design-studio.html): menu pills in the masthead, and the
+// timer bar under it whenever you have a timer running.
 export default async function CreativeLayout({
   children,
 }: LayoutProps<"/creative">) {
   const user = await requireArea("creative");
+  const timer = await getRunningTimer();
   const menu: NavItem[] = [
     {
       href: "/creative",
@@ -24,11 +29,12 @@ export default async function CreativeLayout({
       : []),
   ];
   return (
-    <>
+    <ToastProvider>
       <Masthead label="Design Studio" home="/creative" user={user}>
         <MastNav items={menu} label="Design Studio sections" />
       </Masthead>
+      <TimerBar timer={timer} />
       <main className="wrap">{children}</main>
-    </>
+    </ToastProvider>
   );
 }

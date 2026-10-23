@@ -18,8 +18,8 @@ import {
   type WorkStatus,
 } from "@/lib/content/constants";
 import type { DeskCampaign } from "@/lib/data/accounts";
-import { AutoSelect, AutoText } from "./auto-field";
-import { useReport } from "./toast";
+import { AutoSelect, AutoText } from "@/components/shared/auto-field";
+import { useReport } from "@/components/shared/toast";
 import { cx } from "@/lib/cx";
 
 function valueOf(

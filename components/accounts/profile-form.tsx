@@ -13,8 +13,8 @@ import {
 } from "@/lib/content/constants";
 import type { DeskClient } from "@/lib/data/accounts";
 import { PLATFORMS, PLATFORM_LABELS } from "@/lib/validation/clients";
-import { AutoText } from "./auto-field";
-import { useReport } from "./toast";
+import { AutoText } from "@/components/shared/auto-field";
+import { useReport } from "@/components/shared/toast";
 
 export function ProfileDetails({ client: c }: { client: DeskClient }) {
   const save = (field: string) => (value: string) =>

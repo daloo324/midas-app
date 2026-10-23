@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { startMonthAction, toggleCheckAction } from "@/app/accounts/actions";
 import { monthLabel, type CheckKey } from "@/lib/content/constants";
-import { useReport } from "./toast";
+import { useReport } from "@/components/shared/toast";
 
 export function StartMonthButton({
   clientId,
