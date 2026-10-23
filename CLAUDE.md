@@ -51,7 +51,7 @@ docs/           spec/  prototypes/  PHASES.md  SETUP.md
 **Security**
 1. Every table has Row Level Security switched on, with policies written in the same migration that creates the table. No table ships without policies and an access test.
 2. Route guards in middleware and layouts are for convenience only. RLS is the real security. Never rely on hiding a link.
-3. The Supabase service-role key is used only in server code under `lib/supabase/service.ts`, and only where the spec says so (client-ID sign-in lookup, cron jobs, invoice numbering). Never import it into a client component.
+3. The Supabase service-role key is used only in server code under `lib/supabase/service.ts`, and only for: the client-ID sign-in lookup and its rate limit, Auth admin tasks (inviting staff, deactivating users, creating client logins, generating invite and password-reset links that are sent through Resend), cron jobs and invoice numbering. Never import it into a client component.
 4. No secrets in code or commits. All keys go in `.env.local` and in Vercel's environment settings. Keep `.env.example` up to date with names only.
 5. Nobody can sign themselves up. Staff are invited by the CEO; client logins are created by the CEO or the client's account exec.
 6. Sign-in errors never reveal whether a client ID or email exists.
