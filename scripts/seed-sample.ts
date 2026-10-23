@@ -154,6 +154,28 @@ async function main() {
     console.log(`  client  ${c.code} ${c.name}`);
   }
 
+  // The active sample clients were signed off before they went live.
+  const { data: active, error: activeError } = await db
+    .from("clients")
+    .select("id")
+    .eq("status", "active")
+    .eq("notes", "Sample client. Not a real business.");
+  if (activeError) throw activeError;
+  const { error: kitError } = await db
+    .from("brand_kits")
+    .update({
+      status: "approved",
+      signed_off_by: "Sample contact (sample data)",
+      signed_off_at: new Date().toISOString(),
+      shown_to_client_at: new Date().toISOString(),
+    })
+    .in(
+      "client_id",
+      (active ?? []).map((c) => c.id),
+    )
+    .neq("status", "approved");
+  if (kitError) throw kitError;
+
   const { data: client, error: clientError } = await db
     .from("clients")
     .select("id")

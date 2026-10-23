@@ -87,3 +87,13 @@ values (
   'Sample Coffee Contact',
   'client.coffee@example.com'
 );
+
+-- ---------------------------------------------------------------------------
+-- Brand kits: the two active clients were signed off before they went live
+-- ---------------------------------------------------------------------------
+
+update public.brand_kits k
+   set status = 'approved', shown_to_client_at = now() - interval '60 days',
+       signed_off_by = 'Sample contact (sample data)', signed_off_at = now() - interval '60 days'
+  from public.clients c
+ where c.id = k.client_id and c.status = 'active' and c.notes = 'Sample client. Not a real business.';

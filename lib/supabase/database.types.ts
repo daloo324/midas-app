@@ -9,6 +9,206 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      brand_briefs: {
+        Row: {
+          answers: NonNullable<Json>;
+          client_id: string;
+          created_at: string;
+          design_notes: string | null;
+          id: string;
+          submitted_at: string | null;
+          updated_at: string;
+          uploads: NonNullable<Json>;
+        };
+        ComputedFields: never;
+        Insert: {
+          answers?: NonNullable<Json>;
+          client_id: string;
+          created_at?: string;
+          design_notes?: string | null;
+          id?: string;
+          submitted_at?: string | null;
+          updated_at?: string;
+          uploads?: NonNullable<Json>;
+        };
+        Update: {
+          answers?: NonNullable<Json>;
+          client_id?: string;
+          created_at?: string;
+          design_notes?: string | null;
+          id?: string;
+          submitted_at?: string | null;
+          updated_at?: string;
+          uploads?: NonNullable<Json>;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "brand_briefs_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: true;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "brand_briefs_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: true;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      brand_kits: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          id: string;
+          shown_to_client_at: string | null;
+          signed_off_at: string | null;
+          signed_off_by: string | null;
+          status: Database["public"]["Enums"]["work_status"];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          id?: string;
+          shown_to_client_at?: string | null;
+          signed_off_at?: string | null;
+          signed_off_by?: string | null;
+          status?: Database["public"]["Enums"]["work_status"];
+          updated_at?: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          id?: string;
+          shown_to_client_at?: string | null;
+          signed_off_at?: string | null;
+          signed_off_by?: string | null;
+          status?: Database["public"]["Enums"]["work_status"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "brand_kits_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: true;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "brand_kits_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: true;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      campaigns: {
+        Row: {
+          ad_budget: number | null;
+          ads_run_by: string | null;
+          audience: NonNullable<Json>;
+          client_approved_at: string | null;
+          client_id: string;
+          created_at: string;
+          creative_direction: string | null;
+          end_date: string | null;
+          goal: string | null;
+          id: string;
+          launch: NonNullable<Json>;
+          main_kpi: string | null;
+          message: NonNullable<Json>;
+          month_id: string;
+          name: string | null;
+          offer: string | null;
+          results: string | null;
+          results_metrics: NonNullable<Json>;
+          start_date: string | null;
+          status: Database["public"]["Enums"]["campaign_status"];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          ad_budget?: number | null;
+          ads_run_by?: string | null;
+          audience?: NonNullable<Json>;
+          client_approved_at?: string | null;
+          client_id: string;
+          created_at?: string;
+          creative_direction?: string | null;
+          end_date?: string | null;
+          goal?: string | null;
+          id?: string;
+          launch?: NonNullable<Json>;
+          main_kpi?: string | null;
+          message?: NonNullable<Json>;
+          month_id: string;
+          name?: string | null;
+          offer?: string | null;
+          results?: string | null;
+          results_metrics?: NonNullable<Json>;
+          start_date?: string | null;
+          status?: Database["public"]["Enums"]["campaign_status"];
+          updated_at?: string;
+        };
+        Update: {
+          ad_budget?: number | null;
+          ads_run_by?: string | null;
+          audience?: NonNullable<Json>;
+          client_approved_at?: string | null;
+          client_id?: string;
+          created_at?: string;
+          creative_direction?: string | null;
+          end_date?: string | null;
+          goal?: string | null;
+          id?: string;
+          launch?: NonNullable<Json>;
+          main_kpi?: string | null;
+          message?: NonNullable<Json>;
+          month_id?: string;
+          name?: string | null;
+          offer?: string | null;
+          results?: string | null;
+          results_metrics?: NonNullable<Json>;
+          start_date?: string | null;
+          status?: Database["public"]["Enums"]["campaign_status"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "campaigns_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "campaigns_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: true;
+            referencedRelation: "content_months";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "campaigns_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: true;
+            referencedRelation: "portal_months";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       client_users: {
         Row: {
           active: boolean;
@@ -213,6 +413,179 @@ export type Database = {
           },
         ];
       };
+      content_items: {
+        Row: {
+          assigned_designer_id: string | null;
+          caption: string | null;
+          client_id: string;
+          created_at: string;
+          final_file_path: string | null;
+          format: Database["public"]["Enums"]["item_format"];
+          graphic_copy: string | null;
+          hashtags: string | null;
+          id: string;
+          month_id: string;
+          notes: string | null;
+          pillar: Database["public"]["Enums"]["pillar"];
+          platform: string;
+          preview_path: string | null;
+          revision_rounds: number;
+          scheduled_date: string | null;
+          shown_to_client_at: string | null;
+          slot_code: string;
+          status: Database["public"]["Enums"]["work_status"];
+          topic: string | null;
+          updated_at: string;
+          visual: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          assigned_designer_id?: string | null;
+          caption?: string | null;
+          client_id: string;
+          created_at?: string;
+          final_file_path?: string | null;
+          format: Database["public"]["Enums"]["item_format"];
+          graphic_copy?: string | null;
+          hashtags?: string | null;
+          id?: string;
+          month_id: string;
+          notes?: string | null;
+          pillar: Database["public"]["Enums"]["pillar"];
+          platform?: string;
+          preview_path?: string | null;
+          revision_rounds?: number;
+          scheduled_date?: string | null;
+          shown_to_client_at?: string | null;
+          slot_code: string;
+          status?: Database["public"]["Enums"]["work_status"];
+          topic?: string | null;
+          updated_at?: string;
+          visual?: string | null;
+        };
+        Update: {
+          assigned_designer_id?: string | null;
+          caption?: string | null;
+          client_id?: string;
+          created_at?: string;
+          final_file_path?: string | null;
+          format?: Database["public"]["Enums"]["item_format"];
+          graphic_copy?: string | null;
+          hashtags?: string | null;
+          id?: string;
+          month_id?: string;
+          notes?: string | null;
+          pillar?: Database["public"]["Enums"]["pillar"];
+          platform?: string;
+          preview_path?: string | null;
+          revision_rounds?: number;
+          scheduled_date?: string | null;
+          shown_to_client_at?: string | null;
+          slot_code?: string;
+          status?: Database["public"]["Enums"]["work_status"];
+          topic?: string | null;
+          updated_at?: string;
+          visual?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "content_items_assigned_designer_id_fkey";
+            columns: ["assigned_designer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: false;
+            referencedRelation: "content_months";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_months";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      content_months: {
+        Row: {
+          checklist: NonNullable<Json>;
+          client_id: string;
+          created_at: string;
+          id: string;
+          month: string;
+          plan_approved_at: string | null;
+          plan_approved_by: string | null;
+          plan_sent_at: string | null;
+          plan_status: Database["public"]["Enums"]["plan_status"];
+          review: NonNullable<Json>;
+          review_published_at: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          checklist?: NonNullable<Json>;
+          client_id: string;
+          created_at?: string;
+          id?: string;
+          month: string;
+          plan_approved_at?: string | null;
+          plan_approved_by?: string | null;
+          plan_sent_at?: string | null;
+          plan_status?: Database["public"]["Enums"]["plan_status"];
+          review?: NonNullable<Json>;
+          review_published_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          checklist?: NonNullable<Json>;
+          client_id?: string;
+          created_at?: string;
+          id?: string;
+          month?: string;
+          plan_approved_at?: string | null;
+          plan_approved_by?: string | null;
+          plan_sent_at?: string | null;
+          plan_status?: Database["public"]["Enums"]["plan_status"];
+          review?: NonNullable<Json>;
+          review_published_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "content_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       document_counters: {
         Row: {
           doc_type: string;
@@ -234,6 +607,55 @@ export type Database = {
           year?: number;
         };
         Relationships: [];
+      };
+      kpi_months: {
+        Row: {
+          client_id: string | null;
+          created_at: string;
+          id: string;
+          locked: boolean;
+          metrics: NonNullable<Json>;
+          month: string;
+          sources: NonNullable<Json>;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id?: string | null;
+          created_at?: string;
+          id?: string;
+          locked?: boolean;
+          metrics?: NonNullable<Json>;
+          month: string;
+          sources?: NonNullable<Json>;
+          updated_at?: string;
+        };
+        Update: {
+          client_id?: string | null;
+          created_at?: string;
+          id?: string;
+          locked?: boolean;
+          metrics?: NonNullable<Json>;
+          month?: string;
+          sources?: NonNullable<Json>;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "kpi_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "kpi_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       login_attempts: {
         Row: {
@@ -324,6 +746,55 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      questionnaire_invites: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string | null;
+          expires_at: string;
+          id: string;
+          opened_at: string | null;
+          token: string;
+          used_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string;
+          id?: string;
+          opened_at?: string | null;
+          token: string;
+          used_at?: string | null;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string;
+          id?: string;
+          opened_at?: string | null;
+          token?: string;
+          used_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "questionnaire_invites_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "questionnaire_invites_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       services: {
         Row: {
@@ -489,6 +960,135 @@ export type Database = {
       };
     };
     Views: {
+      kpi_months_calc: {
+        Row: {
+          client_id: string | null;
+          cost_per_result: number | null;
+          engagement_rate: number | null;
+          first_round_rate: number | null;
+          id: string | null;
+          month: string | null;
+          net_new_followers: number | null;
+          planned: number | null;
+          published: number | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "kpi_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "kpi_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      portal_calendar: {
+        Row: {
+          client_id: string | null;
+          format: Database["public"]["Enums"]["item_format"] | null;
+          id: string | null;
+          month: string | null;
+          month_id: string | null;
+          pillar: Database["public"]["Enums"]["pillar"] | null;
+          platform: string | null;
+          scheduled_date: string | null;
+          slot_code: string | null;
+          topic: string | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "content_items_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: false;
+            referencedRelation: "content_months";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_months";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      portal_campaigns: {
+        Row: {
+          ad_budget: number | null;
+          ads_run_by: string | null;
+          audience: Json | null;
+          client_approved_at: string | null;
+          client_id: string | null;
+          creative_direction: string | null;
+          end_date: string | null;
+          goal: string | null;
+          id: string | null;
+          launch: Json | null;
+          main_kpi: string | null;
+          message: Json | null;
+          month: string | null;
+          month_id: string | null;
+          name: string | null;
+          offer: string | null;
+          results: string | null;
+          start_date: string | null;
+          status: Database["public"]["Enums"]["campaign_status"] | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "campaigns_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "campaigns_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: true;
+            referencedRelation: "content_months";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "campaigns_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: true;
+            referencedRelation: "portal_months";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       portal_client: {
         Row: {
           account_exec_email: string | null;
@@ -504,16 +1104,163 @@ export type Database = {
         ComputedFields: never;
         Relationships: [];
       };
+      portal_months: {
+        Row: {
+          client_id: string | null;
+          id: string | null;
+          month: string | null;
+          plan_approved_at: string | null;
+          plan_sent_at: string | null;
+          plan_status: Database["public"]["Enums"]["plan_status"] | null;
+          review: Json | null;
+          review_published_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id?: string | null;
+          id?: string | null;
+          month?: string | null;
+          plan_approved_at?: string | null;
+          plan_sent_at?: string | null;
+          plan_status?: Database["public"]["Enums"]["plan_status"] | null;
+          review?: never;
+          review_published_at?: string | null;
+        };
+        Update: {
+          client_id?: string | null;
+          id?: string | null;
+          month?: string | null;
+          plan_approved_at?: string | null;
+          plan_sent_at?: string | null;
+          plan_status?: Database["public"]["Enums"]["plan_status"] | null;
+          review?: never;
+          review_published_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "content_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
+      activate_client: { Args: { p_client_id: string }; Returns: undefined };
+      actor_kind: { Args: Record<PropertyKey, never>; Returns: string };
+      add_client_feedback: {
+        Args: {
+          p_body: string;
+          p_client_id: string;
+          p_entity_id: string;
+          p_entity_type: string;
+        };
+        Returns: undefined;
+      };
       auth_role: { Args: Record<PropertyKey, never>; Returns: string };
       can_access_client: { Args: { p_client_id: string }; Returns: boolean };
       client_code_letters: { Args: { p_name: string }; Returns: string };
       client_login_locked: { Args: { p_login_id: string }; Returns: boolean };
+      create_campaign: { Args: { p_month_id: string }; Returns: string };
+      create_questionnaire_invite: {
+        Args: { p_client_id: string };
+        Returns: string;
+      };
       is_ceo: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_trusted_caller: { Args: Record<PropertyKey, never>; Returns: boolean };
+      kpi_keys: { Args: Record<PropertyKey, never>; Returns: string[] };
+      log_status: {
+        Args: {
+          p_client_id: string;
+          p_comment: string;
+          p_entity_id: string;
+          p_entity_type: string;
+          p_from: string;
+          p_to: string;
+        };
+        Returns: undefined;
+      };
+      month_label: { Args: { p_month: string }; Returns: string };
+      notify: {
+        Args: {
+          p_body: string;
+          p_link: string;
+          p_title: string;
+          p_user_id: string;
+        };
+        Returns: undefined;
+      };
+      notify_stale_client_reviews: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      open_questionnaire: {
+        Args: { p_token: string };
+        Returns: {
+          business_name: string;
+          client_id: string;
+          state: string;
+        }[];
+      };
       pillar_mix_total: { Args: { mix: Json }; Returns: number };
+      post_pillar_order: {
+        Args: { p_mix: Json };
+        Returns: Database["public"]["Enums"]["pillar"][];
+      };
+      publish_review: { Args: { p_month_id: string }; Returns: undefined };
+      questionnaire_upload_allowed: {
+        Args: { p_object_name: string };
+        Returns: boolean;
+      };
+      respond_to_calendar: {
+        Args: { p_approve: boolean; p_comment?: string; p_month_id: string };
+        Returns: undefined;
+      };
+      send_calendar: { Args: { p_month_id: string }; Returns: undefined };
+      set_campaign_status: {
+        Args: {
+          p_campaign_id: string;
+          p_comment?: string;
+          p_launch_checks_done?: boolean;
+          p_new_status: Database["public"]["Enums"]["campaign_status"];
+        };
+        Returns: undefined;
+      };
+      set_content_status: {
+        Args: {
+          p_comment?: string;
+          p_item_id: string;
+          p_new_status: Database["public"]["Enums"]["work_status"];
+        };
+        Returns: undefined;
+      };
+      start_month: {
+        Args: { p_client_id: string; p_month: string };
+        Returns: string;
+      };
+      storage_client_id: { Args: { p_object_name: string }; Returns: string };
+      submit_questionnaire: {
+        Args: { p_answers: Json; p_token: string; p_uploads: Json };
+        Returns: undefined;
+      };
+      today_gaborone: { Args: Record<PropertyKey, never>; Returns: string };
+      unpublish_review: { Args: { p_month_id: string }; Returns: undefined };
+      valid_kpi_metrics: { Args: { m: Json }; Returns: boolean };
+      valid_kpi_sources: { Args: { s: Json }; Returns: boolean };
+      working_days_between: {
+        Args: { p_from: string; p_to: string };
+        Returns: number;
+      };
     };
     Enums: {
       campaign_status: "draft" | "sent" | "approved" | "live" | "complete";
