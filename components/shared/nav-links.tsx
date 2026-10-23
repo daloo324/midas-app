@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 export type NavItem = {
   href: string;
   label: string;
+  /** A count shown as a red badge, e.g. approvals waiting. */
+  badge?: number;
   exact?: boolean;
   also?: string[];
 };
@@ -31,6 +33,7 @@ export function Rail({ items, label }: { items: NavItem[]; label: string }) {
           aria-current={isCurrent(path, item) ? "page" : undefined}
         >
           <span>{item.label}</span>
+          {item.badge ? <span className="badge">{item.badge}</span> : null}
         </Link>
       ))}
     </nav>

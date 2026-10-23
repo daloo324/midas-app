@@ -878,3 +878,11 @@
     .pillmix > div { grid-template-columns: 96px 1fr 40px; }
   }
 }
+
+/* Portal approvals (client-portal.html) */
+@layer components {
+  .approve { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 18px; align-items: start; padding: 16px 0; border-top: 1px solid var(--line); }
+  .approve:first-of-type { border-top: 0; }
+  .rail .badge, .badge { background: var(--bad); color: #fff; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 1px 7px; font-variant-numeric: tabular-nums; }
+  @media (max-width: 900px) { .approve { grid-template-columns: 1fr; } }
+}
