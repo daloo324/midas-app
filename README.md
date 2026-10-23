@@ -31,6 +31,7 @@ This repo holds the build spec and the app. Claude Code builds the app from the 
 | --- | --- |
 | `npm run dev` | The real app, against Supabase (needs `.env.local` and `supabase start`) |
 | `npm run lint`, `npm run typecheck`, `npm test` | Checks to run before calling anything finished |
-| `npm run test:db`, `npm run test:e2e` | SQL access tests and end-to-end tests against local Supabase |
+| `npm run test:db`, `npm run test:e2e` | SQL access tests and end-to-end tests against local Supabase (e2e runs on a production build; `PW_DEV=1` uses the dev server) |
+| `scripts/fix-local-storage.sh` | If `supabase start` says the storage container is unhealthy: swaps in the Intel build of the storage image, whose arm64 build crashes on this Mac |
 
 **Sample accounts:** locally, every seeded account uses the password `midas-local-2026` (staff at `/login`, client ID `MM-SCC-1001` at `/portal/login`). On the hosted project the password is `SEED_PASSWORD` in `.env.hosted.local`, which is never committed.
