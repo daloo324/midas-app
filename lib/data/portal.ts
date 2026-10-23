@@ -102,17 +102,22 @@ export async function listApprovals(): Promise<Approval[]> {
 
 export async function countApprovals(): Promise<number> {
   const supabase = await createClient();
-  const [{ count: months }, { count: briefs }] = await Promise.all([
-    supabase
-      .from("portal_months")
-      .select("id", { count: "exact", head: true })
-      .eq("plan_status", "sent"),
-    supabase
-      .from("portal_campaigns")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "sent"),
-  ]);
-  return (months ?? 0) + (briefs ?? 0);
+  const [{ count: months }, { count: briefs }, { count: kits }] =
+    await Promise.all([
+      supabase
+        .from("portal_months")
+        .select("id", { count: "exact", head: true })
+        .eq("plan_status", "sent"),
+      supabase
+        .from("portal_campaigns")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "sent"),
+      supabase
+        .from("brand_kits")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "client_review"),
+    ]);
+  return (months ?? 0) + (briefs ?? 0) + (kits ?? 0);
 }
 
 export type PublishedReview = {
@@ -143,4 +148,61 @@ export async function listPublishedReviews(): Promise<PublishedReview[]> {
       focus: r.focus ?? null,
     };
   });
+}
+
+export type PortalKitFile = {
+  slot: string;
+  file_name: string;
+  mime_type: string | null;
+  url: string | null;
+};
+export type PortalKit = {
+  clientId: string;
+  status: string;
+  colors: Record<string, string>;
+  heading_font: string | null;
+  body_font: string | null;
+  voice: string | null;
+  signed_off_by: string | null;
+  signed_off_at: string | null;
+  files: PortalKitFile[];
+};
+
+/** The client's own brand kit, with the files they're allowed to see (RLS decides which). */
+export async function getPortalKit(): Promise<PortalKit | null> {
+  const supabase = await createClient();
+  const { data: kit } = await supabase
+    .from("brand_kits")
+    .select(
+      "client_id, status, colors, heading_font, body_font, voice, signed_off_by, signed_off_at",
+    )
+    .maybeSingle();
+  if (!kit) return null;
+  const { data: files } = await supabase
+    .from("brand_kit_files")
+    .select("slot, file_name, mime_type, storage_path")
+    .order("slot");
+  const list = files ?? [];
+  const { data: signed } = list.length
+    ? await supabase.storage.from("brand-kits").createSignedUrls(
+        list.map((f) => f.storage_path),
+        600,
+      )
+    : { data: [] };
+  return {
+    clientId: kit.client_id,
+    status: kit.status,
+    colors: (kit.colors ?? {}) as Record<string, string>,
+    heading_font: kit.heading_font,
+    body_font: kit.body_font,
+    voice: kit.voice,
+    signed_off_by: kit.signed_off_by,
+    signed_off_at: kit.signed_off_at,
+    files: list.map((f, i) => ({
+      slot: f.slot,
+      file_name: f.file_name,
+      mime_type: f.mime_type,
+      url: signed?.[i]?.signedUrl ?? null,
+    })),
+  };
 }

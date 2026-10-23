@@ -2,15 +2,22 @@ import type { Metadata } from "next";
 import {
   respondToBriefAction,
   respondToCalendarAction,
+  respondToKitAction,
 } from "@/app/portal/actions";
 import { ApprovalActions } from "@/components/portal/approval-actions";
+import { Colours, MarkGrid } from "@/components/portal/kit-view";
 import {
   PILLAR_LABELS,
   dayLabel,
   monthLabel,
   type ItemFormat,
 } from "@/lib/content/constants";
-import { listApprovals, type Approval } from "@/lib/data/portal";
+import {
+  getPortalKit,
+  listApprovals,
+  type Approval,
+  type PortalKit,
+} from "@/lib/data/portal";
 import { formatDay, formatMoney } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Approvals" };
@@ -25,7 +32,9 @@ const FORMAT: Record<ItemFormat, string> = {
 };
 
 export default async function ApprovalsPage() {
-  const list = await listApprovals();
+  const [list, kit] = await Promise.all([listApprovals(), getPortalKit()]);
+  const kitWaiting = kit?.status === "client_review" ? kit : null;
+  const waiting = list.length + (kitWaiting ? 1 : 0);
   return (
     <>
       <div className="head">
@@ -41,7 +50,8 @@ export default async function ApprovalsPage() {
         </span>
       </div>
       <div className="panel">
-        {list.length === 0 ? (
+        {kitWaiting ? <KitApproval kit={kitWaiting} /> : null}
+        {waiting === 0 ? (
           <p className="sub" style={{ margin: 0 }}>
             You&apos;re all caught up. We&apos;ll let you know when something
             needs your OK.
@@ -149,6 +159,56 @@ function Row({ a }: { a: Approval }) {
           <span>Feed ad 4:5, story ad 9:16, one test variant</span>
         </div>
         <ApprovalActions id={a.campaignId} respond={respondToBriefAction} />
+      </div>
+    </div>
+  );
+}
+
+function KitApproval({ kit }: { kit: PortalKit }) {
+  const guide = kit.files.find((f) => f.slot === "guide_pdf");
+  return (
+    <div className="approve">
+      <div className="panel" style={{ background: "var(--surface-2)" }}>
+        <div className="label">Brand kit</div>
+        <div className="big" style={{ fontSize: 22, marginTop: 6 }}>
+          Your brand
+        </div>
+        <p className="sub">Signing it off opens your monthly content.</p>
+      </div>
+      <div>
+        <div className="row between">
+          <h3>Your brand kit</h3>
+          <span className="pill s-warn">Waiting for you</span>
+        </div>
+        <p className="sub">
+          Your logo, icon, colours and fonts. Once you sign it off, the files
+          move to Brand assets for you to download.
+        </p>
+        <h3 style={{ margin: "14px 0 8px" }}>Logo</h3>
+        <MarkGrid kit={kit} prefix="logo" downloads={false} />
+        <h3 style={{ margin: "14px 0 8px" }}>Icon</h3>
+        <MarkGrid kit={kit} prefix="icon" downloads={false} />
+        <h3 style={{ margin: "14px 0 8px" }}>Colours</h3>
+        <Colours kit={kit} />
+        <div className="kv" style={{ marginTop: 12 }}>
+          <span>Heading font</span>
+          <span>{kit.heading_font ?? "—"}</span>
+          <span>Body font</span>
+          <span>{kit.body_font ?? "—"}</span>
+        </div>
+        {guide?.url ? (
+          <p style={{ marginTop: 10 }}>
+            <a
+              className="link"
+              href={guide.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open the brand guide (PDF)
+            </a>
+          </p>
+        ) : null}
+        <ApprovalActions id={kit.clientId} respond={respondToKitAction} />
       </div>
     </div>
   );

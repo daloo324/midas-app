@@ -136,11 +136,12 @@ select is_empty(
   $$ select table_name from information_schema.role_table_grants
      where table_schema = 'public' and grantee = 'anon' $$,
   'anon has no table privileges');
-select is_empty(
-  $$ select table_name from information_schema.role_table_grants
+select set_eq(
+  $$ select table_name::text from information_schema.role_table_grants
      where table_schema = 'public' and grantee = 'authenticated'
        and privilege_type = 'DELETE' $$,
-  'Signed-in users can delete nothing (no table has a delete policy)');
+  $$ values ('brand_kit_files'), ('inspiration') $$,
+  'Signed-in users delete only kit files and inspiration images (each with its own policy)');
 
 select * from finish();
 rollback;

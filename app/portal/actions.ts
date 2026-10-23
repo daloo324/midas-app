@@ -69,3 +69,30 @@ export async function respondToBriefAction(
     };
   return { ok: parsed.data.approve ? APPROVED : SENT };
 }
+
+/** The client signs off their brand kit, or asks for changes with a note. */
+export async function respondToKitAction(input: unknown): Promise<ActionState> {
+  const user = await getCurrentUser();
+  if (user?.kind !== "client")
+    return { error: "Sign in with your client ID to approve." };
+  const parsed = answer.safeParse(input);
+  if (!parsed.success || parsed.data.id !== user.clientId)
+    return { error: "Something went wrong. Reload the page and try again." };
+  if (!parsed.data.approve && !parsed.data.note)
+    return { error: "Tell us what should change first." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_brand_kit_status", {
+    p_client_id: parsed.data.id,
+    p_new_status: parsed.data.approve ? "approved" : "changes_requested",
+    p_comment: parsed.data.note || undefined,
+  });
+  if (error)
+    return {
+      error: friendlyError(error, "Your answer didn't send. Try again."),
+    };
+  return {
+    ok: parsed.data.approve
+      ? "Signed off. Your brand assets are in the Brand assets tab now."
+      : SENT,
+  };
+}

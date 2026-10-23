@@ -58,39 +58,116 @@ export type Database = {
           },
         ];
       };
-      brand_kits: {
+      brand_kit_files: {
         Row: {
           client_id: string;
           created_at: string;
+          file_name: string;
+          id: string;
+          mime_type: string | null;
+          size_bytes: number;
+          slot: string;
+          storage_path: string;
+          uploaded_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          file_name: string;
+          id?: string;
+          mime_type?: string | null;
+          size_bytes: number;
+          slot: string;
+          storage_path: string;
+          uploaded_by?: string | null;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          file_name?: string;
+          id?: string;
+          mime_type?: string | null;
+          size_bytes?: number;
+          slot?: string;
+          storage_path?: string;
+          uploaded_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "brand_kit_files_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "brand_kit_files_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      brand_kits: {
+        Row: {
+          assigned_designer_id: string | null;
+          body_font: string | null;
+          client_id: string;
+          colors: NonNullable<Json>;
+          created_at: string;
+          guide_checks: NonNullable<Json>;
+          heading_font: string | null;
           id: string;
           shown_to_client_at: string | null;
           signed_off_at: string | null;
           signed_off_by: string | null;
           status: Database["public"]["Enums"]["work_status"];
           updated_at: string;
+          voice: string | null;
         };
         ComputedFields: never;
         Insert: {
+          assigned_designer_id?: string | null;
+          body_font?: string | null;
           client_id: string;
+          colors?: NonNullable<Json>;
           created_at?: string;
+          guide_checks?: NonNullable<Json>;
+          heading_font?: string | null;
           id?: string;
           shown_to_client_at?: string | null;
           signed_off_at?: string | null;
           signed_off_by?: string | null;
           status?: Database["public"]["Enums"]["work_status"];
           updated_at?: string;
+          voice?: string | null;
         };
         Update: {
+          assigned_designer_id?: string | null;
+          body_font?: string | null;
           client_id?: string;
+          colors?: NonNullable<Json>;
           created_at?: string;
+          guide_checks?: NonNullable<Json>;
+          heading_font?: string | null;
           id?: string;
           shown_to_client_at?: string | null;
           signed_off_at?: string | null;
           signed_off_by?: string | null;
           status?: Database["public"]["Enums"]["work_status"];
           updated_at?: string;
+          voice?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "brand_kits_assigned_designer_id_fkey";
+            columns: ["assigned_designer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "brand_kits_client_id_fkey";
             columns: ["client_id"];
@@ -434,6 +511,7 @@ export type Database = {
           shown_to_client_at: string | null;
           slot_code: string;
           status: Database["public"]["Enums"]["work_status"];
+          suggested_fields: string[];
           topic: string | null;
           updated_at: string;
           visual: string | null;
@@ -459,6 +537,7 @@ export type Database = {
           shown_to_client_at?: string | null;
           slot_code: string;
           status?: Database["public"]["Enums"]["work_status"];
+          suggested_fields?: string[];
           topic?: string | null;
           updated_at?: string;
           visual?: string | null;
@@ -483,6 +562,7 @@ export type Database = {
           shown_to_client_at?: string | null;
           slot_code?: string;
           status?: Database["public"]["Enums"]["work_status"];
+          suggested_fields?: string[];
           topic?: string | null;
           updated_at?: string;
           visual?: string | null;
@@ -607,6 +687,59 @@ export type Database = {
           year?: number;
         };
         Relationships: [];
+      };
+      inspiration: {
+        Row: {
+          client_id: string | null;
+          created_at: string;
+          id: string;
+          note: string | null;
+          storage_path: string;
+          tags: string[];
+          uploaded_by: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id?: string | null;
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          storage_path: string;
+          tags?: string[];
+          uploaded_by?: string;
+        };
+        Update: {
+          client_id?: string | null;
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          storage_path?: string;
+          tags?: string[];
+          uploaded_by?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inspiration_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inspiration_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inspiration_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       kpi_months: {
         Row: {
@@ -958,6 +1091,136 @@ export type Database = {
           },
         ];
       };
+      suggestion_calls: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          id: string;
+          items: number;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          id?: string;
+          items: number;
+          user_id: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          id?: string;
+          items?: number;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "suggestion_calls_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "suggestion_calls_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "suggestion_calls_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      time_entries: {
+        Row: {
+          client_id: string;
+          content_item_id: string | null;
+          created_at: string;
+          ended_at: string | null;
+          id: string;
+          is_brand_kit: boolean;
+          last_activity_at: string | null;
+          manual: boolean;
+          minutes: number | null;
+          note: string | null;
+          started_at: string;
+          user_id: string;
+          entry_minutes: number | null;
+        };
+        ComputedFields: "entry_minutes";
+        Insert: {
+          client_id: string;
+          content_item_id?: string | null;
+          created_at?: string;
+          ended_at?: string | null;
+          id?: string;
+          is_brand_kit?: boolean;
+          last_activity_at?: string | null;
+          manual?: boolean;
+          minutes?: number | null;
+          note?: string | null;
+          started_at?: string;
+          user_id: string;
+        };
+        Update: {
+          client_id?: string;
+          content_item_id?: string | null;
+          created_at?: string;
+          ended_at?: string | null;
+          id?: string;
+          is_brand_kit?: boolean;
+          last_activity_at?: string | null;
+          manual?: boolean;
+          minutes?: number | null;
+          note?: string | null;
+          started_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "time_entries_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "time_entries_content_item_id_fkey";
+            columns: ["content_item_id"];
+            isOneToOne: false;
+            referencedRelation: "content_items";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "time_entries_content_item_id_fkey";
+            columns: ["content_item_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_calendar";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "time_entries_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       kpi_months_calc: {
@@ -1166,18 +1429,103 @@ export type Database = {
         };
         Returns: undefined;
       };
+      add_manual_time: {
+        Args: {
+          p_item_id?: string;
+          p_kit_client_id?: string;
+          p_minutes: number;
+          p_note: string;
+        };
+        Returns: undefined;
+      };
+      apply_suggestions: {
+        Args: {
+          p_caption: string;
+          p_graphic_copy: string;
+          p_hashtags: string;
+          p_item_id: string;
+          p_visual: string;
+        };
+        Returns: string[];
+      };
       auth_role: { Args: Record<PropertyKey, never>; Returns: string };
+      brand_kit_progress: { Args: { p_client_id: string }; Returns: number };
       can_access_client: { Args: { p_client_id: string }; Returns: boolean };
+      claim_suggestion_call: {
+        Args: { p_client_id: string; p_items: number };
+        Returns: number;
+      };
       client_code_letters: { Args: { p_name: string }; Returns: string };
       client_login_locked: { Args: { p_login_id: string }; Returns: boolean };
+      client_time: {
+        Args: { p_client_id: string; p_month: string };
+        Returns: {
+          content_item_id: string;
+          is_brand_kit: boolean;
+          manual_minutes: number;
+          minutes: number;
+          user_id: string;
+        }[];
+      };
+      content_object_item: {
+        Args: { p_name: string };
+        Returns: {
+          assigned_designer_id: string | null;
+          caption: string | null;
+          client_id: string;
+          created_at: string;
+          final_file_path: string | null;
+          format: Database["public"]["Enums"]["item_format"];
+          graphic_copy: string | null;
+          hashtags: string | null;
+          id: string;
+          month_id: string;
+          notes: string | null;
+          pillar: Database["public"]["Enums"]["pillar"];
+          platform: string;
+          preview_path: string | null;
+          revision_rounds: number;
+          scheduled_date: string | null;
+          shown_to_client_at: string | null;
+          slot_code: string;
+          status: Database["public"]["Enums"]["work_status"];
+          suggested_fields: string[];
+          topic: string | null;
+          updated_at: string;
+          visual: string | null;
+        };
+        SetofOptions: {
+          from: "*";
+          to: "content_items";
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      content_object_readable: { Args: { p_name: string }; Returns: boolean };
+      content_object_writable: { Args: { p_name: string }; Returns: boolean };
       create_campaign: { Args: { p_month_id: string }; Returns: string };
       create_questionnaire_invite: {
         Args: { p_client_id: string };
         Returns: string;
       };
+      entry_minutes: {
+        Args: {
+          t: Omit<
+            Database["public"]["Tables"]["time_entries"]["Row"],
+            Database["public"]["Tables"]["time_entries"]["ComputedFields"]
+          >;
+        };
+        Returns: number;
+      };
       is_ceo: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_trusted_caller: { Args: Record<PropertyKey, never>; Returns: boolean };
+      kit_object_readable: { Args: { p_name: string }; Returns: boolean };
+      kit_object_writable: { Args: { p_name: string }; Returns: boolean };
+      kit_slot_accepts: {
+        Args: { p_file_name: string; p_slot: string };
+        Returns: boolean;
+      };
       kpi_keys: { Args: Record<PropertyKey, never>; Returns: string[] };
       log_status: {
         Args: {
@@ -1226,7 +1574,20 @@ export type Database = {
         Args: { p_approve: boolean; p_comment?: string; p_month_id: string };
         Returns: undefined;
       };
+      save_design_notes: {
+        Args: { p_client_id: string; p_notes: string };
+        Returns: undefined;
+      };
       send_calendar: { Args: { p_month_id: string }; Returns: undefined };
+      set_brand_kit_status: {
+        Args: {
+          p_client_id: string;
+          p_comment?: string;
+          p_new_status: Database["public"]["Enums"]["work_status"];
+          p_signed_off_by?: string;
+        };
+        Returns: undefined;
+      };
       set_campaign_status: {
         Args: {
           p_campaign_id: string;
@@ -1248,13 +1609,32 @@ export type Database = {
         Args: { p_client_id: string; p_month: string };
         Returns: string;
       };
+      start_timer: {
+        Args: { p_item_id?: string; p_kit_client_id?: string };
+        Returns: string;
+      };
+      stop_running_timer: {
+        Args: { p_at: string; p_user: string };
+        Returns: undefined;
+      };
+      stop_timer: { Args: { p_at?: string }; Returns: undefined };
       storage_client_id: { Args: { p_object_name: string }; Returns: string };
       submit_questionnaire: {
         Args: { p_answers: Json; p_token: string; p_uploads: Json };
         Returns: undefined;
       };
+      team_time: {
+        Args: { p_month: string };
+        Returns: {
+          client_id: string;
+          minutes: number;
+          user_id: string;
+        }[];
+      };
       today_gaborone: { Args: Record<PropertyKey, never>; Returns: string };
       unpublish_review: { Args: { p_month_id: string }; Returns: undefined };
+      valid_kit_colors: { Args: { c: Json }; Returns: boolean };
+      valid_kit_slot: { Args: { p_slot: string }; Returns: boolean };
       valid_kpi_metrics: { Args: { m: Json }; Returns: boolean };
       valid_kpi_sources: { Args: { s: Json }; Returns: boolean };
       working_days_between: {

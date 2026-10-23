@@ -5,7 +5,7 @@ import {
   activateClientAction,
   createQuestionnaireLinkAction,
 } from "@/app/accounts/actions";
-import { useReport, useToast } from "./toast";
+import { useReport, useToast } from "@/components/shared/toast";
 
 export function QuestionnaireLink({
   clientId,

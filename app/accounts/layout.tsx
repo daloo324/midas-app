@@ -1,4 +1,4 @@
-import { ToastProvider } from "@/components/accounts/toast";
+import { ToastProvider } from "@/components/shared/toast";
 import { Masthead } from "@/components/shared/masthead";
 import { MastNav, type NavItem } from "@/components/shared/nav-links";
 import { requireArea } from "@/lib/auth/session";

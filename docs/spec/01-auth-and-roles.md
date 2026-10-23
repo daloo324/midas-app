@@ -46,7 +46,7 @@ Roles are stored in `profiles.role` (staff) or derived from `client_users` (clie
 | Assign account exec, pause or end a client | Yes | No | No | No | No |
 | Activate a client | Yes | Assigned, once the brand kit is approved | No | No | No |
 | Brand brief (questionnaire answers) | All | Assigned | All | All | Own, read |
-| Brand kit and files | All | Assigned, read | All, edit, sign off | All, edit | Own, read and download **only after sign-off** |
+| Brand kit and files | All | Assigned, read | All, edit, sign off | All, edit | Own: logo, icon and guide previews while waiting for their sign-off; read and download everything **only after sign-off** |
 | Content months and items: plan fields (date, format, pillar, topic, platform) | All | Assigned, edit | All, read | All, read | Own, once the month's calendar is sent (`plan_status` `sent` or `approved`), through the `portal_calendar` view |
 | Content items: design fields (visual, copy, caption, preview, files) | All | Assigned, read and comment | All, edit | All, edit | Own, once the item has been shown to the client (`shown_to_client_at` set) |
 | Content item status | All | Assigned (see status rules) | All (see status rules) | All (see status rules) | Approve or request changes when in `client_review` |
@@ -96,5 +96,5 @@ Enforce allowed moves in a database function (`set_content_status(item_id, new_s
 - [ ] Six wrong attempts on one ID lock it for 15 minutes.
 - [ ] Password reset works for staff (email) and clients (login ID), and never reveals whether the account exists.
 - [ ] Each role lands on its home area and is refused the others.
-- [ ] SQL tests prove: an account exec cannot read an unassigned client's rows in any table; a client cannot read another client's rows in any table; a designer can read every client but cannot read invoices or leads; a client cannot read brand kit files before sign-off.
+- [ ] SQL tests prove: an account exec cannot read an unassigned client's rows in any table; a client cannot read another client's rows in any table; a designer can read every client but cannot read invoices or leads; a client cannot read brand kit files before the kit is sent for their sign-off, and sees only the logo, icon and guide until they approve it.
 - [ ] Status moves outside the table above are refused by the database, and every allowed move writes a `status_events` row.

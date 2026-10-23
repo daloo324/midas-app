@@ -34,6 +34,10 @@ insert into public.clients (id, name, status, account_exec_id, baseline) values
   ('f0000000-0000-4000-8000-000000000002', 'P2 Client B', 'active', 'e0000000-0000-4000-8000-000000000003', '{}'),
   ('f0000000-0000-4000-8000-000000000003', 'P2 Client C', 'onboarding', 'e0000000-0000-4000-8000-000000000002', '{}');
 
+-- Active clients signed off their brand kit before going live.
+update public.brand_kits set status = 'approved'
+ where client_id in ('f0000000-0000-4000-8000-000000000001', 'f0000000-0000-4000-8000-000000000002');
+
 insert into public.client_users (user_id, client_id, full_name, email) values
   ('e0000000-0000-4000-8000-000000000011', 'f0000000-0000-4000-8000-000000000001', 'P2 Client A User', 'p2.ca@example.com'),
   ('e0000000-0000-4000-8000-000000000012', 'f0000000-0000-4000-8000-000000000002', 'P2 Client B User', 'p2.cb@example.com');

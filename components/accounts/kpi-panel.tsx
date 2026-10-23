@@ -7,8 +7,8 @@ import {
   saveReviewAction,
   unpublishReviewAction,
 } from "@/app/accounts/actions";
-import { AutoSelect, AutoText } from "./auto-field";
-import { useReport } from "./toast";
+import { AutoSelect, AutoText } from "@/components/shared/auto-field";
+import { useReport } from "@/components/shared/toast";
 
 export function KpiInput({
   clientId,
