@@ -21,6 +21,7 @@ import {
 } from "@/lib/content/constants";
 import { getDeskKpis, getDeskMonth, type DeskKpis } from "@/lib/data/accounts";
 import { formatDateTime, formatMoney } from "@/lib/format";
+import { cx } from "@/lib/cx";
 
 export const metadata: Metadata = { title: "KPIs & review" };
 
@@ -149,7 +150,11 @@ export default async function KpisPage({
         {KPI_CATEGORIES.map((cat) => (
           <section
             key={cat.key}
-            className={`panel kcat${client.main_goal === cat.key ? "main" : ""}`}
+            className={cx(
+              "panel",
+              "kcat",
+              client.main_goal === cat.key && "main",
+            )}
           >
             <header>
               <h2>{cat.label}</h2>

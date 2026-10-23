@@ -16,6 +16,7 @@ import {
 import { checklist, monthStats } from "@/lib/content/month";
 import { getDeskMonth } from "@/lib/data/accounts";
 import { formatDay, formatDateTime, todayInGaborone } from "@/lib/format";
+import { cx } from "@/lib/cx";
 
 export const metadata: Metadata = { title: "Month plan" };
 
@@ -130,9 +131,9 @@ function Plan({
                     {body}
                   </label>
                 ) : (
-                  <div className={`auto${s.done ? "done" : ""}`}>
+                  <div className={cx("auto", s.done && "done")}>
                     <span
-                      className={`tick${s.done ? "on" : ""}`}
+                      className={cx("tick", s.done && "on")}
                       aria-label={s.done ? "Done" : "Not done"}
                     >
                       {s.done ? "✓" : ""}

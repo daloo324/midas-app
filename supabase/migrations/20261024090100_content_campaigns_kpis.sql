@@ -497,7 +497,7 @@ select m.id, m.client_id, m.month, m.plan_status, m.plan_sent_at, m.plan_approve
        case when m.review_published_at is not null then m.review end as review,
        m.review_published_at
 from public.content_months m
-where m.plan_status in ('sent', 'approved')
+where (m.plan_status in ('sent', 'approved') or m.review_published_at is not null)
   and public.can_access_client(m.client_id);
 
 -- Campaign briefs once sent (the internal draft stays hidden).

@@ -21,6 +21,7 @@ import {
 import { createClient } from "@/lib/supabase/browser";
 import { submitQuestionnaire } from "./actions";
 import { Header } from "./header";
+import { cx } from "@/lib/cx";
 
 // The brand discovery questionnaire (docs/prototypes/brand-questionnaire.html).
 // Typed answers are kept on this device until they're sent; images upload to
@@ -332,7 +333,9 @@ function Form({
               return (
                 <li
                   key={title}
-                  className={`${i === current ? "on" : ""} ${done ? "done" : ""}`}
+                  className={
+                    cx(i === current && "on", done && "done") || undefined
+                  }
                 >
                   <button type="button" onClick={() => go(i)}>
                     <span className="n">{i === REVIEW ? "✓" : i + 1}</span>
@@ -687,9 +690,7 @@ function FieldInput(props: {
   }
 
   return (
-    <div
-      className={`f${f.half ? "half" : ""}${props.invalid ? "invalid" : ""}`}
-    >
+    <div className={cx("f", f.half && "half", props.invalid && "invalid")}>
       {labelled ? (
         <label htmlFor={f.id}>{label}</label>
       ) : (
@@ -718,7 +719,7 @@ function UploadBox({
   return (
     <>
       <label
-        className={`drop${over ? "over" : ""}`}
+        className={cx("drop", over && "over")}
         onDragOver={(e) => {
           e.preventDefault();
           setOver(true);

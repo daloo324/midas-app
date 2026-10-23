@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { ActionState } from "@/lib/auth/action-state";
+import { cx } from "@/lib/cx";
 
 // The prototype's toast: one short line at the bottom of the screen.
 
@@ -34,7 +35,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       {toast ? (
         <div
-          className={`toast${toast.kind === "err" ? "err" : ""}`}
+          className={cx("toast", toast.kind === "err" && "err")}
           role={toast.kind === "err" ? "alert" : "status"}
         >
           {toast.message}

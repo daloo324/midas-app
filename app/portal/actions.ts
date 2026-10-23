@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionState } from "@/lib/auth/action-state";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -8,7 +7,8 @@ import { friendlyError } from "@/lib/data/errors";
 import { createClient } from "@/lib/supabase/server";
 
 // The client's answers in the portal. The database checks it's their own
-// client and that the work is waiting for them.
+// client and that the work is waiting for them. The page isn't refreshed, so
+// the answered item stays on screen with its result (client-portal.html).
 
 const answer = z.object({
   id: z.uuid(),
@@ -44,7 +44,6 @@ export async function respondToCalendarAction(
     return {
       error: friendlyError(error, "Your answer didn't send. Try again."),
     };
-  revalidatePath("/portal", "layout");
   return { ok: parsed.data.approve ? APPROVED : SENT };
 }
 
@@ -68,6 +67,5 @@ export async function respondToBriefAction(
     return {
       error: friendlyError(error, "Your answer didn't send. Try again."),
     };
-  revalidatePath("/portal", "layout");
   return { ok: parsed.data.approve ? APPROVED : SENT };
 }

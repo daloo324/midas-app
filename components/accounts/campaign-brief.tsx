@@ -20,6 +20,7 @@ import {
 import type { DeskCampaign } from "@/lib/data/accounts";
 import { AutoSelect, AutoText } from "./auto-field";
 import { useReport } from "./toast";
+import { cx } from "@/lib/cx";
 
 function valueOf(
   c: DeskCampaign,
@@ -96,7 +97,10 @@ export function CampaignBrief({
                 {p.fields.map((f) => (
                   <label
                     key={f.key}
-                    className={`f${f.full || f.type === "textarea" ? " full" : ""}`}
+                    className={cx(
+                      "f",
+                      (f.full || f.type === "textarea") && "full",
+                    )}
                   >
                     {f.label}
                     <Field
