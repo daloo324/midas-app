@@ -25,7 +25,9 @@ Seven phases. Each one ends with Dave reviewing on a preview link; the next star
 ## Phase 1 · Foundation
 
 **Start prompt**
-> Read CLAUDE.md, docs/spec/00-overview.md, 01-auth-and-roles.md, 02-data-model.md and 08-deploy.md. We're doing Phase 1 from docs/PHASES.md. List what you'll build and ask me anything unclear before starting. Work on a branch called phase-1-foundation.
+> Read CLAUDE.md, docs/spec/00-overview.md, 01-auth-and-roles.md, 02-data-model.md and 08-deploy.md, and open the four prototypes in docs/prototypes/ to take the design tokens and layout from them. We're doing Phase 1 from docs/PHASES.md. List what you'll build and ask me anything unclear before starting. Work on a branch called phase-1-foundation.
+
+**What can wait for the domain:** Phase 1 runs fully on your laptop and a Vercel preview link. Two steps need the domain sorted and can be done last: pointing app.midasmedia.co.bw at Vercel, and sending email from noreply@midasmedia.co.bw. Until then, Claude Code uses Resend's test sender for invite and welcome emails (they only reach your own email address).
 
 **Builds**
 - Next.js project with TypeScript strict, Tailwind with the Midas tokens (light and dark), shadcn/ui, Archivo and Figtree fonts, lint, format, Vitest, Playwright.

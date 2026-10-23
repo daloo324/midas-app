@@ -75,7 +75,11 @@ docs/           spec/  prototypes/  PHASES.md  SETUP.md
 
 ## Design
 
-The prototypes in `docs/prototypes/` show the intended layout and feel of each area. Match their structure and information. Their data layer is throwaway: they keep data in the browser or in a Claude artifact store, so ignore how they save.
+**Do not design from scratch.** The prototypes in `docs/prototypes/` are the approved design. Open the relevant prototype before building any page and reproduce it: the same layout, sections, order, components, wording, spacing, corner radii, status pills and colours. Lift values (colours, sizes, gaps, radii, shadows) straight from the prototype's CSS rather than choosing new ones. Use shadcn/ui only as the plumbing underneath, restyled to look like the prototype, never with its default look.
+
+Where a page has no prototype (most of `/admin`), build it from the same pieces: navy masthead with the gold rule, left rail, white panels on the grey background, Archivo headings, status pills, stat tiles. When unsure how something should look, ask Dave instead of inventing a style.
+
+The prototypes' data layer is throwaway: they keep data in the browser or in a Claude artifact store, so ignore how they save. Where a prototype and the spec disagree on behaviour, the spec wins; on looks, the prototype wins.
 
 Tokens (define in Tailwind config and CSS variables, with a dark theme):
 
