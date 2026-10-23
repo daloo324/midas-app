@@ -355,6 +355,7 @@ export async function getBoardMonth(
 
 export type RunningTimer = {
   id: string;
+  item_id: string | null;
   started_at: string;
   last_activity_at: string | null;
   client_id: string;
@@ -372,7 +373,7 @@ export async function getRunningTimer(): Promise<RunningTimer | null> {
   const { data: t } = await supabase
     .from("time_entries")
     .select(
-      "id, started_at, last_activity_at, client_id, is_brand_kit, client:clients(name), item:content_items(slot_code, topic, month:content_months(month))",
+      "id, started_at, last_activity_at, client_id, is_brand_kit, content_item_id, client:clients(name), item:content_items(slot_code, topic, month:content_months(month))",
     )
     .eq("user_id", user.id)
     .is("ended_at", null)
@@ -381,6 +382,7 @@ export async function getRunningTimer(): Promise<RunningTimer | null> {
   const month = t.item?.month?.month?.slice(0, 7);
   return {
     id: t.id,
+    item_id: t.content_item_id,
     started_at: t.started_at,
     last_activity_at: t.last_activity_at,
     client_id: t.client_id,

@@ -19,9 +19,7 @@ export default async function KitPage({
     clientTime(id, `${todayInGaborone().slice(0, 7)}-01`),
   ]);
   const mine =
-    running && running.client_id === id && running.label === "Brand kit"
-      ? running
-      : null;
+    running && running.client_id === id && !running.item_id ? running : null;
   const total = time
     .filter((t) => t.is_brand_kit)
     .reduce((a, t) => a + t.minutes, 0);
