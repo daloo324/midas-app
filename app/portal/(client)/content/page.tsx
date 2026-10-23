@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/shared/coming-soon";
+import { ContentPage } from "@/components/portal/pages/content";
+import { resolveMonth } from "@/lib/accounts/page";
+import { clientViewer } from "@/lib/portal/viewer";
 
 export const metadata: Metadata = { title: "Content" };
 
-export default function ContentPage() {
+export default async function Page({
+  searchParams,
+}: PageProps<"/portal/content">) {
+  const sp = await searchParams;
   return (
-    <ComingSoon title="Content" phase={4}>
-      This month&apos;s content, week by week.
-    </ComingSoon>
+    <ContentPage
+      viewer={await clientViewer()}
+      month={resolveMonth(sp.month)}
+      filter={typeof sp.filter === "string" ? sp.filter : "all"}
+    />
   );
 }
