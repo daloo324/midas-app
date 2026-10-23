@@ -746,3 +746,51 @@
     transition: none !important;
   }
 }
+
+/* Two-column working layout and chips (account-desk.html) */
+@layer components {
+  .two {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+  .stack {
+    display: grid;
+    gap: 16px;
+  }
+  @media (max-width: 860px) {
+    .two {
+      grid-template-columns: 1fr;
+    }
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    border: 1.5px solid var(--line);
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .chip:has(input:checked) {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--on-navy);
+  }
+  .chip:has(input:focus-visible) {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+}
