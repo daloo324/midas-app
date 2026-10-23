@@ -302,3 +302,58 @@ export async function recordLoginAttempt(
     .from("login_attempts")
     .insert({ login_id: loginId, succeeded, ip });
 }
+
+/**
+ * Sends a client login's welcome email again, with a fresh link to set their
+ * password. The caller must have checked they may manage this client's logins.
+ */
+export async function resendClientWelcome(
+  clientUserId: string,
+): Promise<AdminResult> {
+  const service = createServiceClient();
+  const { data: login } = await service
+    .from("client_users")
+    .select(
+      "full_name, email, login_id, active, client:clients(name, account_exec:profiles!clients_account_exec_id_fkey(full_name))",
+    )
+    .eq("id", clientUserId)
+    .maybeSingle();
+  if (!login) return { ok: false, error: "That login doesn't exist." };
+  if (!login.active)
+    return {
+      ok: false,
+      error: "Switch the login back on before sending the welcome email.",
+    };
+
+  const { data, error } = await service.auth.admin.generateLink({
+    type: "recovery",
+    email: login.email,
+  });
+  if (error)
+    return {
+      ok: false,
+      error: "The email couldn't be prepared. Try again in a minute.",
+    };
+  try {
+    await sendEmail(
+      clientWelcomeEmail({
+        to: login.email,
+        name: login.full_name,
+        clientName: login.client?.name ?? "",
+        loginId: login.login_id,
+        accountExecName: login.client?.account_exec?.full_name ?? null,
+        link: setPasswordLink(
+          data.properties.hashed_token,
+          "recovery",
+          "client",
+        ),
+      }),
+    );
+  } catch {
+    return {
+      ok: false,
+      error: "The welcome email didn't send. Try again in a minute.",
+    };
+  }
+  return { ok: true, message: `Welcome email sent again to ${login.email}.` };
+}

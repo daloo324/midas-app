@@ -43,7 +43,8 @@ Roles are stored in `profiles.role` (staff) or derived from `client_users` (clie
 | Data | CEO | Account exec | Creative director | Designer | Client |
 | --- | --- | --- | --- | --- | --- |
 | Clients list | All, edit | Assigned only, edit profile fields | All, read | All, read | Own record, limited fields |
-| Assign account exec, activate or end a client | Yes | No | No | No | No |
+| Assign account exec, pause or end a client | Yes | No | No | No | No |
+| Activate a client | Yes | Assigned, once the brand kit is approved | No | No | No |
 | Brand brief (questionnaire answers) | All | Assigned | All | All | Own, read |
 | Brand kit and files | All | Assigned, read | All, edit, sign off | All, edit | Own, read and download **only after sign-off** |
 | Content months and items: plan fields (date, format, pillar, topic, platform) | All | Assigned, edit | All, read | All, read | Own, once the month's calendar is sent (`plan_status` `sent` or `approved`), through the `portal_calendar` view |

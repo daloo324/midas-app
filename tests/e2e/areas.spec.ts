@@ -109,10 +109,6 @@ test("planned pages say which phase they arrive in", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Coming in Phase 5" }),
   ).toBeVisible();
-  await page.goto("/accounts");
-  await expect(
-    page.getByRole("heading", { name: "Coming in Phase 2" }),
-  ).toBeVisible();
   await page.goto("/creative");
   await expect(
     page.getByRole("heading", { name: "Coming in Phase 3" }),

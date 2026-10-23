@@ -1,6 +1,7 @@
 import { Masthead } from "@/components/shared/masthead";
 import { Rail, type NavItem } from "@/components/shared/nav-links";
 import { requireArea } from "@/lib/auth/session";
+import { countApprovals } from "@/lib/data/portal";
 
 // Client portal (client-portal.html): left rail, a top strip on phones.
 const MENU: NavItem[] = [
@@ -18,11 +19,15 @@ export default async function PortalLayout({
   children,
 }: LayoutProps<"/portal">) {
   const user = await requireArea("portal");
+  const waiting = await countApprovals();
+  const menu = MENU.map((m) =>
+    m.href === "/portal/approvals" ? { ...m, badge: waiting } : m,
+  );
   return (
     <div className="area-portal">
       <Masthead label="Client portal" home="/portal" user={user} />
       <div className="shell">
-        <Rail items={MENU} label="Portal sections" />
+        <Rail items={menu} label="Portal sections" />
         <main style={{ minWidth: 0 }}>{children}</main>
       </div>
     </div>

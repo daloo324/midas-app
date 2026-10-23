@@ -1,6 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
+import { resendWelcomeAction } from "@/app/accounts/actions";
 import { FieldError, FormMessage } from "@/components/shared/form-message";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { initialState } from "@/lib/auth/action-state";
@@ -17,6 +24,35 @@ export type ClientLogin = {
   is_primary: boolean;
   active: boolean;
 };
+
+function ResendWelcome({ clientUserId }: { clientUserId: string }) {
+  const [pending, start] = useTransition();
+  const [message, setMessage] = useState<{ ok?: string; error?: string }>({});
+  return (
+    <>
+      <button
+        className="btn sm"
+        type="button"
+        disabled={pending}
+        onClick={() =>
+          start(async () => setMessage(await resendWelcomeAction(clientUserId)))
+        }
+      >
+        {pending ? "Sending…" : "Resend welcome email"}
+      </button>
+      {message.ok ? (
+        <span className="sub" role="status" style={{ margin: 0, fontSize: 13 }}>
+          {message.ok}
+        </span>
+      ) : null}
+      {message.error ? (
+        <span className="err" role="alert">
+          {message.error}
+        </span>
+      ) : null}
+    </>
+  );
+}
 
 function LoginRow({ login }: { login: ClientLogin }) {
   const [state, action] = useActionState(
@@ -39,20 +75,23 @@ function LoginRow({ login }: { login: ClientLogin }) {
         </div>
         {state.error ? <span className="err">{state.error}</span> : null}
       </div>
-      <form action={action}>
-        <input type="hidden" name="clientUserId" value={login.id} />
-        <input
-          type="hidden"
-          name="active"
-          value={login.active ? "false" : "true"}
-        />
-        <SubmitButton
-          className={login.active ? "btn sm danger" : "btn sm"}
-          pendingText="Saving…"
-        >
-          {login.active ? "Switch off" : "Switch on"}
-        </SubmitButton>
-      </form>
+      <div className="row" style={{ gap: 6 }}>
+        {login.active ? <ResendWelcome clientUserId={login.id} /> : null}
+        <form action={action}>
+          <input type="hidden" name="clientUserId" value={login.id} />
+          <input
+            type="hidden"
+            name="active"
+            value={login.active ? "false" : "true"}
+          />
+          <SubmitButton
+            className={login.active ? "btn sm danger" : "btn sm"}
+            pendingText="Saving…"
+          >
+            {login.active ? "Switch off" : "Switch on"}
+          </SubmitButton>
+        </form>
+      </div>
     </div>
   );
 }
