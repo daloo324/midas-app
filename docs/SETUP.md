@@ -17,8 +17,8 @@ Use your Midas email for all of them, and switch on two-factor sign-in wherever 
 
 | Service | What to create | Notes |
 | --- | --- | --- |
-| **Supabase** (supabase.com) | An organisation "Midas Media", then two projects: `midas-app-staging` and `midas-app-prod` | Pick the region closest to Botswana that's offered (e.g. a European or South African region). Save each project's database password somewhere safe. |
-| **Vercel** (vercel.com) | Sign in with GitHub and import `daloo324/midas-app` | Claude Code will guide the settings in Phase 1. |
+| **Supabase** (supabase.com) | Organisation "Midas Media", project `midasadminportal` (done). A second, production project comes before the first real client | Pick the region closest to Botswana that's offered (e.g. a European or South African region). Save each project's database password somewhere safe. |
+| **Vercel** (vercel.com) | Project `midas-app`, linked to `daloo324/midas-app` (done) | Claude Code will guide the settings in Phase 1. |
 | **Resend** (resend.com) | Add the domain `midasmedia.co.bw` | It shows DNS records to add at Hostinger (step 3). |
 | **Anthropic Console** (console.anthropic.com) | An API key for design suggestions | Add a small monthly spend limit. |
 

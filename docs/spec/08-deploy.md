@@ -5,8 +5,10 @@
 | Environment | App | Database | Used for |
 | --- | --- | --- | --- |
 | Local | `npm run dev` on Dave's laptop | Supabase running locally (`supabase start`, needs Docker) | Building and testing every phase |
-| Preview | Vercel preview link per branch | Supabase project **midas-app-staging** | Dave's review at the end of each phase |
-| Production | `app.midasmedia.co.bw` | Supabase project **midas-app-prod** | Real staff and clients, from the first go-live |
+| Preview | Vercel preview link per branch (Vercel project `midas-app`) | Supabase project **midasadminportal** (region eu-west-1, Ireland) | Dave's review at the end of each phase |
+| Production | `app.midasmedia.co.bw` | A second Supabase project for live data, created before the first real client | Real staff and clients, from the first go-live |
+
+Until the second project exists, `midasadminportal` serves both preview and production with sample data only. Before the first real client, Dave creates the production project and moves Supabase and Vercel to paid plans: free Supabase projects pause when unused, and Vercel's free Hobby plan is for non-commercial use.
 
 Database changes only ever go through migration files in `supabase/migrations/`, applied with the Supabase CLI: local first, then staging, then production. Never change the production database by hand in the dashboard.
 
