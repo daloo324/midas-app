@@ -185,7 +185,7 @@ revoke execute on function public.open_questionnaire(text) from public;
 grant execute on function public.open_questionnaire(text) to anon, authenticated;
 
 -- Where a link's images go: {client_id}/questionnaire/{token}/{file}.
--- True while the link is open and has room for another file (40 per link).
+-- True while the link is open and has room for another file (48 per link: 12 for each of the 4 upload questions).
 create function public.questionnaire_upload_allowed(p_object_name text)
 returns boolean
 language plpgsql
@@ -206,7 +206,7 @@ begin
     return false;
   end if;
   return (
-    select count(*) < 40 from storage.objects o
+    select count(*) < 48 from storage.objects o
     where o.bucket_id = 'briefs' and o.name like parts[1] || '/questionnaire/' || parts[3] || '/%'
   );
 end;
@@ -236,7 +236,7 @@ begin
   end if;
 
   if jsonb_typeof(p_answers) <> 'array' or jsonb_typeof(p_uploads) <> 'array'
-     or jsonb_array_length(p_answers) > 200 or jsonb_array_length(p_uploads) > 40 then
+     or jsonb_array_length(p_answers) > 200 or jsonb_array_length(p_uploads) > 48 then
     raise exception 'The answers are in the wrong shape.' using errcode = '22023';
   end if;
 
