@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ClientAccountForm } from "@/components/admin/client-account-form";
-import { ClientLogins } from "@/components/admin/client-logins";
+import { ClientLogins } from "@/components/shared/client-logins";
 import { ClientRecordForm } from "@/components/admin/client-record-form";
 import {
   getClient,

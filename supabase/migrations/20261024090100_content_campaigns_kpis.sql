@@ -102,7 +102,7 @@ create table public.content_items (
   scheduled_date date,
   pillar public.pillar not null,
   platform text not null default 'both'
-    check (platform in ('both', 'facebook', 'instagram', 'tiktok', 'linkedin', 'x')),
+    check (platform in ('both', 'facebook', 'instagram', 'tiktok', 'linkedin', 'x', 'youtube')),
   topic text,
   notes text,
   status public.work_status not null default 'planned',

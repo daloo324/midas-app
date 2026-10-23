@@ -29,11 +29,15 @@ export default defineConfig({
       testMatch: /layout\.spec\.ts/,
     },
   ],
+  // A production build by default: it compiles once, so pages load quickly
+  // and the Mac doesn't run out of memory. PW_DEV=1 uses the dev server.
   webServer: {
-    command: `next dev --port ${PORT}`,
+    command: process.env.PW_DEV
+      ? `next dev --port ${PORT}`
+      : `next build && next start --port ${PORT}`,
     url: `${BASE_URL}/login`,
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: 600_000,
     env: {
       EMAIL_OUTBOX_DIR: OUTBOX,
       NEXT_PUBLIC_APP_URL: BASE_URL,
