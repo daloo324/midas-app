@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { activeClientCapacity, listAccountExecs } from "@/lib/clients/queries";
+import {
+  activeClientCapacity,
+  listAccountExecs,
+  listClients,
+} from "@/lib/data/clients";
 import { formatDay, formatMoney } from "@/lib/format";
 import {
   CLIENT_STATUSES,
@@ -8,7 +12,6 @@ import {
   CLIENT_STATUS_PILL,
   type ClientStatus,
 } from "@/lib/format/status";
-import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Clients" };
 
@@ -24,22 +27,11 @@ export default async function ClientsPage({
       ? params.ae
       : null;
 
-  const supabase = await createClient();
-  let query = supabase
-    .from("clients")
-    .select(
-      "id, name, client_code, status, monthly_fee, start_date, account_exec:profiles!clients_account_exec_id_fkey(full_name), service:services(name)",
-    )
-    .order("name");
-  if (status) query = query.eq("status", status);
-  if (ae) query = query.eq("account_exec_id", ae);
-
-  const [{ data: clients }, execs, capacity] = await Promise.all([
-    query,
+  const [rows, execs, capacity] = await Promise.all([
+    listClients({ status, ae }),
     listAccountExecs(),
     activeClientCapacity(),
   ]);
-  const rows = clients ?? [];
 
   return (
     <>
@@ -138,8 +130,8 @@ export default async function ClientsPage({
                         {CLIENT_STATUS_LABELS[c.status]}
                       </span>
                     </td>
-                    <td>{c.account_exec?.full_name ?? "—"}</td>
-                    <td>{c.service?.name ?? "—"}</td>
+                    <td>{c.account_exec_name ?? "—"}</td>
+                    <td>{c.service_name ?? "—"}</td>
                     <td className="num">{formatMoney(c.monthly_fee)}</td>
                     <td>{formatDay(c.start_date)}</td>
                   </tr>

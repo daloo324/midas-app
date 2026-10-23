@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 export const SAMPLE_PASSWORD = "midas-local-2026";
 
@@ -47,7 +47,8 @@ export async function signInStaff(
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await settled(page, "/login");
 }
 
 export async function signInClient(
@@ -58,7 +59,8 @@ export async function signInClient(
   await page.goto("/portal/login");
   await page.getByLabel("Client ID").fill(loginId);
   await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await settled(page, "/portal/login");
 }
 
 type OutboxEmail = {
@@ -133,4 +135,17 @@ export async function expectNoAccess(page: Page) {
   await expect(
     page.getByRole("heading", { name: "You don't have access to this area" }),
   ).toBeVisible();
+}
+
+/** The form's error message (not Next's hidden route announcer, which is also an alert). */
+export function formAlert(page: Page): Locator {
+  return page.locator(".err[role=alert], .notice.err[role=alert]");
+}
+
+/** Waits until a sign-in either leaves the sign-in page or shows an error. */
+async function settled(page: Page, loginPath: string) {
+  await Promise.race([
+    page.waitForURL((url) => !url.pathname.startsWith(loginPath)),
+    formAlert(page).first().waitFor(),
+  ]);
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { fieldErrorsFrom, type ActionState } from "@/lib/auth/action-state";
 import { homeFor } from "@/lib/auth/routes";
 import { getCurrentUser } from "@/lib/auth/session";
+import { isDemoMode } from "@/lib/demo/mode";
 import { createClient } from "@/lib/supabase/server";
 import { setPasswordSchema } from "@/lib/validation/auth";
 
@@ -17,6 +18,11 @@ export async function setPassword(
   const parsed = setPasswordSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
   const { password, tokenHash, type } = parsed.data;
+  if (isDemoMode())
+    return {
+      error:
+        "Demo mode uses fixed dummy passwords, so passwords can't be changed.",
+    };
 
   const supabase = await createClient();
 

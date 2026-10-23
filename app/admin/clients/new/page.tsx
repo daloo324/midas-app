@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { NewClientForm } from "@/components/admin/new-client-form";
-import { listAccountExecs, listServices } from "@/lib/clients/queries";
+import { listAccountExecs, listServices } from "@/lib/data/clients";
 
 export const metadata: Metadata = { title: "New client" };
 

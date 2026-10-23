@@ -9,6 +9,7 @@ import {
   clearLoginAttempts,
   signInClient,
   signInStaff,
+  formAlert,
 } from "./helpers";
 
 const CLIENT_NO_MATCH = "That client ID and password don't match.";
@@ -46,10 +47,10 @@ test("a wrong client ID and a wrong password show the identical message", async 
   page,
 }) => {
   await signInClient(page, "MM-ZZZ-9999");
-  const unknownId = await page.getByRole("alert").textContent();
+  const unknownId = await formAlert(page).textContent();
 
   await signInClient(page, CLIENT_LOGIN_ID, "not-the-password");
-  const wrongPassword = await page.getByRole("alert").textContent();
+  const wrongPassword = await formAlert(page).textContent();
 
   expect(unknownId?.trim()).toBe(CLIENT_NO_MATCH);
   expect(wrongPassword?.trim()).toBe(CLIENT_NO_MATCH);
@@ -61,10 +62,10 @@ test("after five wrong passwords the sixth attempt is refused, even with the rig
 }) => {
   for (let i = 0; i < 5; i++) {
     await signInClient(page, CLIENT_LOGIN_ID, `wrong-${i}`);
-    await expect(page.getByRole("alert")).toHaveText(CLIENT_NO_MATCH);
+    await expect(formAlert(page)).toHaveText(CLIENT_NO_MATCH);
   }
   await signInClient(page, CLIENT_LOGIN_ID, SAMPLE_PASSWORD);
-  await expect(page.getByRole("alert")).toHaveText(CLIENT_NO_MATCH);
+  await expect(formAlert(page)).toHaveText(CLIENT_NO_MATCH);
   await expect(page).toHaveURL("/portal/login");
 
   // Fifteen minutes later it works again.
@@ -79,7 +80,7 @@ test("after five wrong passwords the sixth attempt is refused, even with the rig
 test("an unknown client ID is rate limited too", async ({ page }) => {
   for (let i = 0; i < 6; i++) {
     await signInClient(page, "MM-ZZZ-9999", "anything");
-    await expect(page.getByRole("alert")).toHaveText(CLIENT_NO_MATCH);
+    await expect(formAlert(page)).toHaveText(CLIENT_NO_MATCH);
   }
   const { count } = await admin()
     .from("login_attempts")
@@ -92,14 +93,14 @@ test("staff sign in with email; a wrong password gives a plain message", async (
   page,
 }) => {
   await signInStaff(page, STAFF.ceo, "wrong-password");
-  await expect(page.getByRole("alert")).toHaveText(STAFF_NO_MATCH);
+  await expect(formAlert(page)).toHaveText(STAFF_NO_MATCH);
   await signInStaff(page, "nobody@example.com", "wrong-password");
-  await expect(page.getByRole("alert")).toHaveText(STAFF_NO_MATCH);
+  await expect(formAlert(page)).toHaveText(STAFF_NO_MATCH);
 });
 
 test("a client can't use the staff sign-in page", async ({ page }) => {
   await signInStaff(page, CLIENT_EMAIL, SAMPLE_PASSWORD);
-  await expect(page.getByRole("alert")).toHaveText(STAFF_NO_MATCH);
+  await expect(formAlert(page)).toHaveText(STAFF_NO_MATCH);
   await page.goto("/portal");
   await expect(page).toHaveURL(/\/portal\/login/);
 });

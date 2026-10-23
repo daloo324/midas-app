@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Brand } from "@/components/shared/brand";
+import { DemoLogins } from "@/components/shared/demo-logins";
 import { ClientLoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Client portal sign in" };
@@ -19,6 +20,7 @@ export default async function ClientLoginPage({
           </p>
         </div>
         <ClientLoginForm next={typeof next === "string" ? next : undefined} />
+        <DemoLogins audience="client" />
         <p className="sub" style={{ margin: 0, fontSize: 13 }}>
           Lost your client ID? Ask your account executive. Each client gets
           their own ID when their brand kit is signed off.

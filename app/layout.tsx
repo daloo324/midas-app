@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Figtree } from "next/font/google";
+import { isDemoMode } from "@/lib/demo/mode";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -33,7 +34,15 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en-BW" className={`${archivo.variable} ${figtree.variable}`}>
-      <body>{children}</body>
+      <body>
+        {isDemoMode() ? (
+          <div className="ribbon" role="note">
+            Demo mode: dummy logins and sample data. Nothing here is real, and
+            changes reset from time to time.
+          </div>
+        ) : null}
+        {children}
+      </body>
     </html>
   );
 }

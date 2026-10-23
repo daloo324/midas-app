@@ -13,7 +13,7 @@ select is(public.client_code_letters('Kgosi Coffee'), 'KGC', 'Two words: two let
 select is(public.client_code_letters('Sample Coffee Co'), 'SCC', 'Three words: first letters');
 select is(public.client_code_letters('Mma Ramotswe Detective Agency'), 'MRD', 'More words: first three only');
 select is(public.client_code_letters('Nandos'), 'NAN', 'One word: first three letters');
-select is(public.client_code_letters('3 Brothers & Co.'), 'BCX', 'Digits and symbols are dropped');
+select is(public.client_code_letters('3 Brothers & Co.'), 'BRC', 'Digits and symbols are dropped');
 select is(public.client_code_letters('a b'), 'ABX', 'Too few letters are padded with X');
 select is(public.client_code_letters('kgosi  coffee'), 'KGC', 'Uppercase, extra spaces ignored');
 

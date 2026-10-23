@@ -9,6 +9,7 @@ import {
   signInStaff,
   uniqueEmail,
   waitForEmail,
+  formAlert,
 } from "./helpers";
 
 test("the CEO invites a designer, who sets a password and lands in the Design Studio", async ({
@@ -46,9 +47,7 @@ test("the CEO invites a designer, who sets a password and lands in the Design St
   // The link only works once.
   const again = await browser.newPage();
   await setNewPassword(again, linkIn(mail), "another-pass-123");
-  await expect(again.getByRole("alert")).toContainText(
-    "expired or was already used",
-  );
+  await expect(formAlert(again)).toContainText("expired or was already used");
 
   // The CEO deactivates them: they can't sign in any more.
   await page.reload();
@@ -57,7 +56,7 @@ test("the CEO invites a designer, who sets a password and lands in the Design St
   await expect(row.getByText("Deactivated", { exact: true })).toBeVisible();
   const after = await browser.newPage();
   await signInStaff(after, email, "designer-pass-123");
-  await expect(after.getByRole("alert")).toHaveText(
+  await expect(formAlert(after)).toHaveText(
     "That email and password don't match.",
   );
 });
@@ -74,7 +73,7 @@ test("inviting an email that already has a login is refused", async ({
   await invite.getByLabel("Email").fill(STAFF.designer);
   await invite.getByLabel("Role").selectOption("designer");
   await invite.getByRole("button", { name: "Send invite" }).click();
-  await expect(page.getByRole("alert")).toHaveText(
+  await expect(formAlert(page)).toHaveText(
     "That email already has a login. Use a different email address.",
   );
 });
@@ -97,14 +96,12 @@ test("staff password reset never says whether the email exists", async ({
     password: "old-password-123",
     email_confirm: true,
   });
-  await admin()
-    .from("profiles")
-    .insert({
-      id: data.user!.id,
-      full_name: "Reset Tester",
-      email,
-      role: "designer",
-    });
+  await admin().from("profiles").insert({
+    id: data.user!.id,
+    full_name: "Reset Tester",
+    email,
+    role: "designer",
+  });
 
   const since = new Date();
   for (const address of [email, "nobody.here@example.com"]) {

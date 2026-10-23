@@ -5,6 +5,12 @@ import { redirect } from "next/navigation";
 import { fieldErrorsFrom, type ActionState } from "@/lib/auth/action-state";
 import { sendStaffReset } from "@/lib/auth/admin";
 import { destinationAfterSignIn } from "@/lib/auth/routes";
+import {
+  checkDemoStaff,
+  demoUserById,
+  startDemoSession,
+} from "@/lib/demo/auth";
+import { isDemoMode } from "@/lib/demo/mode";
 import { createClient } from "@/lib/supabase/server";
 import { staffResetSchema, staffSignInSchema } from "@/lib/validation/auth";
 
@@ -17,6 +23,14 @@ export async function signInStaff(
   const parsed = staffSignInSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
   const { email, password, next } = parsed.data;
+
+  if (isDemoMode()) {
+    const id = checkDemoStaff(email, password);
+    const user = demoUserById(id ?? undefined);
+    if (!id || !user) return { error: NO_MATCH };
+    await startDemoSession(id);
+    redirect(destinationAfterSignIn(next, user.role));
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -46,6 +60,8 @@ export async function requestStaffReset(
   const parsed = staffResetSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
   const { email } = parsed.data;
+  if (isDemoMode())
+    return { ok: "If that email has an account, we've emailed a reset link." };
   // Send after responding, so the reply takes the same time whether or not the account exists.
   after(() => sendStaffReset(email));
   return { ok: "If that email has an account, we've emailed a reset link." };

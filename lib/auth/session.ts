@@ -1,6 +1,8 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { demoSessionUserId, demoUserById } from "@/lib/demo/auth";
+import { isDemoMode } from "@/lib/demo/mode";
 import { createClient } from "@/lib/supabase/server";
 import {
   CLIENT_LOGIN,
@@ -36,6 +38,8 @@ export type CurrentUser = StaffUser | ClientUser;
  * signed out. Cached for the length of one request.
  */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
+  if (isDemoMode()) return demoUserById(await demoSessionUserId());
+
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   const userId = claims?.claims?.sub;

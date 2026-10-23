@@ -5,38 +5,14 @@ import {
   ResendInviteForm,
   RoleForm,
 } from "@/components/admin/staff-row-actions";
-import { pendingInviteIds } from "@/lib/auth/admin";
 import { requireArea } from "@/lib/auth/session";
-import { createClient } from "@/lib/supabase/server";
+import { listTeam } from "@/lib/data/team";
 
 export const metadata: Metadata = { title: "Team" };
 
 export default async function TeamPage() {
   const me = await requireArea("admin");
-  const supabase = await createClient();
-
-  const [{ data: staff }, { data: clients }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, full_name, email, role, active")
-      .order("active", { ascending: false })
-      .order("full_name"),
-    supabase.from("clients").select("account_exec_id, status"),
-  ]);
-
-  const people = staff ?? [];
-  const pending = await pendingInviteIds(
-    people.filter((p) => p.active).map((p) => p.id),
-  );
-  const clientCount = new Map<string, number>();
-  for (const c of clients ?? []) {
-    if (c.account_exec_id && c.status !== "ended") {
-      clientCount.set(
-        c.account_exec_id,
-        (clientCount.get(c.account_exec_id) ?? 0) + 1,
-      );
-    }
-  }
+  const people = await listTeam();
 
   return (
     <>
@@ -78,7 +54,7 @@ export default async function TeamPage() {
               </thead>
               <tbody>
                 {people.map((p) => {
-                  const isPending = pending.has(p.id);
+                  const isPending = p.active && p.pending;
                   return (
                     <tr key={p.id}>
                       <td>
@@ -107,9 +83,7 @@ export default async function TeamPage() {
                         )}
                       </td>
                       <td className="num">
-                        {p.role === "account_exec"
-                          ? (clientCount.get(p.id) ?? 0)
-                          : "—"}
+                        {p.role === "account_exec" ? p.clients : "—"}
                       </td>
                       <td>
                         <div

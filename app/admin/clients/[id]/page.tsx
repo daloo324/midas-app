@@ -4,10 +4,14 @@ import { notFound } from "next/navigation";
 import { ClientAccountForm } from "@/components/admin/client-account-form";
 import { ClientLogins } from "@/components/admin/client-logins";
 import { ClientRecordForm } from "@/components/admin/client-record-form";
-import { listAccountExecs, listServices } from "@/lib/clients/queries";
+import {
+  getClient,
+  listAccountExecs,
+  listClientLogins,
+  listServices,
+} from "@/lib/data/clients";
 import { formatDay } from "@/lib/format";
 import { CLIENT_STATUS_LABELS, CLIENT_STATUS_PILL } from "@/lib/format/status";
-import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Client" };
 
@@ -17,24 +21,12 @@ export default async function ClientRecordPage({
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
 
-  const supabase = await createClient();
-  const [{ data: client }, { data: logins }, execs, services] =
-    await Promise.all([
-      supabase
-        .from("clients")
-        .select(
-          "id, name, client_code, industry, status, account_exec_id, service_id, monthly_fee, start_date, end_date, contact_name, contact_role, contact_email, contact_phone, decision_maker, platforms, notes, created_at",
-        )
-        .eq("id", id)
-        .maybeSingle(),
-      supabase
-        .from("client_users")
-        .select("id, full_name, email, login_id, is_primary, active")
-        .eq("client_id", id)
-        .order("created_at"),
-      listAccountExecs(),
-      listServices(),
-    ]);
+  const [client, logins, execs, services] = await Promise.all([
+    getClient(id),
+    listClientLogins(id),
+    listAccountExecs(),
+    listServices(),
+  ]);
   if (!client) notFound();
 
   const execOptions = execs
@@ -80,7 +72,7 @@ export default async function ClientRecordPage({
               Each login gets its own client ID and a welcome email with a link
               to set a password.
             </p>
-            <ClientLogins clientId={client.id} logins={logins ?? []} />
+            <ClientLogins clientId={client.id} logins={logins} />
           </section>
         </div>
         <section className="panel">

@@ -90,7 +90,7 @@ test("after sign-in, people return to the page they asked for", async ({
   await page.goto("/admin/clients");
   await page.getByLabel("Email").fill(STAFF.ceo);
   await page.getByLabel("Password").fill("midas-local-2026");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL("/admin/clients");
 });
 

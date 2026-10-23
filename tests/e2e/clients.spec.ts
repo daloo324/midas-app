@@ -89,14 +89,12 @@ test("client password reset by login ID never says whether the ID exists", async
     password: "old-password-123",
     email_confirm: true,
   });
-  await service
-    .from("client_users")
-    .insert({
-      user_id: u.user!.id,
-      client_id: c!.id,
-      full_name: "Reset Client",
-      email,
-    });
+  await service.from("client_users").insert({
+    user_id: u.user!.id,
+    client_id: c!.id,
+    full_name: "Reset Client",
+    email,
+  });
 
   const since = new Date();
   for (const id of [c!.client_code, "MM-ZZZ-0001"]) {
@@ -131,6 +129,9 @@ test("activating past the client limit is refused with the reason", async ({
     await signInStaff(page, STAFF.ceo);
     await page.goto("/admin/clients?status=onboarding");
     await page.getByRole("link", { name: "Demo Fitness Studio" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Demo Fitness Studio" }),
+    ).toBeVisible();
     await page.getByLabel("Status").selectOption("active");
     await page.getByRole("button", { name: "Save account" }).click();
     await expect(page.getByText(/which is the limit/)).toBeVisible();

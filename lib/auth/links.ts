@@ -3,7 +3,9 @@ import "server-only";
 export type LinkType = "invite" | "recovery";
 
 export function appUrl(): string {
-  const url = process.env.NEXT_PUBLIC_APP_URL;
+  const url =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
   if (!url) throw new Error("NEXT_PUBLIC_APP_URL is not set.");
   return url.replace(/\/+$/, "");
 }
