@@ -3,7 +3,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(29);
+select plan(32);
 
 -- ---------------------------------------------------------------------------
 -- Client code letters (01-auth-and-roles.md)
@@ -125,6 +125,22 @@ set local request.jwt.claims to '{"sub":"e0000000-0000-4000-8000-000000000001","
 select throws_ok($$ select public.client_login_locked('MM-LCK-0001') $$, '42501', null,
   'Signed-in users cannot query the lockout');
 reset role;
+
+-- Grants: RLS doesn't cover TRUNCATE, and anon gets nothing.
+select is_empty(
+  $$ select table_name from information_schema.role_table_grants
+     where table_schema = 'public' and grantee in ('authenticated', 'service_role')
+       and privilege_type = 'TRUNCATE' $$,
+  'Nobody but the owner can TRUNCATE a table');
+select is_empty(
+  $$ select table_name from information_schema.role_table_grants
+     where table_schema = 'public' and grantee = 'anon' $$,
+  'anon has no table privileges');
+select is_empty(
+  $$ select table_name from information_schema.role_table_grants
+     where table_schema = 'public' and grantee = 'authenticated'
+       and privilege_type = 'DELETE' $$,
+  'Signed-in users can delete nothing (no table has a delete policy)');
 
 select * from finish();
 rollback;
