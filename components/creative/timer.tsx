@@ -4,20 +4,9 @@ import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { startTimerAction, stopTimerAction } from "@/app/creative/actions";
 import { useReport } from "@/components/shared/toast";
+import { hms } from "@/lib/creative/time-format";
 
 const FOUR_HOURS = 4 * 60 * 60 * 1000;
-
-export function hms(ms: number) {
-  const s = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  return `${h}:${String(m).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-}
-
-export function hm(minutes: number) {
-  const h = Math.floor(minutes / 60);
-  return h ? `${h}h ${String(minutes % 60).padStart(2, "0")}m` : `${minutes}m`;
-}
 
 /** Milliseconds since a start time, ticking every second. */
 function useElapsed(startedAt: string | null) {

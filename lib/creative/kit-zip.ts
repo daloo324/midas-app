@@ -97,12 +97,20 @@ function coloursAndFonts(
   return lines.join("\r\n") + "\r\n";
 }
 
+/** clientName: pass it when the caller can't read the clients table (the portal). */
 export async function kitZipResponse(
   supabase: SupabaseClient<Database>,
   clientId: string,
+  clientName?: string,
 ): Promise<Response> {
   const [{ data: client }, { data: kit }, { data: files }] = await Promise.all([
-    supabase.from("clients").select("name").eq("id", clientId).maybeSingle(),
+    clientName
+      ? Promise.resolve({ data: { name: clientName } })
+      : supabase
+          .from("clients")
+          .select("name")
+          .eq("id", clientId)
+          .maybeSingle(),
     supabase
       .from("brand_kits")
       .select("colors, heading_font, body_font, voice")

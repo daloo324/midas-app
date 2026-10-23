@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { StudioHeader } from "@/components/creative/client-header";
 import { ManualTime } from "@/components/creative/manual-time";
-import { hm } from "@/components/creative/timer";
+import { hm } from "@/lib/creative/time-format";
 import {
   WORK_STATUS_LABELS,
   WORK_STATUS_PILL,

@@ -86,12 +86,15 @@ export function KitSlot({
   clientId,
   slot,
   label,
+  group,
   file,
   canEdit,
 }: {
   clientId: string;
   slot: string;
   label: string;
+  /** Logo, Icon, Heading font…: makes each upload's accessible name unique. */
+  group?: string;
   file: KitFile | undefined;
   canEdit: boolean;
 }) {
@@ -107,7 +110,7 @@ export function KitSlot({
       type="file"
       hidden
       accept={accept}
-      aria-label={`${label}: ${text}`}
+      aria-label={`${group ? `${group} ` : ""}${label}: ${text}`}
       disabled={busy}
       onChange={(e) => {
         const f = e.target.files?.[0];

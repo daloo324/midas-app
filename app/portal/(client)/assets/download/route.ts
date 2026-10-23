@@ -17,5 +17,5 @@ export async function GET() {
     return new Response("Your brand kit isn't signed off yet.", {
       status: 403,
     });
-  return kitZipResponse(supabase, user.clientId);
+  return kitZipResponse(supabase, user.clientId, user.clientName);
 }

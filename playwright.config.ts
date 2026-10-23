@@ -40,6 +40,8 @@ export default defineConfig({
     timeout: 600_000,
     env: {
       EMAIL_OUTBOX_DIR: OUTBOX,
+      // A fixed reply instead of calling Claude (lib/creative/suggest.ts).
+      SUGGESTIONS_STAND_IN: "1",
       NEXT_PUBLIC_APP_URL: BASE_URL,
     },
   },

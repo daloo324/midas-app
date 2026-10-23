@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { hm } from "@/components/creative/timer";
+import { hm } from "@/lib/creative/time-format";
 import { requireArea } from "@/lib/auth/session";
 import { monthLabel, monthParam } from "@/lib/content/constants";
 import { clientTime, teamTime } from "@/lib/data/creative";

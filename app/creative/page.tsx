@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { hm } from "@/components/creative/timer";
+import { hm } from "@/lib/creative/time-format";
 import {
   WORK_STATUSES,
   WORK_STATUS_COLOR,

@@ -101,6 +101,7 @@ export function BrandKit({
                 clientId={client.id}
                 slot={slot}
                 label={`${v.label} · ${f.toUpperCase()}`}
+                group={title}
                 file={byslot.get(slot)}
                 canEdit={canEdit}
               />
@@ -217,6 +218,7 @@ export function BrandKit({
                           clientId={client.id}
                           slot={slot}
                           label={`${w.label} · ${w.weight}`}
+                          group={r.label}
                           file={byslot.get(slot)}
                           canEdit={canEdit}
                         />

@@ -38,7 +38,19 @@ for (const scheme of ["light", "dark"] as const) {
         (tab) => `/accounts/clients/${c!.id}${tab}?month=${month}`,
       ),
     ];
+    const studio = [
+      "/creative",
+      "/creative/review",
+      "/creative/time",
+      "/creative/resources/fonts",
+      "/creative/resources/palette",
+      "/creative/resources/inspiration",
+      ...["brief", "kit", "board", "time"].map(
+        (tab) => `/creative/clients/${c!.id}/${tab}?month=${month}`,
+      ),
+    ];
     for (const path of [
+      ...studio,
       "/admin",
       "/admin/team",
       "/admin/clients",

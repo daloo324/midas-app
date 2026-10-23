@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireArea } from "@/lib/auth/session";
 import { dayLabel, monthParam } from "@/lib/content/constants";
+import { weeksOfMonth } from "@/lib/creative/weeks";
 import { reviewQueue } from "@/lib/data/creative";
 import { formatDateTime } from "@/lib/format";
 
@@ -94,7 +95,7 @@ export default async function ReviewPage() {
                   <td>
                     <Link
                       className="btn sm"
-                      href={`/creative/clients/${i.clientId}/board?month=${monthParam(i.month)}#${i.id}`}
+                      href={`/creative/clients/${i.clientId}/board?month=${monthParam(i.month)}${weekParam(i.month, i.scheduled_date)}#${i.id}`}
                     >
                       Open
                     </Link>
@@ -107,4 +108,13 @@ export default async function ReviewPage() {
       )}
     </>
   );
+}
+
+/** "&week=N" for the week that holds the date, or "&week=none" for undated ads. */
+function weekParam(month: string, date: string | null) {
+  if (!date) return "&week=none";
+  const n = weeksOfMonth(month).findIndex(
+    (w) => date >= w.start && date <= w.end,
+  );
+  return n >= 0 ? `&week=${n}` : "";
 }
