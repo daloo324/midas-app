@@ -4,7 +4,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(68);
+select plan(71);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures (as the database owner)
@@ -142,6 +142,13 @@ select throws_ok($$ select public.set_brand_kit_status('f3000000-0000-4000-8000-
   '42501', null, 'Only the creative director sends the kit to the client');
 set local request.jwt.claims to '{"sub":"e3000000-0000-4000-8000-000000000004","role":"authenticated"}';
 select lives_ok($$ select public.set_brand_kit_status('f3000000-0000-4000-8000-00000000000a', 'client_review') $$, 'Creative director: kit to the client');
+set local request.jwt.claims to '{"sub":"e3000000-0000-4000-8000-000000000011","role":"authenticated"}';
+select set_eq($$ select slot from public.brand_kit_files $$, $$ values ('logo_full_svg'), ('guide_pdf') $$,
+  'At sign-off the client sees the logo, icon and guide files, not fonts or extras');
+select ok(public.kit_object_readable('f3000000-0000-4000-8000-00000000000a/logo_full_svg/logo.svg'),
+  'At sign-off the client can preview the logo');
+select ok(not public.kit_object_readable('f3000000-0000-4000-8000-00000000000a/font_heading_700/h.woff2'),
+  'But not the fonts until they sign off');
 set local request.jwt.claims to '{"sub":"e3000000-0000-4000-8000-000000000002","role":"authenticated"}';
 select throws_ok($$ select public.set_brand_kit_status('f3000000-0000-4000-8000-00000000000a', 'approved') $$,
   '42501', null, 'The account exec can''t sign off for the client');

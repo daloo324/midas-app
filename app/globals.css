@@ -1385,3 +1385,24 @@
     .brief-row { grid-template-columns: 1fr; }
   }
 }
+
+/* Portal brand assets (client-portal.html) */
+@layer components {
+  .g2 { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  .assets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .asset { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); display: flex; flex-direction: column; }
+  .asset .pv { height: 130px; display: grid; place-items: center; padding: 14px; }
+  .asset .pv img { max-height: 100%; max-width: 100%; object-fit: contain; }
+  .asset .info { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid var(--line); font-size: 13px; flex-wrap: wrap; }
+  .fmt { display: flex; gap: 4px; }
+  .fmt a { border: 1px solid var(--line); background: var(--surface-2); border-radius: 6px; font-size: 11px; font-weight: 700; padding: 3px 7px; color: var(--ink); text-decoration: none; }
+  .fmt a:hover { border-color: var(--gold); }
+  .colours { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+  .colours > div { display: grid; gap: 3px; font-size: 12px; }
+  .colours i { display: block; height: 70px; border-radius: 10px; border: 1px solid var(--line); }
+  .colours code { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .font-row { border-top: 1px dashed var(--line); padding: 12px 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+  .font-row:first-of-type { border-top: 0; }
+  @media (max-width: 900px) { .g2 { grid-template-columns: 1fr; } .assets { grid-template-columns: repeat(2, minmax(0, 1fr)); } .colours { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .assets { grid-template-columns: 1fr; } }
+}
