@@ -13,3 +13,7 @@ supabase/.temp/
 supabase/.branches/
 *.log
 .DS_Store
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+.outbox/
