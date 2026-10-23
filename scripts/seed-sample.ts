@@ -154,6 +154,18 @@ async function main() {
     console.log(`  client  ${c.code} ${c.name}`);
   }
 
+  // Sample phone numbers (not real) so the portal shows how to reach the account exec.
+  for (const [email, phone] of [
+    ["ae.one@example.com", "+267 7100 0102"],
+    ["ae.two@example.com", "+267 7100 0103"],
+  ]) {
+    await db
+      .from("profiles")
+      .update({ phone })
+      .eq("email", email)
+      .is("phone", null);
+  }
+
   // The active sample clients were signed off before they went live.
   const { data: active, error: activeError } = await db
     .from("clients")
@@ -183,17 +195,15 @@ async function main() {
     .single();
   if (clientError) throw clientError;
   const userId = await ensureUser(CLIENT_LOGIN.email, CLIENT_LOGIN.name);
-  const { error: loginError } = await db
-    .from("client_users")
-    .upsert(
-      {
-        user_id: userId,
-        client_id: client.id,
-        full_name: CLIENT_LOGIN.name,
-        email: CLIENT_LOGIN.email,
-      },
-      { onConflict: "user_id", ignoreDuplicates: true },
-    );
+  const { error: loginError } = await db.from("client_users").upsert(
+    {
+      user_id: userId,
+      client_id: client.id,
+      full_name: CLIENT_LOGIN.name,
+      email: CLIENT_LOGIN.email,
+    },
+    { onConflict: "user_id", ignoreDuplicates: true },
+  );
   if (loginError) throw loginError;
   console.log(`  login   ${CLIENT_LOGIN.clientCode} (${CLIENT_LOGIN.email})`);
   console.log(

@@ -186,7 +186,7 @@ select lives_ok($$ select public.set_content_status((select v from ids where k =
   'Designer: in design to internal review');
 select throws_ok($$ select public.set_content_status((select v from ids where k = 'itemP01'), 'client_review') $$,
   '42501', null, 'Only the creative director sends work to the client');
-select lives_ok($$ update public.content_items set caption = 'Fresh beans' where id = (select v from ids where k = 'itemP01') $$,
+select lives_ok($$ update public.content_items set caption = 'Fresh beans', preview_path = 'f0000000-0000-4000-8000-000000000001/2026-11/P01/preview.png' where id = (select v from ids where k = 'itemP01') $$,
   'The designer edits design fields');
 select throws_ok($$ update public.content_items set topic = 'New' where id = (select v from ids where k = 'itemP01') $$,
   '42501', null, 'The designer can''t edit plan fields');
