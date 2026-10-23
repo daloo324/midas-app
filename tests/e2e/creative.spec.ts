@@ -494,10 +494,22 @@ test("the weekly board: greyed until the calendar is approved, suggestions fill 
     .getByRole("row", { name: new RegExp(c.name) })
     .getByRole("link", { name: "Open" })
     .click();
+  const send = () =>
+    cd
+      .locator(`[id="${p01.id}"]`)
+      .getByRole("button", { name: "Send to client" })
+      .click();
+  // Without a client preview image it's refused (Dave's rule, Phase 4).
+  await send();
+  await expect(cd.locator(".toast.err")).toContainText(
+    "Add a client preview image first.",
+  );
   await cd
     .locator(`[id="${p01.id}"]`)
-    .getByRole("button", { name: "Send to client" })
-    .click();
+    .getByLabel("P01 client preview image")
+    .setInputFiles({ name: "preview.png", mimeType: "image/png", buffer: PNG });
+  await expect(cd.getByText("Client preview saved.")).toBeVisible();
+  await send();
   await expect(cd.getByText("Sent to the client's portal.")).toBeVisible();
 });
 

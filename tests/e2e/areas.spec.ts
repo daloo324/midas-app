@@ -64,7 +64,7 @@ test("a client lands on /portal and is refused every staff area", async ({
   await clearLoginAttempts(CLIENT_LOGIN_ID);
   await signInClient(page, CLIENT_LOGIN_ID);
   await expect(page).toHaveURL("/portal");
-  await expect(page.getByText(`Sample Coffee Co`)).toBeVisible();
+  await expect(page.getByText(`Sample Coffee Co`, { exact: true })).toBeVisible();
   for (const path of ["/admin", "/accounts", "/creative"]) {
     await page.goto(path);
     await expectNoAccess(page);
