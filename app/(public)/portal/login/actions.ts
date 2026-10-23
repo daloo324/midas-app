@@ -11,8 +11,6 @@ import {
   sendClientReset,
 } from "@/lib/auth/admin";
 import { destinationAfterSignIn } from "@/lib/auth/routes";
-import { checkDemoClient, startDemoSession } from "@/lib/demo/auth";
-import { isDemoMode } from "@/lib/demo/mode";
 import { createClient } from "@/lib/supabase/server";
 import { clientResetSchema, clientSignInSchema } from "@/lib/validation/auth";
 
@@ -36,14 +34,6 @@ export async function signInClient(
   const parsed = clientSignInSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
   const { loginId, password, next } = parsed.data;
-
-  if (isDemoMode()) {
-    const id = checkDemoClient(loginId, password);
-    if (!id) return { error: NO_MATCH };
-    await startDemoSession(id);
-    redirect(destinationAfterSignIn(next, "client"));
-  }
-
   const ip = await clientIp();
 
   if (await isLoginLocked(loginId)) return { error: NO_MATCH };
@@ -86,6 +76,6 @@ export async function requestClientReset(
   const parsed = clientResetSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { fieldErrors: fieldErrorsFrom(parsed.error) };
   const { loginId } = parsed.data;
-  if (!isDemoMode()) after(() => sendClientReset(loginId));
+  after(() => sendClientReset(loginId));
   return { ok: "If that ID exists, we've emailed a reset link." };
 }

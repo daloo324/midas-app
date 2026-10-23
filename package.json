@@ -17,9 +17,7 @@
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local --schema public > lib/supabase/database.types.ts && prettier --write lib/supabase/database.types.ts",
     "seed:sample": "tsx scripts/seed-sample.ts",
-    "create:ceo": "tsx scripts/create-ceo.ts",
-    "test:e2e:demo": "playwright test -c playwright.demo.config.ts",
-    "dev:demo": "DEMO_MODE=1 next dev"
+    "create:ceo": "tsx scripts/create-ceo.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

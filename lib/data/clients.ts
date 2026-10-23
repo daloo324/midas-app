@@ -1,25 +1,13 @@
 import "server-only";
 import { createClientLogin, setSignInBlocked } from "@/lib/auth/admin";
-import { appUrl } from "@/lib/auth/links";
-import { getCurrentUser, type CurrentUser } from "@/lib/auth/session";
-import { demoEmailNote, demoSend } from "@/lib/demo/email";
-import { isDemoMode } from "@/lib/demo/mode";
-import {
-  newClientCode,
-  store,
-  takenCodes,
-  emailTaken,
-  type DemoClient,
-} from "@/lib/demo/store";
-import { clientWelcomeEmail } from "@/lib/email/templates";
 import { todayInGaborone } from "@/lib/format";
 import type { ClientStatus } from "@/lib/format/status";
+import type { Tables } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 import type { DataResult } from "./result";
 
-// Clients, the service catalogue and client logins. In normal mode every read
-// runs as the signed-in user, so RLS decides what comes back. In demo mode the
-// same access rules are applied here, to the in-memory sample data.
+// Clients, the service catalogue and client logins. Every read runs as the
+// signed-in user, so RLS decides what comes back.
 
 export type ClientListRow = {
   id: string;
@@ -32,7 +20,27 @@ export type ClientListRow = {
   service_name: string | null;
 };
 
-export type ClientDetail = DemoClient;
+export type ClientDetail = Pick<
+  Tables<"clients">,
+  | "id"
+  | "name"
+  | "client_code"
+  | "industry"
+  | "status"
+  | "account_exec_id"
+  | "service_id"
+  | "monthly_fee"
+  | "start_date"
+  | "end_date"
+  | "contact_name"
+  | "contact_role"
+  | "contact_email"
+  | "contact_phone"
+  | "decision_maker"
+  | "platforms"
+  | "notes"
+  | "created_at"
+>;
 
 export type ClientLoginRow = {
   id: string;
@@ -52,25 +60,6 @@ export type Service = {
 };
 
 // ---------------------------------------------------------------------------
-// Demo-mode access, mirroring can_access_client() and the clients policies
-// ---------------------------------------------------------------------------
-
-function demoCanRead(user: CurrentUser | null, c: DemoClient): boolean {
-  if (!user || user.kind !== "staff") return false;
-  if (user.role === "account_exec") return c.account_exec_id === user.id;
-  return true;
-}
-
-function demoClientFor(user: CurrentUser | null, id: string) {
-  const c = store().clients.find((x) => x.id === id);
-  return c && demoCanRead(user, c) ? c : null;
-}
-
-function isCeo(user: CurrentUser | null) {
-  return user?.kind === "staff" && user.role === "ceo";
-}
-
-// ---------------------------------------------------------------------------
 // Reads
 // ---------------------------------------------------------------------------
 
@@ -78,31 +67,6 @@ export async function listClients(filter: {
   status: ClientStatus | null;
   ae: string | null;
 }): Promise<ClientListRow[]> {
-  if (isDemoMode()) {
-    const user = await getCurrentUser();
-    const s = store();
-    return s.clients
-      .filter((c) => demoCanRead(user, c))
-      .filter(
-        (c) =>
-          (!filter.status || c.status === filter.status) &&
-          (!filter.ae || c.account_exec_id === filter.ae),
-      )
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        client_code: c.client_code,
-        status: c.status,
-        monthly_fee: c.monthly_fee,
-        start_date: c.start_date,
-        account_exec_name:
-          s.staff.find((p) => p.id === c.account_exec_id)?.full_name ?? null,
-        service_name:
-          s.services.find((x) => x.id === c.service_id)?.name ?? null,
-      }));
-  }
-
   const supabase = await createClient();
   let query = supabase
     .from("clients")
@@ -126,10 +90,6 @@ export async function listClients(filter: {
 }
 
 export async function getClient(id: string): Promise<ClientDetail | null> {
-  if (isDemoMode()) {
-    const c = demoClientFor(await getCurrentUser(), id);
-    return c ? { ...c } : null;
-  }
   const supabase = await createClient();
   const { data } = await supabase
     .from("clients")
@@ -144,20 +104,6 @@ export async function getClient(id: string): Promise<ClientDetail | null> {
 export async function listClientLogins(
   clientId: string,
 ): Promise<ClientLoginRow[]> {
-  if (isDemoMode()) {
-    if (!demoClientFor(await getCurrentUser(), clientId)) return [];
-    return store()
-      .logins.filter((l) => l.client_id === clientId)
-      .sort((a, b) => a.created_at.localeCompare(b.created_at))
-      .map(({ id, full_name, email, login_id, is_primary, active }) => ({
-        id,
-        full_name,
-        email,
-        login_id,
-        is_primary,
-        active,
-      }));
-  }
   const supabase = await createClient();
   const { data } = await supabase
     .from("client_users")
@@ -168,14 +114,6 @@ export async function listClientLogins(
 }
 
 export async function listAccountExecs(): Promise<AccountExec[]> {
-  if (isDemoMode()) {
-    const user = await getCurrentUser();
-    if (user?.kind !== "staff") return [];
-    return store()
-      .staff.filter((p) => p.role === "account_exec")
-      .sort((a, b) => a.full_name.localeCompare(b.full_name))
-      .map(({ id, full_name, active }) => ({ id, full_name, active }));
-  }
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
@@ -186,11 +124,6 @@ export async function listAccountExecs(): Promise<AccountExec[]> {
 }
 
 export async function listServices(): Promise<Service[]> {
-  if (isDemoMode()) {
-    return isCeo(await getCurrentUser())
-      ? store().services.map((s) => ({ ...s }))
-      : [];
-  }
   const supabase = await createClient();
   const { data } = await supabase
     .from("services")
@@ -204,13 +137,6 @@ export async function activeClientCapacity(): Promise<{
   active: number;
   max: number;
 }> {
-  if (isDemoMode()) {
-    const s = store();
-    return {
-      active: s.clients.filter((c) => c.status === "active").length,
-      max: s.maxActiveClients,
-    };
-  }
   const supabase = await createClient();
   const [{ count }, { data: settings }] = await Promise.all([
     supabase
@@ -270,23 +196,6 @@ export async function createClientRecord(
     status: "onboarding" as const,
   };
 
-  if (isDemoMode()) {
-    const c: DemoClient = {
-      ...record,
-      id: crypto.randomUUID(),
-      client_code: newClientCode(input.name, takenCodes()),
-      start_date: null,
-      end_date: null,
-      contact_role: null,
-      decision_maker: null,
-      platforms: [],
-      notes: null,
-      created_at: new Date().toISOString(),
-    };
-    store().clients.push(c);
-    return { id: c.id };
-  }
-
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("clients")
@@ -326,20 +235,6 @@ export async function updateClientProfile(
     notes: input.notes,
   };
 
-  if (isDemoMode()) {
-    const user = await getCurrentUser();
-    const c = demoClientFor(user, input.clientId);
-    // The CEO edits any client; an account exec only their own (the clients policies).
-    if (
-      !c ||
-      !(isCeo(user) || (user?.kind === "staff" && user.role === "account_exec"))
-    ) {
-      return { error: "The changes couldn't be saved. Try again." };
-    }
-    Object.assign(c, fields);
-    return { ok: "Saved." };
-  }
-
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("clients")
@@ -359,9 +254,6 @@ export type ClientAccountInput = {
   startDate: string | null;
   endDate: string | null;
 };
-
-const capacityMessage = (n: number) =>
-  `You already have ${n} active clients, which is the limit. Pause or end a client, or raise the limit in settings.`;
 
 export async function updateClientAccount(
   input: ClientAccountInput,
@@ -407,22 +299,6 @@ export async function updateClientAccount(
     end_date: endDate,
   };
 
-  if (isDemoMode()) {
-    if (!isCeo(await getCurrentUser()))
-      return { error: "Only the CEO can do this." };
-    const s = store();
-    if (input.status === "active" && current.status !== "active") {
-      const active = s.clients.filter((c) => c.status === "active").length;
-      if (active >= s.maxActiveClients)
-        return { fieldErrors: { status: capacityMessage(active) } };
-    }
-    Object.assign(
-      s.clients.find((c) => c.id === input.clientId)!,
-      fields,
-    );
-    return { ok: "Saved." };
-  }
-
   const supabase = await createClient();
   const { error } = await supabase
     .from("clients")
@@ -445,51 +321,6 @@ export async function createLoginForClient(input: {
   fullName: string;
   email: string;
 }): Promise<DataResult> {
-  if (isDemoMode()) {
-    const user = await getCurrentUser();
-    const c = demoClientFor(user, input.clientId);
-    if (
-      !c ||
-      !(isCeo(user) || (user?.kind === "staff" && user.role === "account_exec"))
-    ) {
-      return { error: LOGIN_NOT_ALLOWED };
-    }
-    if (emailTaken(input.email)) {
-      return {
-        error: "That email already has a login. Use a different email address.",
-      };
-    }
-    const s = store();
-    const existing = s.logins.filter((l) => l.client_id === c.id).length;
-    const loginId =
-      existing === 0 ? c.client_code : `${c.client_code}-${existing + 1}`;
-    s.logins.push({
-      id: crypto.randomUUID(),
-      user_id: crypto.randomUUID(),
-      client_id: c.id,
-      full_name: input.fullName,
-      email: input.email,
-      login_id: loginId,
-      is_primary: existing === 0,
-      active: true,
-      created_at: new Date().toISOString(),
-    });
-    const outcome = await demoSend(
-      clientWelcomeEmail({
-        to: input.email,
-        name: input.fullName,
-        clientName: c.name,
-        loginId,
-        accountExecName:
-          s.staff.find((p) => p.id === c.account_exec_id)?.full_name ?? null,
-        link: `${appUrl()}/portal/login`,
-      }),
-    );
-    return {
-      ok: `Login ${loginId} created. ${demoEmailNote(outcome, input.email)}`,
-    };
-  }
-
   // The RLS read is what proves an account exec is assigned to the client.
   const supabase = await createClient();
   const { data: c } = await supabase
@@ -519,15 +350,6 @@ export async function setClientLoginActive(
   const message = active
     ? "Login switched back on."
     : "Login switched off. They can no longer sign in.";
-
-  if (isDemoMode()) {
-    const user = await getCurrentUser();
-    const login = store().logins.find((l) => l.id === clientUserId);
-    if (!login || !demoClientFor(user, login.client_id))
-      return { error: LOGIN_NOT_ALLOWED };
-    login.active = active;
-    return { ok: message, id: login.client_id };
-  }
 
   const supabase = await createClient();
   const { data, error } = await supabase

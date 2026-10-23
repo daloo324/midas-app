@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Brand } from "@/components/shared/brand";
-import { isDemoMode } from "@/lib/demo/mode";
 import { createClient } from "@/lib/supabase/server";
 import { SetPasswordForm } from "./set-password-form";
 
@@ -21,9 +20,7 @@ export default async function SetPasswordPage({
 
   // Without a link token, a signed-in person can still change their password.
   let canSet = Boolean(tokenHash && type);
-  if (isDemoMode()) {
-    canSet = false;
-  } else if (!canSet) {
+  if (!canSet) {
     const supabase = await createClient();
     const { data } = await supabase.auth.getClaims();
     canSet = Boolean(data?.claims?.sub);
@@ -42,9 +39,7 @@ export default async function SetPasswordPage({
           <p className="sub">
             {canSet
               ? "You'll use it every time you sign in."
-              : isDemoMode()
-                ? "Demo mode uses dummy logins with a fixed password, so there's nothing to set."
-                : "This link is incomplete or has expired. Ask for a new one."}
+              : "This link is incomplete or has expired. Ask for a new one."}
           </p>
         </div>
         {canSet ? (
