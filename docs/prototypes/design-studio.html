@@ -1,0 +1,876 @@
+<title>Midas Design Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Source+Sans+3&family=Cormorant+Garamond:wght@600&family=Montserrat&family=DM+Serif+Display&family=DM+Sans&family=Fraunces&family=Manrope:wght@700&family=Work+Sans&family=Space+Grotesk:wght@600&family=IBM+Plex+Sans&family=Raleway:wght@700&family=Open+Sans&family=Nunito:wght@800&family=Nunito+Sans&family=Poppins:wght@600&family=Lora&family=Anton&family=Roboto&family=Bebas+Neue&family=Oswald:wght@600&family=Libre+Baskerville&family=Caveat:wght@700&family=Quicksand&family=Archivo+Black&display=swap">
+<style>
+/* Layout: navy masthead with a live timer strip; three sections (Clients · Resources · Time). A client opens into a weekly board of deliverable cards with brief, brand kit and time tabs beside it. */
+:root{
+  --bg:#F2F4F5; --surface:#FFFFFF; --surface-2:#F7F9F9; --ink:#13252E; --muted:#5A6A72; --line:#D8DFE2;
+  --navy:#0E2A36; --navy-2:#18404F; --on-navy:#FFFFFF; --on-navy-muted:#B9C7CD;
+  --gold:#B88A35; --gold-soft:#F4ECDC; --gold-ink:#7C5A1A;
+  --good:#2E7D4F; --good-soft:#E3F2E8; --warn:#A86A00; --warn-soft:#FBF0D9; --bad:#B3261E; --bad-soft:#FBE4E2; --info:#1F5E8C; --info-soft:#E1EEF7;
+  --display:"Archivo","Arial Narrow",Arial,sans-serif; --body:"Figtree","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1A21; --surface:#12252E; --surface-2:#0F2028; --ink:#E6EDF0; --muted:#94A6AE; --line:#24404C;
+  --navy:#081820; --navy-2:#1C4253; --on-navy:#FFFFFF; --on-navy-muted:#9DB0B8;
+  --gold:#D4A957; --gold-soft:#2E2715; --gold-ink:#E8C67F;
+  --good:#5FBF86; --good-soft:#163024; --warn:#E0A643; --warn-soft:#33270F; --bad:#F08A82; --bad-soft:#3A1A18; --info:#7DB6E0; --info-soft:#14293A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1A21; --surface:#12252E; --surface-2:#0F2028; --ink:#E6EDF0; --muted:#94A6AE; --line:#24404C;
+  --navy:#081820; --navy-2:#1C4253; --on-navy:#FFFFFF; --on-navy-muted:#9DB0B8;
+  --gold:#D4A957; --gold-soft:#2E2715; --gold-ink:#E8C67F;
+  --good:#5FBF86; --good-soft:#163024; --warn:#E0A643; --warn-soft:#33270F; --bad:#F08A82; --bad-soft:#3A1A18; --info:#7DB6E0; --info-soft:#14293A;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+img{max-width:100%;display:block}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mast{background:var(--navy);color:var(--on-navy);border-bottom:3px solid var(--gold)}
+.mast .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:14px}
+.brand{display:flex;align-items:baseline;gap:10px;background:none;border:0;color:inherit;padding:0;cursor:pointer}
+.brand b{font-family:var(--display);font-weight:900;font-stretch:115%;font-size:22px;letter-spacing:.02em}
+.brand span{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.nav{display:flex;gap:4px}
+.nav button{background:none;border:0;color:var(--on-navy-muted);font-weight:600;padding:8px 14px;border-radius:999px;cursor:pointer}
+.nav button[aria-current=true]{background:var(--navy-2);color:var(--on-navy)}
+.runbar{background:var(--gold-soft);border-bottom:1px solid var(--line)}
+.runbar .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:8px;font-size:14px}
+.runbar b{font-family:var(--display);font-variant-numeric:tabular-nums;font-size:16px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--bad);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.3}}
+main.wrap{padding-block:22px 64px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-weight:850;font-stretch:108%;font-size:clamp(26px,3.4vw,34px);line-height:1.05}
+h2{font-weight:800;font-size:19px}
+h3{font-weight:700;font-size:15px}
+.sub{color:var(--muted);margin:6px 0 0;font-size:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:600;cursor:pointer;font-size:13.5px;white-space:nowrap}
+.btn:hover{border-color:var(--navy-2)}
+.btn.pri{background:var(--navy);border-color:var(--navy);color:var(--on-navy)}
+:root[data-theme="dark"] .btn.pri{background:var(--gold);border-color:var(--gold);color:#0B1A21}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.pri{background:var(--gold);border-color:var(--gold);color:#0B1A21}}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#13252E}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{padding:4px 10px;font-size:12.5px}
+.btn[disabled]{opacity:.45;cursor:default}
+.link{background:none;border:0;padding:0;color:var(--gold-ink);font-weight:600;cursor:pointer;text-decoration:underline;font-size:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.notice{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px 14px;color:var(--muted);font-size:14px}
+.notice.err{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.ccard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;cursor:pointer;text-align:left}
+.ccard:hover{border-color:var(--gold)}
+.ccard .meta{font-size:13px;color:var(--muted)}
+.swatches{display:flex;height:10px;border-radius:5px;overflow:hidden}
+.swatches i{flex:1}
+.bar{height:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.kv{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:13px}
+.kv span:nth-child(odd){color:var(--muted)}
+.kv span:nth-child(even){font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.empty{border:2px dashed var(--line);border-radius:14px;padding:36px 22px;text-align:center}
+.empty p{color:var(--muted);max-width:56ch;margin:8px auto 16px}
+.slot{border:2px dashed var(--line);border-radius:12px;display:grid;place-items:center;min-height:110px;color:var(--muted);font-weight:600;background:none;cursor:pointer}
+.slot:hover{border-color:var(--gold);color:var(--gold-ink)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.s-good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.s-warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.s-bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.s-info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.s-gold{background:var(--gold-soft);color:var(--gold-ink);border-color:transparent}
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:6px}
+.month-pick{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+.month-pick button{border:0;background:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px}
+.month-pick b{font-family:var(--display);font-weight:700;min-width:120px;text-align:center}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:9px 13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--gold)}
+label.f{display:grid;gap:4px;font-size:12.5px;font-weight:600;color:var(--muted)}
+input[type=text],input[type=number],input[type=url],input[type=search],select,textarea{width:100%;background:var(--surface-2);border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--ink);font-size:14px;font-weight:500}
+textarea{resize:vertical;min-height:70px;line-height:1.45}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.full{grid-column:1/-1}
+
+/* Weeks */
+.weeks{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.wk{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;cursor:pointer;text-align:left;min-width:140px}
+.wk b{display:block;font-family:var(--display);font-size:14px}
+.wk span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.wk[aria-pressed=true]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+.wk .mini{height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
+.wk .mini i{display:block;height:100%;background:var(--good)}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.item.running{border-color:var(--bad)}
+.item header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.item header .id{font-family:var(--display);font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
+.item header .date{font-weight:600;font-size:13px}
+.item header .sp{flex:1}
+.item header select{width:auto;padding:4px 8px;font-size:13px}
+.timer{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 4px 3px 10px}
+.timer b{font-variant-numeric:tabular-nums;font-size:13px;min-width:58px}
+.timer button{border:0;border-radius:999px;padding:4px 10px;font-weight:700;font-size:12px;cursor:pointer;background:var(--navy);color:var(--on-navy)}
+.timer button.stop{background:var(--bad);color:#fff}
+.item .topic{padding:10px 14px 0;font-size:14px}
+.item .topic span{color:var(--muted)}
+.item .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:10px 14px 14px}
+.item .foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:0 14px 12px}
+.item .foot input{flex:1;min-width:200px}
+.aenotes{margin:8px 14px 0;font-size:12.5px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:8px 10px}
+
+/* Brief */
+.brief-sec{margin-bottom:14px}
+.brief-sec h3{margin-bottom:6px}
+.brief-row{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:4px 14px;padding:6px 0;border-top:1px dashed var(--line);font-size:13.5px}
+.brief-row dt{color:var(--muted)}
+.brief-row dd{margin:0;white-space:pre-wrap;word-break:break-word}
+
+/* Kit / palette */
+.pal{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.pal label{display:grid;gap:6px;font-size:12px;font-weight:700;color:var(--muted);text-align:center}
+.pal .sw{height:72px;border-radius:10px;border:1px solid var(--line);position:relative;overflow:hidden}
+.pal input[type=color]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.pal code{font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums}
+.contrast{display:grid;gap:6px;font-size:13px}
+.contrast div{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center}
+.contrast .chipc{padding:3px 8px;border-radius:6px;font-weight:700;font-size:12px}
+.preview{aspect-ratio:1/1;max-width:340px;width:100%;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:26px;border:1px solid var(--line)}
+.preview .h{font-size:32px;line-height:1.05}
+.preview .b{font-size:14px;line-height:1.45}
+.preview .cta{align-self:flex-start;padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px}
+.two{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+
+/* Fonts */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;font-weight:600}
+.chip[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:var(--on-navy)}
+.fonts{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:14px}
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.fcard .h{font-size:30px;line-height:1.05;word-break:break-word}
+.fcard .b{font-size:14px;line-height:1.5;color:var(--muted)}
+.fcard .names{font-size:12.5px;font-weight:700}
+.fcard .names span{color:var(--muted);font-weight:500}
+
+/* Inspiration */
+.inspo{columns:4 220px;column-gap:12px;margin-top:14px}
+.ins{break-inside:avoid;margin-bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.ins img{width:100%;height:auto;background:var(--surface-2);min-height:80px}
+.ins .meta{padding:8px 10px;display:grid;gap:6px;font-size:12.5px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;cursor:pointer;background:var(--surface-2)}
+.drop:hover,.drop.over{border-color:var(--gold);background:var(--gold-soft)}
+
+/* Tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
+th{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.stat div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.stat b{display:block;font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:12.5px;color:var(--muted)}
+.import{display:grid;gap:10px}
+/* Brand kit */
+.kit-status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px;align-items:end}
+.kgrid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:14px;align-items:start}
+.kgrid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kgrid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.kslot{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--surface);min-width:0}
+.kslot.empty-slot{border-style:dashed;background:var(--surface-2);cursor:pointer;justify-content:center;min-height:84px}
+label.kslot.empty-slot:hover{border-color:var(--gold);background:var(--gold-soft)}
+.kname{display:grid;gap:2px;min-width:0}
+.kname b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kname span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kprev{height:70px;border-radius:8px;background:var(--surface-2);display:grid;place-items:center;overflow:hidden;padding:6px;background-image:linear-gradient(45deg,rgba(127,127,127,.12) 25%,transparent 25%,transparent 75%,rgba(127,127,127,.12) 75%),linear-gradient(45deg,rgba(127,127,127,.12) 25%,transparent 25%,transparent 75%,rgba(127,127,127,.12) 75%);background-size:12px 12px;background-position:0 0,6px 6px}
+.kprev.dark{background-color:#1B2A31}
+.kprev img{max-height:100%;max-width:100%;object-fit:contain}
+.kprev span{font-family:var(--display);font-weight:800;color:var(--muted)}
+.swc{display:grid;gap:3px;font-size:12px}
+.swc .sw{height:64px;border-radius:10px;border:1px solid var(--line);position:relative;overflow:hidden;margin-bottom:4px}
+.swc input[type=color]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.swc b{font-size:13px}
+.swc code{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.fontrole{border-top:1px dashed var(--line);padding-top:12px}
+.fontrole:first-child{border-top:0;padding-top:0}
+.fsample{font-size:22px;margin:8px 0 10px;line-height:1.2}
+.sticky{position:sticky;top:12px}
+.locked{border:1px solid var(--line);border-radius:14px;padding:32px 22px;text-align:center;background:var(--surface)}
+.locked p{color:var(--muted);max-width:56ch;margin:8px auto 16px}
+@media (max-width:900px){.kgrid4{grid-template-columns:repeat(2,minmax(0,1fr))}.kit-status,.kgrid2{grid-template-columns:1fr}.sticky{position:static}}
+@media (max-width:560px){.kgrid3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:13px;font-weight:600;z-index:30;max-width:90vw}
+@media (max-width:900px){.item .cols{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+@media (max-width:560px){.fgrid{grid-template-columns:1fr}.pal{grid-template-columns:repeat(3,minmax(0,1fr))}.brief-row{grid-template-columns:1fr}.nav button{padding:6px 10px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="mast"><div class="wrap">
+  <button class="brand" type="button" data-act="home"><b>MIDAS</b><span>Design Studio</span></button>
+  <nav class="nav" id="nav"></nav>
+</div></header>
+<div id="runbar"></div>
+<main class="wrap" id="app"><div class="empty"><h2>Loading the studio…</h2></div></main>
+<div class="toast" id="toast" hidden></div>
+<style id="kitFonts"></style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+/* ================= Constants ================= */
+const MAX_CLIENTS = 10;
+const DSTATUS = ["To do","In progress","Internal review","With AE","Revisions","Done"];
+const DS_CLASS = {"To do":"","In progress":"s-info","Internal review":"s-warn","With AE":"s-gold","Revisions":"s-bad","Done":"s-good"};
+const DS_COLOR = {"To do":"var(--line)","In progress":"var(--info)","Internal review":"var(--warn)","With AE":"var(--gold)","Revisions":"var(--bad)","Done":"var(--good)"};
+const ROLES = [["primary","Primary"],["secondary","Secondary"],["tertiary","Tertiary"],["accent","Accent"]];
+const BLACK = "#000000", WHITE = "#FFFFFF";
+const PRESETS = [
+  {n:"Midas navy & gold", c:{primary:"#0E2A36",secondary:"#18404F",tertiary:"#4F8C8F",accent:"#C49A47"}},
+  {n:"Earth & sand", c:{primary:"#6E4A2B",secondary:"#B98B5E",tertiary:"#E6D2B5",accent:"#2F6B3C"}},
+  {n:"Fresh greens", c:{primary:"#2F6B3C",secondary:"#5FA05B",tertiary:"#BFDCA8",accent:"#F2CF45"}},
+  {n:"Calm blues", c:{primary:"#1F5E8C",secondary:"#4E9AC7",tertiary:"#BFE0F2",accent:"#F2A65A"}},
+  {n:"Warm reds", c:{primary:"#B83A2E",secondary:"#E0663A",tertiary:"#F6D9C7",accent:"#F2CF45"}},
+  {n:"Plum & blush", c:{primary:"#4B2B5E",secondary:"#7E4E9C",tertiary:"#E58AAE",accent:"#C49A47"}},
+  {n:"Mono & sun", c:{primary:"#1A1A1A",secondary:"#7A7A7A",tertiary:"#D9D9D9",accent:"#F2CF45"}},
+  {n:"Teal & coral", c:{primary:"#1D5560",secondary:"#4F8C8F",tertiary:"#CFE3E2",accent:"#E5735C"}}
+];
+const LOGO_VARIANTS = [["full","Full colour"],["black","Black"],["white","White"]];
+const LOGO_FORMATS = ["svg","png","pdf"];
+const WEIGHTS = [[400,"Regular"],[500,"Medium"],[600,"SemiBold"],[700,"Bold"]];
+const FONT_ROLES = [["heading","Heading font"],["body","Body font"]];
+const GUIDE_CHECKS = [["sheet","Brand sheet: logo, icon, colours and fonts on one page"],["clear","Clear space around the logo and icon"],["min","Minimum sizes for print and screen"],["dodont","Do and don't examples"],["pairs","Colour pairings and contrast"],["extras","Patterns, graphic elements and other designs"]];
+const MIME = {svg:"image/svg+xml",png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",webp:"image/webp",gif:"image/gif",pdf:"application/pdf",ttf:"font/ttf",otf:"font/otf",woff:"font/woff",woff2:"font/woff2"};
+const DL_OK = new Set(["gif","png","jpg","jpeg","webp","svg","pdf","ttf","zip","txt","csv"]);
+const FONT_FMT = {ttf:"truetype",otf:"opentype",woff:"woff",woff2:"woff2"};
+const ext = n => (String(n||"").split(".").pop()||"").toLowerCase();
+const STYLES = ["Classic serif","Clean modern","Friendly rounded","Bold & condensed","Handwritten"];
+const PAIRS = [
+  {h:"Playfair Display", b:"Source Sans 3", s:"Classic serif", m:"Established, premium, professional services"},
+  {h:"Cormorant Garamond", b:"Montserrat", s:"Classic serif", m:"Luxury, beauty, hospitality"},
+  {h:"DM Serif Display", b:"DM Sans", s:"Classic serif", m:"Editorial, modern retail"},
+  {h:"Libre Baskerville", b:"Oswald", s:"Classic serif", m:"Heritage, law, finance"},
+  {h:"Manrope", b:"Work Sans", s:"Clean modern", m:"Consulting, B2B, real estate"},
+  {h:"Space Grotesk", b:"IBM Plex Sans", s:"Clean modern", m:"Tech, fintech, startups"},
+  {h:"Raleway", b:"Open Sans", s:"Clean modern", m:"Corporate, NGOs, safe choice"},
+  {h:"Fraunces", b:"Figtree", s:"Friendly rounded", m:"Cafés, crafts, warm brands"},
+  {h:"Nunito", b:"Nunito Sans", s:"Friendly rounded", m:"Schools, health, community"},
+  {h:"Poppins", b:"Lora", s:"Friendly rounded", m:"Lifestyle, food, wellness"},
+  {h:"Anton", b:"Roboto", s:"Bold & condensed", m:"Sport, events, promotions"},
+  {h:"Bebas Neue", b:"Montserrat", s:"Bold & condensed", m:"Fitness, retail sales, nightlife"},
+  {h:"Archivo Black", b:"Work Sans", s:"Bold & condensed", m:"Streetwear, logistics, construction"},
+  {h:"Caveat", b:"Quicksand", s:"Handwritten", m:"Bakeries, gifts, personal brands"}
+];
+const FALLBACK = {"Playfair Display":"Georgia,serif","Cormorant Garamond":"Georgia,serif","DM Serif Display":"Georgia,serif","Libre Baskerville":"Georgia,serif","Fraunces":"Georgia,serif","Lora":"Georgia,serif","Caveat":"cursive"};
+const ff = n => `'${n}', ${FALLBACK[n] || "Arial, sans-serif"}`;
+const INSPO_TAGS = ["Post","Story","Reel","Ad","Typography","Colour","Layout","Photography","Illustration"];
+
+/* ================= Helpers ================= */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2,"0");
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const todayYM = todayISO().slice(0,7);
+function ymShift(ym, n){ let [y,m] = ym.split("-").map(Number); m += n; while(m>12){m-=12;y++} while(m<1){m+=12;y--} return `${y}-${pad(m)}`; }
+function ymLabel(ym){ const [y,m] = ym.split("-").map(Number); return new Date(Date.UTC(y,m-1,1)).toLocaleDateString("en-GB",{month:"long",year:"numeric",timeZone:"UTC"}); }
+function dlabel(iso, opts){ if(!iso) return ""; const [y,m,d] = iso.split("-").map(Number); return new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-GB",{timeZone:"UTC", ...(opts||{weekday:"short",day:"numeric",month:"short"})}); }
+function isoAdd(iso, n){ const [y,m,d] = iso.split("-").map(Number); const t = new Date(Date.UTC(y,m-1,d+n)); return t.toISOString().slice(0,10); }
+function mondayOf(iso){ const [y,m,d] = iso.split("-").map(Number); const wd = new Date(Date.UTC(y,m-1,d)).getUTCDay(); return isoAdd(iso, -((wd+6)%7)); }
+function setPath(obj, path, val){ const ks = path.split("."); let o = obj; ks.slice(0,-1).forEach(k => o = (o[k] = o[k] || {})); o[ks.at(-1)] = val; return obj; }
+function getPath(obj, path){ return path.split(".").reduce((o,k)=> (o==null?undefined:o[k]), obj); }
+function hms(ms){ const s = Math.max(0, Math.floor(ms/1000)); return `${pad(Math.floor(s/3600))}:${pad(Math.floor(s%3600/60))}:${pad(s%60)}`; }
+function hm(ms){ const m = Math.round(ms/60000); return m < 60 ? `${m} min` : `${Math.floor(m/60)} h ${pad(m%60)}`; }
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(()=>t.hidden = true, 3000); }
+function hexRgb(h){ const n = parseInt(h.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+function lum(h){ return hexRgb(h).map(v=>{ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }).reduce((a,v,i)=>a+v*[0.2126,0.7152,0.0722].at(i),0); }
+function contrast(a,b){ const [x,y] = [lum(a),lum(b)].sort((p,q)=>q-p); return (x+0.05)/(y+0.05); }
+const textOn = bg => contrast(BLACK,bg) >= contrast(WHITE,bg) ? BLACK : WHITE;
+function cmyk(h){ const [r,g,b] = hexRgb(h).map(v=>v/255); const k = 1-Math.max(r,g,b); if(k>=1) return [0,0,0,100]; return [r,g,b].map(v=>Math.round((1-v-k)/(1-k)*100)).concat(Math.round(k*100)); }
+const kb = n => n>1048576 ? `${(n/1048576).toFixed(1)} MB` : `${Math.max(1,Math.round((n||0)/1024))} KB`;
+const kitColors = kit => ({...PRESETS[0].c, ...((kit||{}).colors||{})});
+function kitProgress(kit){
+  kit = kit || {}; const f = kit.files || {}; let filled = 0, total = 0;
+  ["logo","icon"].forEach(p=>LOGO_VARIANTS.forEach(([v])=>LOGO_FORMATS.forEach(fm=>{ total++; if(f[`${p}_${v}_${fm}`]) filled++; })));
+  ROLES.forEach(([r])=>{ total++; if((kit.colors||{})[r]) filled++; });
+  FONT_ROLES.forEach(([r])=>{ total++; if(WEIGHTS.some(([w])=>f[`font_${r}_${w}`])) filled++; });
+  total++; if(f.guide_pdf) filled++;
+  return {filled, total, pct: Math.round(filled/total*100)};
+}
+function kitStack(c, role){
+  const kit = c.kit || {}; const f = kit.files || {}; const name = kit[role] || (role==="heading" ? "Archivo Black" : "Work Sans");
+  return WEIGHTS.some(([w])=>f[`font_${role}_${w}`]) ? `'Kit-${role}-${c.id}', ${ff(name)}` : ff(name);
+}
+function kitFontCSS(c){
+  if(!c) return ""; const f = (c.kit||{}).files || {}; let css = "";
+  FONT_ROLES.forEach(([r])=>WEIGHTS.forEach(([w])=>{ const x = f[`font_${r}_${w}`]; if(x && x.id) css += `@font-face{font-family:'Kit-${r}-${c.id}';src:url('/_blob/${x.id}') format('${FONT_FMT[ext(x.name)]||"truetype"}');font-weight:${w};font-display:swap}\n`; }));
+  return css;
+}
+function parseCSV(text){
+  text = text.replace(/^﻿/,""); const rows = []; let row = [], cell = "", q = false;
+  for(let i=0;i<text.length;i++){ const ch = text[i];
+    if(q){ if(ch==='"'){ if(text[i+1]==='"'){ cell+='"'; i++; } else q = false; } else cell += ch; }
+    else if(ch==='"') q = true; else if(ch===','){ row.push(cell); cell=""; } else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&text[i+1]==='\n') i++; row.push(cell); rows.push(row); row=[]; cell=""; } else cell += ch; }
+  if(cell!==""||row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r=>r.some(c=>c.trim()!==""));
+}
+const itemTime = it => (it.timer && it.timer.total || 0) + (it.timer && it.timer.start ? Date.now() - it.timer.start : 0);
+const sortSlots = (a,b) => { const o = {P:0,S:1,R:2,A:3}; return (a[1].date||"9").localeCompare(b[1].date||"9") || (o[a[0][0]]??9)-(o[b[0][0]]??9) || a[0].localeCompare(b[0]); };
+
+/* ================= State ================= */
+let db = null, assets = null, user = null, me = null, canWrite = true;
+let clients = null, inspo = [];
+const months = {}; const subs = new Map();
+let view = {sec:"clients", client:null, tab:"board", ym:todayYM, week:null, res:"fonts"};
+let adding = false, confirmDel = false, pendingRender = false, busy = {}, fontStyle = "", inspoFilter = {tag:"", client:""};
+let palette = {...PRESETS[0].c}, palPair = 0, palClient = "";
+let running = null; try { running = JSON.parse(localStorage.getItem("studio-running")||"null"); } catch(e){}
+
+/* ================= Data ================= */
+const chains = {};
+function queue(path, fn){
+  chains[path] = (chains[path]||Promise.resolve()).then(fn).catch(e=>{
+    if(e && e.code==="invalid_argument"){ toast("That change wasn't saved. You may have view-only access."); }
+    else if(e && e.code==="quota_exceeded") toast("Storage is full. Remove old inspiration images or clients.");
+    else toast("That change didn't save. Check your connection and try again.");
+  });
+  return chains[path];
+}
+const writeClient = (id, patch) => queue(`clients/${id}`, ()=> db.doc(`clients/${id}`).update(patch));
+const writeMonth = (id, ym, patch) => queue(`clients/${id}/months/${ym}`, ()=> db.doc(`clients/${id}/months/${ym}`).update(patch));
+
+function syncSubs(){
+  const want = new Set();
+  (clients||[]).forEach(c => want.add(`${c.id}/${todayYM}`));
+  if(view.client) want.add(`${view.client}/${view.ym}`);
+  if(running && running.ym!=="kit") want.add(`${running.client}/${running.ym}`);
+  for(const [k,un] of subs) if(!want.has(k)){ un(); subs.delete(k); delete months[k]; }
+  for(const k of want) if(!subs.has(k)){
+    const [cid, ym] = k.split("/"); months[k] = undefined;
+    subs.set(k, db.doc(`clients/${cid}/months/${ym}`).onSnapshot(s=>{ months[k] = s.exists ? s.data() : null; checkRunning(); requestRender(); }, ()=>{ months[k] = null; requestRender(); }));
+  }
+}
+function timedItem(key, slot){
+  const [cid, ym] = key.split("/");
+  if(ym==="kit"){ const c = (clients||[]).find(x=>x.id===cid); return c ? (c.kit||{}) : null; }
+  const md = months[key]; return md && md.items ? md.items[slot] : null;
+}
+function writeTimer(key, slot, timer, extra){
+  const [cid, ym] = key.split("/");
+  if(ym==="kit") return writeClient(cid, {kit:{timer, ...(extra||{})}});
+  return writeMonth(cid, ym, {items:{[slot]:{timer, ...(extra||{})}}});
+}
+function checkRunning(){
+  if(!running || clients===null) return; const k = `${running.client}/${running.ym}`;
+  if(running.ym!=="kit" && months[k]===undefined) return;
+  const it = timedItem(k, running.slot);
+  if(!it || !it.timer || !it.timer.start){ setRunning(null); }
+}
+function setRunning(r){ running = r; try { r ? localStorage.setItem("studio-running", JSON.stringify(r)) : localStorage.removeItem("studio-running"); } catch(e){} renderRunbar(); }
+function isEditing(){ const a = document.activeElement; return a && $("#app").contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && !["checkbox","color","file"].includes(a.type); }
+function requestRender(){ if(isEditing()) pendingRender = true; else render(); }
+document.addEventListener("focusout", ()=> setTimeout(()=>{ if(pendingRender && !isEditing()){ pendingRender = false; render(); } }, 0));
+
+async function init(){
+  try { db = await claude.use("db"); } catch(e){}
+  if(!db){ $("#app").innerHTML = `<div class="empty"><h2>Studio unavailable</h2><p>Open this page in Claude while signed in to your Midas Media account.</p></div>`; renderNav(); return; }
+  try { user = await claude.use("user"); if(user){ me = await user.id(); const c = await user.can("data.write"); if(c===false) canWrite = false; } } catch(e){}
+  try { assets = await claude.use("assets"); } catch(e){ assets = null; }
+  db.collection("clients").onSnapshot(snap=>{
+    clients = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(a.created||0)-(b.created||0));
+    if(view.client && !clients.find(c=>c.id===view.client)){ view.client = null; }
+    syncSubs(); checkRunning(); requestRender();
+  }, ()=>{ $("#app").innerHTML = `<div class="notice err">The client list stopped updating. Reload the page.</div>`; });
+  db.collection("inspo").orderBy("created","desc").limit(400).onSnapshot(snap=>{ inspo = snap.docs.map(d=>({id:d.id, ...d.data()})); if(view.sec==="resources" && view.res==="inspo") requestRender(); }, ()=>{});
+  setInterval(tick, 1000);
+}
+function tick(){
+  document.querySelectorAll("[data-tick]").forEach(el=>{ const [k, slot] = el.dataset.tick.split("|"); const it = timedItem(k, slot); if(it) el.textContent = hms(itemTime(it)); });
+}
+
+/* ================= Render ================= */
+function renderNav(){
+  $("#nav").innerHTML = [["clients","Clients"],["resources","Resources"],["time","Time"]].map(([k,l])=>`<button type="button" data-sec="${k}" aria-current="${view.sec===k}">${l}</button>`).join("");
+}
+function renderRunbar(){
+  const el = $("#runbar"); if(!running){ el.innerHTML = ""; return; }
+  const c = (clients||[]).find(x=>x.id===running.client);
+  el.innerHTML = `<div class="runbar"><div class="wrap"><span class="dot"></span><span>Timing <b>${esc(running.slot==="KIT"?"Brand kit":running.slot)}</b> for ${esc(c?c.name:"a client")}</span><b data-tick="${running.client}/${running.ym}|${running.slot}">--:--:--</b><button class="btn sm" type="button" data-timer="${running.slot}" data-k="${running.client}/${running.ym}">Stop</button><button class="link" type="button" data-goto="${running.client}" data-ym="${running.ym}">Open</button></div></div>`;
+  tick();
+}
+function render(){
+  renderNav(); renderRunbar();
+  if(clients===null) return;
+  const app = $("#app");
+  const ro = !canWrite ? `<div class="notice" style="margin-bottom:14px">You have view-only access. Ask Dave for Contributor access to make changes.</div>` : "";
+  const cur = view.client && clients.find(c=>c.id===view.client);
+  const css = view.sec==="clients" && cur ? kitFontCSS(cur) : ""; const st = $("#kitFonts"); if(st.textContent!==css) st.textContent = css;
+  app.innerHTML = ro + (view.sec==="resources" ? resourcesHTML() : view.sec==="time" ? timeHTML() : view.client ? clientHTML() : homeHTML());
+  tick();
+}
+const dis = () => canWrite ? "" : "disabled";
+
+/* ---------- Home ---------- */
+function monthSummary(md){
+  const out = {total:0, done:0, ms:0, by:{}};
+  if(!md || !md.items) return out;
+  Object.values(md.items).forEach(it=>{ out.total++; const s = it.ds||"To do"; out.by[s]=(out.by[s]||0)+1; if(s==="Done") out.done++; out.ms += itemTime(it); });
+  return out;
+}
+function homeHTML(){
+  const n = clients.length;
+  let h = `<div class="head"><div><h1>Design clients</h1><p class="sub">${esc(ymLabel(todayYM))}. Import each client's brand brief and approved calendar, then work week by week.</p></div>
+    <div class="row"><span class="pill">${n} of ${MAX_CLIENTS} slots</span>${canWrite?`<button class="btn pri" type="button" data-act="add" ${n>=MAX_CLIENTS?"disabled":""}>+ Add client</button>`:""}</div></div>`;
+  if(adding) h += `<form class="panel" id="addForm" style="margin-bottom:16px"><h2 style="margin-bottom:10px">New client</h2><div class="fgrid"><label class="f">Business name<input type="text" id="new_name" required placeholder="Same name as in the Account Desk"></label><label class="f">Industry<input type="text" id="new_industry"></label></div><div class="row" style="margin-top:12px"><button class="btn pri" type="submit">Add client</button><button class="btn" type="button" data-act="cancelAdd">Cancel</button></div></form>`;
+  if(!n) return h + (adding ? "" : `<div class="empty"><h2>No clients yet</h2><p>Add a client, then import the brand brief CSV from Phase 1 and the calendar CSV the account exec exports from the Account Desk.</p>${canWrite?`<button class="btn pri" type="button" data-act="add">Add your first client</button>`:""}</div>`);
+  const cards = clients.map(c=>{
+    const md = months[`${c.id}/${todayYM}`]; const s = monthSummary(md); const kit = c.kit||{};
+    return `<button class="ccard" type="button" data-open="${c.id}">
+      <div class="swatches">${ROLES.map(([r])=>`<i style="background:${esc((kit.colors||{})[r]||"var(--line)")}"></i>`).join("")}</div>
+      <div><h3 style="font-size:17px">${esc(c.name)}</h3><div class="meta">${esc(c.industry||"")}${kit.heading?` · ${esc(kit.heading)} + ${esc(kit.body||"")}`:""}</div></div>
+      ${kit.status!=="Done" ? `<div class="kv"><span>Brand kit</span><span>${esc(kit.status||"To do")}</span><span>Kit items ready</span><span>${kitProgress(kit).filled} / ${kitProgress(kit).total}</span><span>Content creation</span><span>Locked until sign-off</span></div>` : md===undefined?`<div class="meta">Loading…</div>`: md===null?`<div class="notice">${esc(ymLabel(todayYM))} calendar not imported</div>`:`
+      <div class="bar">${DSTATUS.map(st=>{ const v = s.by[st]||0; return v?`<i style="width:${v/s.total*100}%;background:${DS_COLOR[st]}"></i>`:""; }).join("")}</div>
+      <div class="kv"><span>Done</span><span>${s.done} / ${s.total}</span><span>Time logged</span><span>${hm(s.ms)}</span><span>Brief</span><span>${(c.brief||[]).length?"Imported":"Missing"}</span></div>`}
+    </button>`;
+  }).join("");
+  return h + `<div class="grid">${cards}${canWrite && n<MAX_CLIENTS && !adding ? `<button class="slot" type="button" data-act="add">+ Add client (${MAX_CLIENTS-n} free)</button>`:""}</div>`;
+}
+
+/* ---------- Client ---------- */
+function clientHTML(){
+  const c = clients.find(x=>x.id===view.client); if(!c) return "";
+  const key = `${c.id}/${view.ym}`; const md = months[key];
+  const tabs = [["brief","1 · Brand brief"],["kit","2 · Brand kit"],["board","3 · Weekly board"],["time","Time report"],["import","Import CSV"]];
+  const kitDone = (c.kit||{}).status==="Done";
+  let body;
+  if(view.tab==="board" && !kitDone) body = `<div class="locked"><h2>Content creation opens after brand kit sign-off</h2><p>Every post is built on the brand kit, so the client signs it off first. Brand kit status: <b>${esc((c.kit||{}).status||"To do")}</b>, ${kitProgress(c.kit).filled} of ${kitProgress(c.kit).total} required items ready.</p><button class="btn pri" type="button" data-tab="kit">Open brand kit</button></div>`;
+  else if(view.tab==="brief") body = briefHTML(c);
+  else if(view.tab==="kit") body = kitHTML(c);
+  else if(view.tab==="import") body = importHTML(c);
+  else if(md===undefined) body = `<div class="notice">Loading ${esc(ymLabel(view.ym))}…</div>`;
+  else if(md===null) body = `<div class="empty"><h2>No calendar for ${esc(ymLabel(view.ym))}</h2><p>Ask the account exec to export the approved calendar from the Account Desk, then import it here. Design starts only from an approved calendar.</p><button class="btn pri" type="button" data-tab="import">Import calendar CSV</button></div>`;
+  else body = view.tab==="time" ? clientTimeHTML(c, md) : boardHTML(c, md);
+  const showMonth = ["board","time"].includes(view.tab);
+  return `<div class="crumbs"><button class="link" type="button" data-act="home">All clients</button> / ${esc(c.name)}</div>
+    <div class="head" style="margin-bottom:14px"><div><h1>${esc(c.name)}</h1><p class="sub">${esc(c.industry||"")}${(c.brief||[]).length?"":" · Brand brief not imported yet"}</p></div>
+    ${showMonth?`<div class="month-pick"><button type="button" data-act="prev" aria-label="Previous month">‹</button><b>${esc(ymLabel(view.ym))}</b><button type="button" data-act="next" aria-label="Next month">›</button></div>`:""}</div>
+    <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${view.tab===k}">${l}</button>`).join("")}</div>${body}`;
+}
+function weeksOf(md, ym){
+  const [y,m] = ym.split("-").map(Number); const first = `${ym}-01`; const last = `${ym}-${pad(new Date(Date.UTC(y,m,0)).getUTCDate())}`;
+  const weeks = []; for(let w = mondayOf(first); w <= last; w = isoAdd(w,7)) weeks.push({start:w, end:isoAdd(w,6), items:[]});
+  const loose = {start:"", end:"", items:[], loose:true};
+  Object.entries(md.items||{}).sort(sortSlots).forEach(e=>{ const d = e[1].date; const wk = d && weeks.find(w=>d>=w.start && d<=w.end); (wk||loose).items.push(e); });
+  if(loose.items.length) weeks.push(loose);
+  return weeks.filter(w=>w.items.length || !w.loose);
+}
+function boardHTML(c, md){
+  const weeks = weeksOf(md, view.ym);
+  if(view.week==null || view.week>=weeks.length){ const t = todayISO(); const i = weeks.findIndex(w=>t>=w.start && t<=w.end); view.week = i>=0 ? i : weeks.findIndex(w=>w.items.length); if(view.week<0) view.week = 0; }
+  const wk = weeks[view.week]; const key = `${c.id}/${view.ym}`;
+  const chips = weeks.map((w,i)=>{ const done = w.items.filter(([,it])=>it.ds==="Done").length; return `<button class="wk" type="button" data-week="${i}" aria-pressed="${i===view.week}"><b>${w.loose?"No date":`Week ${i+1}`}</b><span>${w.loose?"Unscheduled":`${dlabel(w.start,{day:"numeric",month:"short"})} – ${dlabel(w.end,{day:"numeric",month:"short"})}`} · ${done}/${w.items.length}</span><div class="mini"><i style="width:${w.items.length?done/w.items.length*100:0}%"></i></div></button>`; }).join("");
+  const kit = c.kit || {};
+  const cards = wk.items.length ? wk.items.map(([id,it])=>itemHTML(key, id, it, kit)).join("") : `<div class="notice">Nothing scheduled this week.</div>`;
+  const empties = wk.items.filter(([,it])=>!it.visual || !it.graphic || !it.caption).length;
+  return `<div class="weeks">${chips}</div>
+    <div class="row between" style="margin-bottom:12px"><div><h2>${wk.loose?"Unscheduled":`Week ${view.week+1} · ${esc(dlabel(wk.start,{day:"numeric",month:"long"}))} – ${esc(dlabel(wk.end,{day:"numeric",month:"long"}))}`}</h2><p class="sub">${wk.items.length} deliverables. Suggestions only fill empty fields; clear a field to get a new one.</p></div>
+    ${canWrite?`<button class="btn gold" type="button" data-suggest="week" ${empties&&!busy.week?"":"disabled"}>${busy.week?"Writing suggestions…":`Suggest visuals & copy for this week${empties?` (${empties})`:""}`}</button>`:""}</div>
+    ${cards}`;
+}
+function itemHTML(key, id, it, kit){
+  const on = it.timer && it.timer.start; const mine = on && running && running.slot===id && `${running.client}/${running.ym}`===key;
+  const f = (k, label, ph, rows) => `<label class="f">${label}<textarea rows="${rows||4}" data-scope="month" data-path="items.${id}.${k}" id="${id}_${k}" placeholder="${esc(ph)}" ${dis()}>${esc(it[k])}</textarea></label>`;
+  return `<article class="item ${on?"running":""}">
+    <header><span class="id">${esc(id)}</span><span class="pill">${esc(it.type)}</span><span class="date">${esc(dlabel(it.date)||"No date")}</span><span class="pill s-gold">${esc(it.pillar||"")}</span><span class="pill">${esc(it.platform||"")}</span><span class="sp"></span>
+      <select data-scope="month" data-path="items.${id}.ds" id="${id}_ds" aria-label="${id} design status" ${dis()}>${DSTATUS.map(s=>`<option ${s===(it.ds||"To do")?"selected":""}>${s}</option>`).join("")}</select>
+      <span class="timer"><b data-tick="${key}|${id}">${hms(itemTime(it))}</b>${canWrite?`<button type="button" class="${on?"stop":""}" data-timer="${id}" data-k="${key}">${on?(mine||!running?"Stop":"Stop"):"Start"}</button>`:""}</span></header>
+    <div class="topic"><span>Topic from the calendar:</span> <b>${esc(it.topic||"No topic given")}</b> <span>· AE status: ${esc(it.aeStatus||"—")}</span></div>
+    ${it.notes?`<div class="aenotes">${esc(it.notes)}</div>`:""}
+    <div class="cols">
+      ${f("visual","Suggested visual","Image, layout, colours from the brand kit")}
+      ${f("graphic","Copy on the design","Headline or text on the graphic (max 8 words)",4)}
+      ${f("caption","Caption","Copy that goes with the post, with a call to action",4)}
+    </div>
+    <div class="foot"><label class="f" style="flex:1;min-width:180px">Hashtags<input type="text" data-scope="month" data-path="items.${id}.hashtags" id="${id}_hashtags" value="${esc(it.hashtags)}" ${dis()}></label><label class="f" style="flex:2;min-width:200px">Final file link<input type="url" data-scope="month" data-path="items.${id}.file" id="${id}_file" value="${esc(it.file)}" placeholder="https://drive…" ${dis()}></label>
+    ${canWrite?`<button class="btn sm" type="button" data-suggest="${id}" ${busy[id]?"disabled":""}>${busy[id]?"Writing…":"Suggest"}</button>`:""}</div>
+  </article>`;
+}
+function briefHTML(c){
+  const b = c.brief || [];
+  if(!b.length) return `<div class="empty"><h2>No brand brief yet</h2><p>Import the data file (CSV) the client downloaded from the brand discovery questionnaire. It also improves the visual and copy suggestions.</p><button class="btn pri" type="button" data-tab="import">Import brief CSV</button></div>`;
+  const secs = {}; b.forEach(r=>{ (secs[r.s] = secs[r.s] || []).push(r); });
+  return `<p class="sub" style="margin:-6px 0 14px">From the Phase 1 questionnaire${c.briefDate?`, imported ${esc(new Date(c.briefDate).toLocaleDateString("en-GB"))}`:""}. Unanswered questions are hidden.</p>
+    <div class="two"><div class="panel">${Object.entries(secs).map(([s,rows])=>`<div class="brief-sec"><h3>${esc(s)}</h3><dl style="margin:0">${rows.filter(r=>r.a).map(r=>`<div class="brief-row"><dt>${esc(r.q)}</dt><dd>${esc(r.a)}</dd></div>`).join("")||`<p class="sub">Not answered.</p>`}</dl></div>`).join("")}</div>
+    <div class="panel"><h2>Designer notes</h2><p class="sub" style="margin-bottom:10px">What the brief means for the work: do's, don'ts, recurring motifs.</p><textarea rows="12" data-scope="client" data-path="designNotes" id="designNotes" ${dis()}>${esc(c.designNotes)}</textarea></div></div>`;
+}
+function slotHTML(slot, label, accept, f){
+  const can = canWrite && !!assets; const dark = /_white_/.test(slot);
+  if(busy[slot]) return `<div class="kslot"><div class="kname"><b>${esc(label)}</b><span>Uploading…</span></div></div>`;
+  if(f) return `<div class="kslot filled"><div class="kprev ${dark?"dark":""}">${(f.type||"").startsWith("image/")?`<img src="/_blob/${esc(f.id)}" alt="${esc(label)}">`:`<span>${esc(ext(f.name).toUpperCase())}</span>`}</div><div class="kname"><b>${esc(label)}</b><span title="${esc(f.name)}">${esc(f.name)} · ${kb(f.size)}</span></div><div class="row"><button class="btn sm" type="button" data-kdl="${slot}">Download</button>${can?`<label class="btn sm">Replace<input type="file" hidden accept="${accept}" data-kslot="${slot}"></label><button class="link" type="button" data-krm="${slot}" style="color:var(--bad);font-size:12.5px">Remove</button>`:""}</div></div>`;
+  return can ? `<label class="kslot empty-slot"><div class="kname"><b>${esc(label)}</b><span>Upload ${esc(accept.replace(/\./g,"").toUpperCase())}</span></div><input type="file" hidden accept="${accept}" data-kslot="${slot}"></label>` : `<div class="kslot empty-slot"><div class="kname"><b>${esc(label)}</b><span>Not uploaded</span></div></div>`;
+}
+function kitHTML(c){
+  const kit = c.kit || {}, files = kit.files || {}, col = kitColors(kit), st = kit.status || "To do", key = `${c.id}/kit`, p = kitProgress(kit);
+  const on = kit.timer && kit.timer.start;
+  const pairIdx = PAIRS.findIndex(q=>q.h===kit.heading && q.b===kit.body);
+  const markGrid = (prefix, title, sub) => `<section class="panel"><h2>${title}</h2><p class="sub" style="margin-bottom:12px">${sub}</p><div class="kgrid3">${LOGO_VARIANTS.map(([v,vl])=>LOGO_FORMATS.map(fm=>slotHTML(`${prefix}_${v}_${fm}`, `${vl} · ${fm.toUpperCase()}`, `.${fm}`, files[`${prefix}_${v}_${fm}`])).join("")).join("")}</div></section>`;
+  const swatch = (r, l, hex, editable) => { const [R,G,B] = hexRgb(hex), [C,M,Y,K] = cmyk(hex); return `<div class="swc"><div class="sw" style="background:${esc(hex)}">${editable?`<input type="color" value="${esc(hex)}" data-scope="client" data-path="kit.colors.${r}" id="kit_${r}" aria-label="${l} colour" ${dis()}>`:""}</div><b>${l}${editable && !(kit.colors||{})[r]?' <span class="pill s-warn" style="font-size:10.5px">not set</span>':""}</b><code>HEX ${esc(hex.toUpperCase())}</code><code>RGB ${R}, ${G}, ${B}</code><code>CMYK ${C}, ${M}, ${Y}, ${K}</code></div>`; };
+  const fonts = FONT_ROLES.map(([r,l])=>`<div class="fontrole"><div class="row between"><label class="f" style="flex:1;min-width:200px">${l}<input type="text" data-scope="client" data-path="kit.${r}" id="kit_${r}" value="${esc(kit[r])}" placeholder="Family name" ${dis()}></label>${kit[r]?`<a class="link" href="https://fonts.google.com/specimen/${encodeURIComponent(kit[r]).replace(/%20/g,"+")}" target="_blank" rel="noopener" style="align-self:flex-end;margin-bottom:8px">Get it on Google Fonts ↗</a>`:""}</div>
+      <p class="fsample" style="font-family:${kitStack(c,r)}">${r==="heading"?"Ideas into impact":"Strategic content for ambitious brands, set in the body face."}</p>
+      <div class="kgrid4">${WEIGHTS.map(([w,wl])=>slotHTML(`font_${r}_${w}`, `${wl} · ${w}`, ".ttf,.otf,.woff,.woff2", files[`font_${r}_${w}`])).join("")}</div></div>`).join("");
+  const extras = kit.extras || [];
+  return `<section class="panel kit-head" style="margin-bottom:16px">
+      <div class="row between"><div><h2>Brand kit</h2><p class="sub">The first job for every new client. It goes through the same review as posts, and content creation opens only when the client signs it off.</p></div>
+      <div class="row"><span class="timer"><b data-tick="${key}|KIT">${hms(itemTime(kit))}</b>${canWrite?`<button type="button" class="${on?"stop":""}" data-timer="KIT" data-k="${key}">${on?"Stop":"Start"}</button>`:""}</span>
+      <button class="btn pri" type="button" data-act="zip" ${p.filled && !busy.zip?"":"disabled"}>${busy.zip?"Preparing zip…":"Download full kit (.zip)"}</button></div></div>
+      <div class="kit-status">
+        <label class="f">Status<select data-kstatus="1" id="kit_status" ${dis()}>${DSTATUS.map(s=>`<option value="${s}" ${s===st?"selected":""}>${s==="Done"?"Done (client signed off)":s}</option>`).join("")}</select></label>
+        <label class="f">Signed off by (client name and role)<input type="text" data-scope="client" data-path="kit.signedBy" id="kit_signedBy" value="${esc(kit.signedBy)}" ${dis()}></label>
+        <div class="f">Required items ready<div class="bar" style="margin-top:6px"><i style="width:${p.pct}%;background:var(--good)"></i></div><span style="font-weight:500">${p.filled} of ${p.total}</span></div>
+      </div>
+      ${st==="Done" ? `<div class="notice" style="margin-top:12px;border-color:var(--good);color:var(--good)">Signed off${kit.signedBy?` by ${esc(kit.signedBy)}`:""}${kit.signedAt?` on ${esc(new Date(kit.signedAt).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}))}`:""}. The weekly board is open.</div>` : `<p class="sub" style="margin-top:10px">Weekly board stays locked until this is Done.</p>`}
+    </section>
+    <div class="two"><div style="display:grid;gap:16px;min-width:0">
+      ${markGrid("logo","Logo","Every colour version in SVG for scaling, PNG with a transparent background for digital use, and PDF for print.")}
+      ${markGrid("icon","Icon","The brand mark on its own, for profile pictures, favicons and small spaces. Same versions and formats as the logo.")}
+      <section class="panel"><h2>Colour palette</h2><p class="sub" style="margin-bottom:12px">Four brand colours. Black and white are the brand's dark and light. Tap a swatch to change it. CMYK is approximate; confirm with the printer.</p>
+        <div class="kgrid3 six">${ROLES.map(([r,l])=>swatch(r,l,col[r],true)).join("")}${swatch("black","Black",BLACK,false)}${swatch("white","White",WHITE,false)}</div></section>
+      <section class="panel"><h2>Fonts</h2><p class="sub" style="margin-bottom:12px">Upload each weight the brand uses as TTF, OTF, WOFF or WOFF2. Not every family has every weight. Uploaded fonts show in the preview.</p>
+        <label class="f" style="margin-bottom:12px">Start from a pairing<select data-act-select="pair" id="kit_pair" ${dis()}><option value="">Custom</option>${PAIRS.map((q,i)=>`<option value="${i}" ${i===pairIdx?"selected":""}>${esc(q.h)} + ${esc(q.b)}</option>`).join("")}</select></label>
+        <div style="display:grid;gap:16px">${fonts}</div></section>
+      <section class="panel"><h2>Brand guide</h2><p class="sub" style="margin-bottom:12px">A 3-page PDF. Tick each section once it's in the guide.</p>
+        <div class="kgrid2">${slotHTML("guide_pdf","Brand guide · PDF",".pdf",files.guide_pdf)}
+        <ul class="checks">${GUIDE_CHECKS.map(([k,l])=>`<li><label><input type="checkbox" data-scope="client" data-path="kit.guide.${k}" id="g_${k}" ${(kit.guide||{})[k]?"checked":""} ${dis()}><span>${l}</span></label></li>`).join("")}</ul></div></section>
+      <section class="panel"><h2>Patterns & extras</h2><p class="sub" style="margin-bottom:12px">Patterns, graphic elements, textures, templates. Optional, but they go in the download too.</p>
+        <div class="kgrid3">${extras.map((x,i)=>`<div class="kslot filled"><div class="kprev">${(x.type||"").startsWith("image/")?`<img src="/_blob/${esc(x.id)}" alt="${esc(x.name)}">`:`<span>${esc(ext(x.name).toUpperCase())}</span>`}</div><div class="kname"><b title="${esc(x.name)}">${esc(x.name)}</b><span>${kb(x.size)}</span></div><div class="row"><button class="btn sm" type="button" data-kxdl="${i}">Download</button>${canWrite&&assets?`<button class="link" type="button" data-kxrm="${i}" style="color:var(--bad);font-size:12.5px">Remove</button>`:""}</div></div>`).join("")}
+        ${canWrite&&assets?`<label class="kslot empty-slot"><div class="kname"><b>${busy.extras?"Uploading…":"Add files"}</b><span>SVG, PNG, JPG or PDF</span></div><input type="file" hidden multiple accept=".svg,.png,.jpg,.jpeg,.webp,.pdf" data-kextra="1"></label>`:""}</div></section>
+      <section class="panel"><h2>Brand voice</h2><textarea rows="3" data-scope="client" data-path="kit.voice" id="kit_voice" placeholder="e.g. Warm, proud of Botswana, plain English with a little Setswana" style="margin-top:10px" ${dis()}>${esc(kit.voice)}</textarea></section>
+    </div>
+    <section class="panel sticky"><h2 style="margin-bottom:12px">Preview</h2>${previewHTML(col, kitStack(c,"heading"), kitStack(c,"body"), c.name)}${contrastHTML(col)}</section></div>`;
+}
+function previewHTML(col, hStack, bStack, name){
+  const fg = textOn(col.primary); const eyebrow = contrast(col.tertiary, col.primary) >= 3 ? col.tertiary : fg;
+  return `<div class="preview" style="background:${esc(col.primary)};color:${fg}"><div style="font-family:${hStack};font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:${esc(eyebrow)}">${esc(name||"Brand name")}</div><div><div class="h" style="font-family:${hStack}">Good brands build brighter tomorrows</div><p class="b" style="font-family:${bStack};margin:10px 0 0;opacity:.9">A sample post using this palette and type pairing, so you can judge both together.</p></div><div class="row" style="justify-content:space-between"><span class="cta" style="background:${esc(col.accent)};color:${textOn(col.accent)};font-family:${bStack}">Book now</span><span style="display:inline-flex;gap:5px">${[col.secondary,col.tertiary].map(x=>`<i style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${esc(x)};border:1px solid rgba(127,127,127,.4)"></i>`).join("")}</span></div></div>`;
+}
+function contrastHTML(col){
+  const rows = ROLES.flatMap(([r,l])=>[[`White on ${l}`, WHITE, col[r]],[`Black on ${l}`, BLACK, col[r]]]);
+  return `<h3 style="margin:16px 0 8px">Colour pairings</h3><div class="contrast">${rows.map(([l,fg,bg])=>{ const r = contrast(fg,bg); const ok = r>=4.5 ? ["Body text OK","s-good"] : r>=3 ? ["Large text only","s-warn"] : ["Avoid","s-bad"]; return `<div><span class="chipc" style="background:${esc(bg)};color:${fg}">Aa</span><span>${l}</span><b style="font-variant-numeric:tabular-nums">${r.toFixed(1)}:1</b><span class="pill ${ok[1]}">${ok[0]}</span></div>`; }).join("")}</div>`;
+}
+function importHTML(c){
+  return `<div class="two"><section class="panel import"><h2>Import a CSV</h2>
+    <p class="sub" style="margin-top:0">Two files feed the studio: the <b>brand brief data file</b> from the Phase 1 questionnaire, and the <b>calendar CSV</b> the account exec exports from the Account Desk. The studio recognises which is which.</p>
+    <label class="drop" id="csvDrop"><input type="file" accept=".csv,text/csv" hidden id="csvFile" ${dis()}><b>Choose a CSV file</b><br><span class="sub">or drop it here</span></label>
+    <label class="f">Or paste CSV text<textarea id="csvPaste" rows="6" placeholder="Paste what “Copy CSV” put on your clipboard" ${dis()}></textarea></label>
+    <div><button class="btn pri" type="button" data-act="importPaste" ${dis()}>Import pasted CSV</button></div></section>
+    <section class="panel"><h2>What happens</h2><ul class="sub" style="padding-left:18px;display:grid;gap:6px">
+      <li>A <b>calendar CSV</b> adds or updates that month's slots: date, format, pillar, topic, platform, AE status and campaign notes. Your visuals, copy, status and time are never overwritten.</li>
+      <li>Campaign ads arrive as slots A01–A03 with the offer and headlines in their notes.</li>
+      <li>A <b>brief CSV</b> replaces the client's brand brief.</li>
+      <li>Calendar rows for a different client name are flagged, not imported.</li></ul></section></div>`;
+}
+function clientTimeHTML(c, md){
+  const rows = Object.entries(md.items||{}).sort(sortSlots);
+  const byType = {}; let tot = 0, done = 0;
+  rows.forEach(([,it])=>{ const t = it.type.startsWith("Ad")?"Ad":it.type; const ms = itemTime(it); tot += ms; (byType[t] = byType[t] || {n:0, ms:0, timed:0}); byType[t].n++; byType[t].ms += ms; if(ms>0) byType[t].timed++; if(it.ds==="Done") done++; });
+  const rate = tot>0 ? 3250 / (tot/3600000) : null;
+  return `<div class="stat"><div><b>${hm(tot)}</b><span>Time logged this month</span></div><div><b>${hm(itemTime(c.kit||{}))}</b><span>Brand kit, once-off</span></div><div><b>${done} / ${rows.length}</b><span>Deliverables done</span></div>
+    ${Object.entries(byType).map(([t,v])=>`<div><b>${v.timed?hm(v.ms/v.timed):"—"}</b><span>Average per ${t.toLowerCase()} (${v.timed} timed)</span></div>`).join("")}
+    <div><b>${rate?`P${Math.round(rate).toLocaleString("en-GB")}`:"—"}</b><span>Effective rate per hour at P3,250</span></div></div>
+    <div class="tbl"><table><thead><tr><th>Slot</th><th>Format</th><th>Date</th><th>Design status</th><th class="num">Time</th><th class="num">Adjust (minutes)</th></tr></thead><tbody>
+    ${rows.map(([id,it])=>`<tr><td><b>${esc(id)}</b></td><td>${esc(it.type)}</td><td>${esc(dlabel(it.date))}</td><td><span class="pill ${DS_CLASS[it.ds||"To do"]}">${esc(it.ds||"To do")}</span></td><td class="num" data-tick="${c.id}/${view.ym}|${id}">${hms(itemTime(it))}</td><td class="num" style="width:150px"><input type="number" min="0" step="1" data-adjust="${id}" id="adj_${id}" value="${Math.round(((it.timer&&it.timer.total)||0)/60000)}" ${it.timer&&it.timer.start||!canWrite?"disabled":""} aria-label="${id} minutes"></td></tr>`).join("")}</tbody></table></div>
+    <p class="sub">Effective rate counts design time only, against the Brand Launch fee. Use Adjust when a timer was forgotten.</p>`;
+}
+
+/* ---------- Resources ---------- */
+function resourcesHTML(){
+  const tabs = [["fonts","Fonts & pairings"],["palette","Palette builder"],["inspo","Design inspiration"]];
+  const body = view.res==="palette" ? paletteHTML() : view.res==="inspo" ? inspoHTML() : fontsHTML();
+  return `<div class="head"><div><h1>Resources</h1><p class="sub">Shared by the whole design team.</p></div></div>
+    <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button type="button" role="tab" data-res="${k}" aria-selected="${view.res===k}">${l}</button>`).join("")}</div>${body}`;
+}
+function clientOptions(sel){ return `<option value="">Choose client…</option>` + (clients||[]).map(c=>`<option value="${c.id}" ${c.id===sel?"selected":""}>${esc(c.name)}</option>`).join(""); }
+function fontsHTML(){
+  const list = PAIRS.map((p,i)=>({...p,i})).filter(p=>!fontStyle || p.s===fontStyle);
+  return `<p class="sub" style="margin-top:-6px">Free Google Fonts pairings, grouped by the lettering styles clients pick in the brand questionnaire. All are free for commercial use.</p>
+    <div class="chips" style="margin-top:10px"><button type="button" class="chip" data-fstyle="" aria-pressed="${!fontStyle}">All</button>${STYLES.map(s=>`<button type="button" class="chip" data-fstyle="${s}" aria-pressed="${fontStyle===s}">${s}</button>`).join("")}</div>
+    <div class="fonts">${list.map(p=>`<div class="fcard"><span class="pill s-gold" style="align-self:flex-start">${esc(p.s)}</span>
+      <div class="h" style="font-family:${ff(p.h)}">Ideas into impact</div><p class="b" style="font-family:${ff(p.b)};margin:0">Strategic content for ambitious brands. Body copy sits comfortably under the heading at 14 to 16 px.</p>
+      <div class="names">${esc(p.h)} <span>+</span> ${esc(p.b)}<br><span>${esc(p.m)}</span></div>
+      ${canWrite && (clients||[]).length ? `<div class="row"><select id="fp_${p.i}" aria-label="Client" style="flex:1">${clientOptions("")}</select><button class="btn sm" type="button" data-applyfont="${p.i}">Use for client</button></div>`:""}
+      <div class="row"><a class="link" href="https://fonts.google.com/specimen/${encodeURIComponent(p.h).replace(/%20/g,"+")}" target="_blank" rel="noopener">${esc(p.h)} ↗</a><a class="link" href="https://fonts.google.com/specimen/${encodeURIComponent(p.b).replace(/%20/g,"+")}" target="_blank" rel="noopener">${esc(p.b)} ↗</a></div></div>`).join("")}</div>`;
+}
+function paletteHTML(){
+  const p = PAIRS.at(palPair);
+  return `<div class="two"><div style="display:grid;gap:16px">
+    <section class="panel"><h2>Start from a template</h2><div class="chips" style="margin-top:10px">${PRESETS.map((t,i)=>`<button type="button" class="chip" data-preset="${i}"><span style="display:inline-flex;vertical-align:-2px;margin-right:6px;border-radius:3px;overflow:hidden">${ROLES.map(([r])=>`<i style="display:inline-block;width:8px;height:12px;background:${t.c[r]}"></i>`).join("")}</span>${esc(t.n)}</button>`).join("")}</div></section>
+    <section class="panel"><h2>Five-colour palette</h2><p class="sub" style="margin-bottom:12px">Primary carries the brand, secondary supports it, accent is for buttons and highlights only, dark and light are for text and backgrounds.</p>
+      <div class="pal">${ROLES.map(([r,l])=>`<label>${l}<div class="sw" style="background:${palette[r]}"><input type="color" value="${palette[r]}" data-pal="${r}" id="pal_${r}"></div><code>${palette[r].toUpperCase()}</code><code style="color:var(--muted)">${hexRgb(palette[r]).join(", ")}</code></label>`).join("")}</div>
+      <label class="f" style="margin-top:12px">Preview fonts<select id="pal_pair" data-palpair="1">${PAIRS.map((q,i)=>`<option value="${i}" ${i===palPair?"selected":""}>${esc(q.h)} + ${esc(q.b)}</option>`).join("")}</select></label>
+      <div class="row" style="margin-top:12px"><button class="btn" type="button" data-act="copyPal">Copy palette</button>${canWrite && (clients||[]).length?`<select id="pal_client" style="width:auto" aria-label="Client">${clientOptions(palClient)}</select><button class="btn pri" type="button" data-act="savePal">Save to client's brand kit</button>`:""}</div></section>
+  </div><section class="panel"><h2 style="margin-bottom:12px">Preview</h2>${previewHTML(palette, ff(p.h), ff(p.b), "Your client")}${contrastHTML(palette)}</section></div>`;
+}
+function inspoHTML(){
+  const list = inspo.filter(x=>(!inspoFilter.tag || (x.tags||[]).includes(inspoFilter.tag)) && (!inspoFilter.client || x.client===inspoFilter.client));
+  const can = !!assets && canWrite;
+  return `<div class="panel"><div class="row between"><div><h2>Inspiration board</h2><p class="sub">Upload references you find. Tag them so the team can find them while designing.</p></div></div>
+    ${can?`<label class="drop" id="inspoDrop" style="margin-top:12px"><input type="file" accept="image/*" multiple hidden id="inspoFile"><b>${busy.upload?"Uploading…":"Upload images"}</b><br><span class="sub">JPG, PNG, WebP or GIF, up to 20 MB each</span></label>`:`<p class="notice" style="margin-top:12px">Uploading needs Contributor access or higher.</p>`}</div>
+    <div class="row" style="margin-top:14px"><div class="chips"><button type="button" class="chip" data-itag="" aria-pressed="${!inspoFilter.tag}">All tags</button>${INSPO_TAGS.map(t=>`<button type="button" class="chip" data-itag="${t}" aria-pressed="${inspoFilter.tag===t}">${t}</button>`).join("")}</div>
+    <select id="inspo_client" data-ifilter="1" style="width:auto" aria-label="Filter by client"><option value="">All clients</option>${(clients||[]).map(c=>`<option value="${c.id}" ${inspoFilter.client===c.id?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
+    ${list.length?`<div class="inspo">${list.map(x=>`<figure class="ins" style="margin:0 0 12px"><img src="/_blob/${esc(x.asset)}" alt="${esc(x.note||"Inspiration image")}" loading="lazy">
+      <div class="meta"><input type="text" placeholder="Why it's useful" value="${esc(x.note)}" data-inote="${x.id}" id="in_${x.id}" ${dis()}>
+      <select data-iclient="${x.id}" id="ic_${x.id}" aria-label="Client" ${dis()}><option value="">Any client</option>${(clients||[]).map(c=>`<option value="${c.id}" ${x.client===c.id?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+      <div class="chips">${INSPO_TAGS.map(t=>`<button type="button" class="chip" style="padding:2px 8px;font-size:11.5px" data-itoggle="${x.id}" data-t="${t}" aria-pressed="${(x.tags||[]).includes(t)}" ${dis()}>${t}</button>`).join("")}</div>
+      ${canWrite && (x.by===me || !x.by)?`<button class="link" type="button" data-idel="${x.id}" style="justify-self:start;color:var(--bad)">Remove</button>`:""}</div></figure>`).join("")}</div>`:`<div class="empty" style="margin-top:14px"><h2>No inspiration yet</h2><p>Upload layouts, type treatments and photography you'd like the team to learn from.</p></div>`}`;
+}
+
+/* ---------- Time (all clients) ---------- */
+function timeHTML(){
+  const rows = (clients||[]).map(c=>{ const md = months[`${c.id}/${todayYM}`]; const s = monthSummary(md);
+    const posts = md && md.items ? Object.values(md.items).filter(it=>it.type==="Post" && itemTime(it)>0) : [];
+    return {c, md, s, avgPost: posts.length ? posts.reduce((a,it)=>a+itemTime(it),0)/posts.length : null}; });
+  const tot = rows.reduce((a,r)=>a+r.s.ms,0);
+  return `<div class="head"><div><h1>Time · ${esc(ymLabel(todayYM))}</h1><p class="sub">Design time logged against each Brand Launch client this month.</p></div></div>
+    <div class="stat"><div><b>${hm(tot)}</b><span>Total design time</span></div><div><b>${rows.reduce((a,r)=>a+r.s.done,0)}</b><span>Deliverables done</span></div><div><b>${(clients||[]).length}</b><span>Active clients</span></div></div>
+    ${rows.length?`<div class="tbl"><table><thead><tr><th>Client</th><th class="num">Done</th><th class="num">Time</th><th class="num">Avg per post</th><th class="num">Effective rate / hour</th><th class="num">Brand kit time</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr><td><button class="link" type="button" data-goto="${r.c.id}" data-ym="${todayYM}" data-gtab="time">${esc(r.c.name)}</button></td><td class="num">${r.md?`${r.s.done} / ${r.s.total}`:"—"}</td><td class="num">${hm(r.s.ms)}</td><td class="num">${r.avgPost?hm(r.avgPost):"—"}</td><td class="num">${r.s.ms>0?`P${Math.round(3250/(r.s.ms/3600000)).toLocaleString("en-GB")}`:"—"}</td><td class="num">${hm(itemTime(r.c.kit||{}))}</td></tr>`).join("")}</tbody></table></div>`:`<div class="notice">No clients yet.</div>`}`;
+}
+
+/* ================= Actions ================= */
+async function toggleTimer(slot, key){
+  const [cid, ym] = key.split("/"); const it = timedItem(key, slot); if(!it) return;
+  const t = it.timer || {total:0, start:null};
+  const label = slot==="KIT" ? "Brand kit" : slot;
+  if(t.start){ const total = (t.total||0) + (Date.now() - t.start); await writeTimer(key, slot, {start:null, total, by:t.by||me||""}); if(running && running.slot===slot && `${running.client}/${running.ym}`===key) setRunning(null); toast(`${label} stopped at ${hm(total)}.`); }
+  else {
+    if(running){ const rk = `${running.client}/${running.ym}`; const rit = timedItem(rk, running.slot); if(rit && rit.timer && rit.timer.start) await writeTimer(rk, running.slot, {start:null, total:(rit.timer.total||0)+(Date.now()-rit.timer.start), by:rit.timer.by||me||""}); }
+    const sf = ym==="kit" ? "status" : "ds"; const cur = it[sf];
+    await writeTimer(key, slot, {start:Date.now(), total:t.total||0, by:me||""}, (!cur || cur==="To do") ? {[sf]:"In progress"} : {});
+    setRunning({client:cid, ym, slot}); syncSubs();
+  }
+}
+async function importCSV(text){
+  const c = clients.find(x=>x.id===view.client); const rows = parseCSV(text);
+  if(rows.length<2){ toast("That file has no rows to import."); return; }
+  const head = rows[0].map(h=>h.trim().toLowerCase());
+  if(head[0]==="section" && head[1]==="question"){
+    const brief = rows.slice(1).map(r=>({s:r[0]||"", q:r[1]||"", a:(r[2]||"").trim()}));
+    await writeClient(c.id, {brief, briefDate:Date.now()}); view.tab = "brief"; render(); toast(`Brand brief imported: ${brief.filter(r=>r.a).length} answers.`); return;
+  }
+  const col = n => head.indexOf(n);
+  if(col("slot")<0 || col("month")<0){ toast("Not a calendar or brief CSV. Export it from the Account Desk or the questionnaire."); return; }
+  const data = rows.slice(1).filter(r=>r[col("slot")]);
+  const names = [...new Set(data.map(r=>(r[col("client")]||"").trim()).filter(Boolean))];
+  if(names.length && !names.some(n=>n.toLowerCase()===c.name.toLowerCase())){ toast(`This calendar is for ${names[0]}, not ${c.name}. Open that client and import it there.`); return; }
+  const ym = (data[0][col("month")]||"").trim(); if(!/^\d{4}-\d{2}$/.test(ym)){ toast("The Month column must look like 2026-11."); return; }
+  const ref = db.doc(`clients/${c.id}/months/${ym}`); let existing = null;
+  try { const s = await ref.get(); existing = s.exists ? s.data() : null; } catch(e){ toast("Couldn't read the month. Try again."); return; }
+  const items = {};
+  data.forEach(r=>{ const id = r[col("slot")].trim(); const base = {type:r[col("format")]||"", date:r[col("date")]||"", pillar:r[col("pillar")]||"", topic:r[col("topic")]||"", platform:r[col("platform")]||"", aeStatus:r[col("ae status")]||"", notes:r[col("notes")]||""};
+    items[id] = existing && existing.items && existing.items[id] ? base : {...base, ds:"To do", visual:"", graphic:"", caption:"", hashtags:"", file:"", timer:{start:null, total:0}}; });
+  await queue(ref.path, ()=> existing ? ref.update({items, imported:Date.now()}) : ref.set({items, imported:Date.now(), created:Date.now()}));
+  view.ym = ym; view.tab = "board"; view.week = null; syncSubs(); render(); toast(`${ymLabel(ym)} imported: ${data.length} deliverables.`);
+}
+async function suggest(target){
+  const c = clients.find(x=>x.id===view.client); const key = `${c.id}/${view.ym}`; const md = months[key];
+  let sample = null; try { sample = await claude.use("sample"); } catch(e){}
+  if(!sample){ toast("Suggestions aren't available in this view."); return; }
+  let slots;
+  if(target==="week"){ const wk = weeksOf(md, view.ym)[view.week]; slots = wk.items.filter(([,it])=>!it.visual || !it.graphic || !it.caption); }
+  else slots = [[target, md.items[target]]];
+  if(!slots.length) return;
+  busy[target] = true; render();
+  const kit = c.kit || {};
+  const brief = (c.brief||[]).filter(r=>r.a).map(r=>`${r.q}: ${r.a}`).join("\n").slice(0, 6000);
+  const prompt = `You are a senior social media designer at Midas Media, a creative agency in Gaborone, Botswana. Write design and copy suggestions for a client's content.
+
+CLIENT: ${c.name}${c.industry?` (${c.industry})`:""}
+BRAND KIT: colours ${ROLES.map(([r,l])=>`${l.toLowerCase()} ${(kit.colors||{})[r]||"not set"}`).join(", ")}, plus black and white; heading font ${kit.heading||"not set"}, body font ${kit.body||"not set"}.
+BRAND VOICE: ${kit.voice||"Not set; infer from the brief."}
+DESIGNER NOTES: ${c.designNotes||"None."}
+BRAND BRIEF (client's own answers):
+${brief||"Not imported. Keep suggestions general and professional."}
+
+DELIVERABLES:
+${slots.map(([id,it])=>`- ${id} | ${it.type} | ${it.date||"no date"} | pillar: ${it.pillar} | platform: ${it.platform} | topic: ${it.topic||"none given"}${it.notes?` | notes: ${it.notes}`:""}`).join("\n")}
+
+For each deliverable write:
+- "visual": 1-2 sentences describing the image or layout a designer should make, naming brand colours by role (primary, accent) and suited to the format (story and reel 9:16, post 4:5 or 1:1).
+- "graphic": the text that appears on the design, at most 8 words.
+- "caption": 40-90 words in the brand voice, plain English, ending with one clear call to action. For stories, 1-2 short lines.
+- "hashtags": 3-6 relevant hashtags in one string, including one local Botswana tag where it fits.
+Do not invent prices, discounts or facts that the topic, notes or brief don't give.
+
+Reply with only a JSON object keyed by deliverable id, e.g. {"P01":{"visual":"","graphic":"","caption":"","hashtags":""}}.`;
+  try {
+    const out = await sample.json(prompt, {cache:false});
+    const patch = {}; let n = 0;
+    slots.forEach(([id,it])=>{ const s = out && out[id]; if(!s) return; const p = {};
+      ["visual","graphic","caption","hashtags"].forEach(k=>{ if(!it[k] && s[k]) { p[k] = String(s[k]); } });
+      if(Object.keys(p).length){ patch[id] = p; n++; } });
+    if(n) await writeMonth(c.id, view.ym, {items:patch});
+    toast(n ? `Suggestions added to ${n} deliverable${n>1?"s":""}. Edit them before design.` : "No suggestions came back. Try again.");
+  } catch(e){
+    toast(e && e.code==="rate_limited" ? "Too many requests. Wait a minute and try again." : e && e.code==="not_granted" ? "Suggestions need your permission. Allow them in the page's Permissions menu." : "Suggestions failed. Try again.");
+  } finally { busy[target] = false; requestRender(); }
+}
+async function uploadInspo(files){
+  if(!assets){ toast("Uploading isn't available with your access."); return; }
+  const imgs = [...files].filter(f=>f.type.startsWith("image/")); if(!imgs.length) return;
+  busy.upload = true; render(); let ok = 0;
+  for(const f of imgs){
+    try { const r = await assets.upload(f); await db.collection("inspo").add({asset:r.id, note:"", tags:[], client:"", by:me||"", created:Date.now()}); ok++; }
+    catch(e){ toast(e && e.code==="too_large" ? `${f.name} is too large.` : `Couldn't upload ${f.name}.`); }
+  }
+  busy.upload = false; render(); if(ok) toast(`${ok} image${ok>1?"s":""} added.`);
+}
+
+/* ---------- Brand kit files ---------- */
+function uploadErr(e){ return e && e.code==="too_large" ? "That file is too large." : e && e.code==="unsupported_type" ? "That file type isn't supported." : e && e.code==="quota_exceeded" ? "Storage is full." : "Upload failed. Try again."; }
+async function uploadKit(slot, file){
+  if(!assets){ toast("Uploading needs Contributor access or higher."); return; }
+  const e = ext(file.name), want = slot.split("_").pop();
+  if(/^(logo|icon)_/.test(slot) && e!==want){ toast(`This slot takes a .${want} file.`); return; }
+  if(/^font_/.test(slot) && !FONT_FMT[e]){ toast("Upload a TTF, OTF, WOFF or WOFF2 font file."); return; }
+  if(slot==="guide_pdf" && e!=="pdf"){ toast("The brand guide must be a PDF."); return; }
+  const c = clients.find(x=>x.id===view.client); const old = ((c.kit||{}).files||{})[slot];
+  busy[slot] = true; render();
+  try {
+    const r = await assets.upload(file, {type: MIME[e] || file.type});
+    await writeClient(c.id, {kit:{files:{[slot]:{id:r.id, name:file.name, size:r.sizeBytes||file.size, type:r.contentType||MIME[e]||""}}}});
+    if(old && old.id){ try { await assets.delete(old.id); } catch(err){} }
+    toast(`${file.name} uploaded.`);
+  } catch(err){ toast(uploadErr(err)); }
+  finally { busy[slot] = false; requestRender(); }
+}
+async function removeKit(slot){
+  const c = clients.find(x=>x.id===view.client); const old = ((c.kit||{}).files||{})[slot];
+  await writeClient(c.id, {kit:{files:{[slot]:null}}});
+  if(old && old.id && assets){ try { await assets.delete(old.id); } catch(err){} }
+}
+async function uploadExtras(files){
+  if(!assets) return; const c = clients.find(x=>x.id===view.client); const add = [];
+  busy.extras = true; render();
+  for(const f of files){ const e = ext(f.name); try { const r = await assets.upload(f, {type: MIME[e] || f.type}); add.push({id:r.id, name:f.name, size:r.sizeBytes||f.size, type:r.contentType||MIME[e]||""}); } catch(err){ toast(`${f.name}: ${uploadErr(err)}`); } }
+  const fresh = clients.find(x=>x.id===c.id) || c;
+  if(add.length) await writeClient(c.id, {kit:{extras:[...((fresh.kit||{}).extras||[]), ...add]}});
+  busy.extras = false; requestRender(); if(add.length) toast(`${add.length} file${add.length>1?"s":""} added.`);
+}
+async function removeExtra(i){
+  const c = clients.find(x=>x.id===view.client); const list = [...((c.kit||{}).extras||[])]; const [gone] = list.splice(i,1);
+  await writeClient(c.id, {kit:{extras:list}});
+  if(gone && assets){ try { await assets.delete(gone.id); } catch(err){} }
+}
+const safeName = c => c.name.replace(/[^\w]+/g,"-").replace(/^-|-$/g,"");
+function kitFileName(c, slot, f){
+  const n = safeName(c);
+  const m = slot.match(/^(logo|icon)_(\w+)_(\w+)$/);
+  if(m){ const v = LOGO_VARIANTS.find(x=>x[0]===m[2]); return `${n}_${m[1]==="logo"?"Logo":"Icon"}_${v?v[1].replace(/\s/g,"-"):m[2]}.${m[3]}`; }
+  if(slot==="guide_pdf") return `${n}_Brand-Guide.pdf`;
+  return f.name;
+}
+function kitFolder(slot){ return slot.startsWith("logo_") ? "Logo/" : slot.startsWith("icon_") ? "Icon/" : slot.startsWith("font_") ? "Fonts/" : slot==="guide_pdf" ? "Brand-Guide/" : "Other/"; }
+function coloursText(c){
+  const col = kitColors(c.kit);
+  const line = (l, h) => { const [R,G,B] = hexRgb(h), [C,M,Y,K] = cmyk(h); return `${l}\n  HEX  ${h.toUpperCase()}\n  RGB  ${R}, ${G}, ${B}\n  CMYK ${C}, ${M}, ${Y}, ${K} (approximate)\n`; };
+  const k = c.kit || {};
+  return `${c.name} brand colours\n\n` + ROLES.map(([r,l])=>line(l, col[r])).join("\n") + "\n" + line("Black", BLACK) + "\n" + line("White", WHITE) + `\nFonts\n  Heading: ${k.heading||"not set"}\n  Body: ${k.body||"not set"}\n`;
+}
+async function getDownloads(){ let dl = null; try { dl = await claude.use("downloads"); } catch(e){} if(!dl) toast("Downloads aren't available in this view."); return dl; }
+async function fetchBlob(id){ const r = await fetch(`/_blob/${id}`); if(!r.ok) throw new Error("fetch"); return r.blob(); }
+async function downloadOne(f, filename){
+  const dl = await getDownloads(); if(!dl) return;
+  try {
+    let blob = await fetchBlob(f.id), name = filename;
+    if(!DL_OK.has(ext(filename))){ if(!window.JSZip) throw new Error("zip"); const z = new JSZip(); z.file(filename, blob); blob = await z.generateAsync({type:"blob"}); name = filename + ".zip"; }
+    await dl.save({filename:name, data:blob});
+  } catch(e){ if(!(e && e.code==="declined")) toast("Download failed. Try again."); }
+}
+async function zipKit(){
+  const c = clients.find(x=>x.id===view.client); if(!window.JSZip){ toast("The zip tool didn't load. Reload the page."); return; }
+  const dl = await getDownloads(); if(!dl) return;
+  const kit = c.kit || {}, root = `${safeName(c)}-Brand-Kit/`;
+  busy.zip = true; render();
+  try {
+    const z = new JSZip();
+    const entries = Object.entries(kit.files||{}).filter(([,f])=>f && f.id).map(([slot,f])=>[kitFolder(slot) + kitFileName(c, slot, f), f]);
+    (kit.extras||[]).forEach(f=>entries.push(["Patterns-and-extras/" + f.name, f]));
+    for(const [path, f] of entries) z.file(root + path, await fetchBlob(f.id));
+    z.file(root + "Colours-and-fonts.txt", coloursText(c));
+    const blob = await z.generateAsync({type:"blob"});
+    await dl.save({filename:`${safeName(c)}-Brand-Kit.zip`, data:blob});
+  } catch(e){ if(!(e && e.code==="declined")) toast("Couldn't build the zip. Try again."); }
+  finally { busy.zip = false; requestRender(); }
+}
+
+/* ================= Events ================= */
+document.addEventListener("click", async e=>{
+  const t = e.target.closest("button"); if(!t) return;
+  const d = t.dataset;
+  if(d.sec){ view.sec = d.sec; if(d.sec==="clients"){ view.client = null; } render(); return; }
+  if(d.act==="home"){ view.sec = "clients"; view.client = null; adding = false; syncSubs(); render(); return; }
+  if(d.open){ view.client = d.open; const oc = clients.find(c=>c.id===d.open); view.tab = (oc.kit||{}).status==="Done" ? "board" : (oc.brief||[]).length ? "kit" : "brief"; view.ym = todayYM; view.week = null; confirmDel = false; syncSubs(); render(); window.scrollTo(0,0); return; }
+  if(d.goto){ view.sec = "clients"; view.client = d.goto; view.ym = d.ym; view.tab = d.gtab || "board"; view.week = null; syncSubs(); render(); return; }
+  if(d.tab){ view.tab = d.tab; render(); return; }
+  if(d.week){ view.week = +d.week; render(); return; }
+  if(d.res){ view.res = d.res; render(); return; }
+  if(d.act==="add"){ if(clients.length>=MAX_CLIENTS) return; adding = true; render(); setTimeout(()=>{ const i = $("#new_name"); if(i) i.focus(); }); return; }
+  if(d.act==="cancelAdd"){ adding = false; render(); return; }
+  if(d.act==="prev"||d.act==="next"){ view.ym = ymShift(view.ym, d.act==="prev"?-1:1); view.week = null; syncSubs(); render(); return; }
+  if(d.timer){ if(canWrite) toggleTimer(d.timer, d.k); return; }
+  if(d.act==="zip"){ zipKit(); return; }
+  if(d.kdl){ const c = clients.find(x=>x.id===view.client); const f = ((c.kit||{}).files||{})[d.kdl]; if(f) downloadOne(f, kitFileName(c, d.kdl, f)); return; }
+  if(d.krm){ removeKit(d.krm); return; }
+  if(d.kxdl){ const c = clients.find(x=>x.id===view.client); const f = ((c.kit||{}).extras||[]).at(+d.kxdl); if(f) downloadOne(f, f.name); return; }
+  if(d.kxrm){ removeExtra(+d.kxrm); return; }
+  if(d.suggest){ suggest(d.suggest); return; }
+  if(d.act==="importPaste"){ const v = $("#csvPaste").value.trim(); if(!v){ toast("Paste the CSV first."); return; } importCSV(v); return; }
+  if(d.fstyle!==undefined){ fontStyle = d.fstyle; render(); return; }
+  if(d.applyfont){ const p = PAIRS.at(+d.applyfont); const cid = $(`#fp_${d.applyfont}`).value; if(!cid){ toast("Choose a client first."); return; } await writeClient(cid, {kit:{heading:p.h, body:p.b}}); toast(`${p.h} + ${p.b} saved to ${clients.find(c=>c.id===cid).name}.`); return; }
+  if(d.preset){ palette = {...PRESETS.at(+d.preset).c}; render(); return; }
+  if(d.act==="copyPal"){ const txt = ROLES.map(([r,l])=>`${l}: ${palette[r].toUpperCase()} (RGB ${hexRgb(palette[r]).join(", ")})`).join("\n"); try { await navigator.clipboard.writeText(txt); toast("Palette copied."); } catch(err){ toast("Copy blocked. Select the codes manually."); } return; }
+  if(d.act==="savePal"){ const cid = $("#pal_client").value; if(!cid){ toast("Choose a client first."); return; } palClient = cid; await writeClient(cid, {kit:{colors:{...palette}}}); toast(`Palette saved to ${clients.find(c=>c.id===cid).name}.`); return; }
+  if(d.itag!==undefined){ inspoFilter.tag = d.itag; render(); return; }
+  if(d.itoggle){ const x = inspo.find(i=>i.id===d.itoggle); const tags = new Set(x.tags||[]); tags.has(d.t)?tags.delete(d.t):tags.add(d.t); queue(`inspo/${x.id}`, ()=>db.doc(`inspo/${x.id}`).update({tags:[...tags]})); return; }
+  if(d.idel){ const x = inspo.find(i=>i.id===d.idel); queue(`inspo/${x.id}`, async ()=>{ await db.doc(`inspo/${x.id}`).delete(); try { if(assets) await assets.delete(x.asset); } catch(err){} }).then(()=>toast("Image removed.")); return; }
+});
+document.addEventListener("submit", e=>{
+  if(e.target.id!=="addForm") return; e.preventDefault();
+  const name = $("#new_name").value.trim(); if(!name) return;
+  if(clients.length>=MAX_CLIENTS){ toast(`All ${MAX_CLIENTS} slots are in use.`); return; }
+  if(clients.some(c=>c.name.toLowerCase()===name.toLowerCase())){ toast(`${name} is already in the studio.`); return; }
+  const ref = db.collection("clients").doc(); adding = false;
+  queue(`clients/${ref.id}`, ()=>ref.set({name, industry:$("#new_industry").value.trim(), created:Date.now(), brief:[], kit:{}})).then(()=>toast(`${name} added.`));
+});
+document.addEventListener("change", e=>{
+  const t = e.target;
+  if(t.id==="csvFile" && t.files[0]){ t.files[0].text().then(importCSV); t.value = ""; return; }
+  if(t.id==="inspoFile"){ uploadInspo(t.files); t.value = ""; return; }
+  if(t.dataset.pal){ palette[t.dataset.pal] = t.value; render(); return; }
+  if(t.dataset.palpair){ palPair = +t.value; render(); return; }
+  if(t.dataset.ifilter){ inspoFilter.client = t.value; render(); return; }
+  if(t.id==="pal_client"){ palClient = t.value; return; }
+  if(!canWrite) return;
+  if(t.dataset.kslot && t.files[0]){ uploadKit(t.dataset.kslot, t.files[0]); t.value = ""; return; }
+  if(t.dataset.kextra){ uploadExtras([...t.files]); t.value = ""; return; }
+  if(t.dataset.kstatus){ writeClient(view.client, {kit:{status:t.value, ...(t.value==="Done" ? {signedAt:Date.now()} : {})}}); t.blur(); return; }
+  if(t.dataset.actSelect==="pair"){ if(t.value==="") return; const p = PAIRS.at(+t.value); writeClient(view.client, {kit:{heading:p.h, body:p.b}}); return; }
+  if(t.dataset.inote){ queue(`inspo/${t.dataset.inote}`, ()=>db.doc(`inspo/${t.dataset.inote}`).update({note:t.value})); return; }
+  if(t.dataset.iclient){ queue(`inspo/${t.dataset.iclient}`, ()=>db.doc(`inspo/${t.dataset.iclient}`).update({client:t.value})); return; }
+  if(t.dataset.adjust){ const v = Math.max(0, Math.round(+t.value||0)); writeMonth(view.client, view.ym, {items:{[t.dataset.adjust]:{timer:{total:v*60000, start:null}}}}); return; }
+  if(!t.dataset.scope) return;
+  const patch = setPath({}, t.dataset.path, t.type==="checkbox" ? t.checked : t.value);
+  if(t.dataset.scope==="client") writeClient(view.client, patch); else writeMonth(view.client, view.ym, patch);
+  if(t.tagName==="SELECT") t.blur();
+});
+document.addEventListener("dragover", e=>{ const z = e.target.closest("#csvDrop,#inspoDrop"); if(z){ e.preventDefault(); z.classList.add("over"); } });
+document.addEventListener("dragleave", e=>{ const z = e.target.closest("#csvDrop,#inspoDrop"); if(z) z.classList.remove("over"); });
+document.addEventListener("drop", e=>{ const z = e.target.closest("#csvDrop,#inspoDrop"); if(!z) return; e.preventDefault(); z.classList.remove("over"); if(!canWrite) return;
+  if(z.id==="csvDrop"){ const f = e.dataTransfer.files[0]; if(f) f.text().then(importCSV); } else uploadInspo(e.dataTransfer.files); });
+
+renderNav();
+init();
+</script>

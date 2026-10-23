@@ -1,0 +1,476 @@
+<title>Midas Client Portal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500..800&display=swap">
+<style>
+/* Layout: sign-in card, then a portal with a navy masthead, a left tab rail (top strip on phones) and one working panel per tab. Client brand colours appear only inside their own content previews and brand assets. */
+:root{
+  --bg:#F3F4F2; --surface:#FFFFFF; --surface-2:#F7F8F6; --ink:#16242B; --muted:#5B6A70; --line:#DCE1DF;
+  --navy:#0E2A36; --navy-2:#18404F; --on-navy:#FFFFFF; --on-navy-muted:#B9C7CD;
+  --gold:#B88A35; --gold-soft:#F4ECDC; --gold-ink:#7C5A1A;
+  --good:#2E7D4F; --good-soft:#E3F2E8; --warn:#A86A00; --warn-soft:#FBF0D9; --bad:#B3261E; --bad-soft:#FBE4E2; --info:#1F5E8C; --info-soft:#E1EEF7;
+  --display:"Archivo","Arial Narrow",Arial,sans-serif; --body:"Figtree","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1A21; --surface:#12252E; --surface-2:#0F2028; --ink:#E6EDF0; --muted:#94A6AE; --line:#24404C;
+  --navy:#081820; --navy-2:#1C4253; --gold:#D4A957; --gold-soft:#2E2715; --gold-ink:#E8C67F;
+  --good:#5FBF86; --good-soft:#163024; --warn:#E0A643; --warn-soft:#33270F; --bad:#F08A82; --bad-soft:#3A1A18; --info:#7DB6E0; --info-soft:#14293A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1A21; --surface:#12252E; --surface-2:#0F2028; --ink:#E6EDF0; --muted:#94A6AE; --line:#24404C;
+  --navy:#081820; --navy-2:#1C4253; --gold:#D4A957; --gold-soft:#2E2715; --gold-ink:#E8C67F;
+  --good:#5FBF86; --good-soft:#163024; --warn:#E0A643; --warn-soft:#33270F; --bad:#F08A82; --bad-soft:#3A1A18; --info:#7DB6E0; --info-soft:#14293A;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-weight:850;font-stretch:108%;font-size:clamp(26px,3.4vw,34px);line-height:1.05}
+h2{font-weight:800;font-size:19px}
+h3{font-weight:700;font-size:15px}
+.sub{color:var(--muted);margin:6px 0 0;font-size:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:600;cursor:pointer;font-size:14px;white-space:nowrap}
+.btn:hover{border-color:var(--navy-2)}
+.btn.pri{background:var(--navy);border-color:var(--navy);color:var(--on-navy)}
+:root[data-theme="dark"] .btn.pri{background:var(--gold);border-color:var(--gold);color:#0B1A21}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.pri{background:var(--gold);border-color:var(--gold);color:#0B1A21}}
+.btn.good{background:var(--good);border-color:var(--good);color:#fff}
+.btn.sm{padding:5px 12px;font-size:13px}
+.link{background:none;border:0;padding:0;color:var(--gold-ink);font-weight:600;cursor:pointer;text-decoration:underline;font-size:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.s-good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.s-warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.s-bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.s-info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.s-gold{background:var(--gold-soft);color:var(--gold-ink);border-color:transparent}
+.ribbon{background:var(--gold-soft);color:var(--gold-ink);font-size:12.5px;font-weight:600;text-align:center;padding-block:6px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+input[type=text],input[type=password],textarea{width:100%;background:var(--surface-2);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:15px}
+input:focus,textarea:focus{outline:none;border-color:var(--gold)}
+label.f{display:grid;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
+
+/* Login */
+.login{min-height:calc(100vh - 40px);display:grid;place-items:center;padding-block:32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--navy)}
+.login-card{background:var(--surface);border-radius:18px;width:100%;max-width:420px;padding:32px;display:grid;gap:16px;border-top:5px solid var(--gold)}
+.brandmark{display:flex;align-items:baseline;gap:10px}
+.brandmark b{font-family:var(--display);font-weight:900;font-stretch:115%;font-size:24px;letter-spacing:.02em}
+.brandmark span{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-ink)}
+.demo{background:var(--surface-2);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--muted)}
+.demo code{font-weight:700;color:var(--ink)}
+.err{color:var(--bad);font-size:13px;font-weight:600}
+
+/* Shell */
+.mast{background:var(--navy);color:var(--on-navy);border-bottom:3px solid var(--gold)}
+.mast .in{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mast .brandmark span{color:var(--gold)}
+.mast .who{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--on-navy-muted)}
+.mast .who b{color:var(--on-navy)}
+.mast .btn{background:transparent;color:var(--on-navy);border-color:var(--navy-2)}
+.shell{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.rail{position:sticky;top:16px;align-self:start;display:grid;gap:2px}
+.rail button{display:flex;align-items:center;justify-content:space-between;gap:8px;background:none;border:0;padding:10px 12px;border-radius:10px;font-weight:600;color:var(--muted);cursor:pointer;text-align:left}
+.rail button:hover{background:var(--surface)}
+.rail button[aria-current=true]{background:var(--surface);color:var(--ink);box-shadow:inset 3px 0 0 var(--gold)}
+.badge{background:var(--bad);color:#fff;border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px;font-variant-numeric:tabular-nums}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.grid{display:grid;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.g2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+.big{font-family:var(--display);font-weight:850;font-size:32px;line-height:1;font-variant-numeric:tabular-nums}
+.label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.bar{height:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:14px}
+.steps div{position:relative;padding-top:22px;font-size:13px}
+.steps div::before{content:"";position:absolute;top:6px;left:0;right:0;height:3px;background:var(--line)}
+.steps div::after{content:"";position:absolute;top:0;left:0;width:15px;height:15px;border-radius:50%;background:var(--surface);border:3px solid var(--line)}
+.steps div.done::before,.steps div.done::after{background:var(--good);border-color:var(--good)}
+.steps div.now::after{border-color:var(--gold);background:var(--gold)}
+.steps b{display:block;font-size:13.5px}
+.steps span{color:var(--muted)}
+.list{display:grid;gap:0}
+.list > div{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.list > div:first-child{border-top:0}
+
+/* Content */
+.weekhead{display:flex;justify-content:space-between;align-items:baseline;margin:18px 0 8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.post{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;text-align:left;padding:0;display:flex;flex-direction:column}
+.post:hover{border-color:var(--gold)}
+.art{aspect-ratio:4/5;display:flex;flex-direction:column;justify-content:space-between;padding:14px;max-width:100%}
+.art.story{aspect-ratio:9/12}
+.art .eyebrow{font-size:9px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+.art .hl{font-family:"Fraunces",Georgia,serif;font-weight:700;font-size:19px;line-height:1.08}
+.art .tag{align-self:flex-start;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px}
+.post .meta{padding:10px 12px;display:grid;gap:6px;font-size:13px}
+.post .meta b{font-size:13.5px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;font-weight:600}
+.chip[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:var(--on-navy)}
+.approve{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:18px;align-items:start;padding:16px 0;border-top:1px solid var(--line)}
+.approve:first-of-type{border-top:0}
+.cap{white-space:pre-wrap;background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:14px}
+.modal{position:fixed;inset:0;background:rgba(5,15,20,.55);display:grid;place-items:center;z-index:40;padding:16px}
+.modal .box{background:var(--surface);border-radius:16px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:22px;display:grid;gap:14px}
+
+/* Reports */
+.kcats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.krow{display:grid;grid-template-columns:minmax(0,1fr) auto 64px;gap:10px;align-items:center;padding:7px 0;border-top:1px dashed var(--line);font-size:14px}
+.krow:first-of-type{border-top:0}
+.krow b{font-variant-numeric:tabular-nums;font-family:var(--display)}
+.delta{font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.up{color:var(--good)} .down{color:var(--bad)} .flat{color:var(--muted)}
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:var(--body)}
+
+/* Invoices */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}
+th{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.inv{background:#fff;color:#16242B;border-radius:12px;padding:32px;border:1px solid var(--line);display:grid;gap:22px}
+.inv .top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:3px solid #B88A35;padding-bottom:16px}
+.inv h2{font-size:28px;color:#0E2A36}
+.inv table{min-width:0}
+.inv th{background:#F3F5F6;color:#5B6A70}
+.inv td,.inv th{border-color:#DCE1DF}
+.inv .tot{display:grid;justify-content:end;gap:4px;font-size:15px}
+.inv .tot div{display:grid;grid-template-columns:160px 120px;text-align:right}
+.inv .tot .grand{font-family:var(--display);font-size:20px;font-weight:800;border-top:2px solid #0E2A36;padding-top:6px}
+.inv small{color:#5B6A70}
+
+/* Assets */
+.assets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.asset{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column}
+.asset .pv{height:130px;display:grid;place-items:center;padding:14px}
+.asset .pv svg{max-height:100%;max-width:100%}
+.asset .info{padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--line);font-size:13px}
+.fmt{display:flex;gap:4px}
+.fmt button{border:1px solid var(--line);background:var(--surface-2);border-radius:6px;font-size:11px;font-weight:700;padding:3px 7px;cursor:pointer}
+.fmt button:hover{border-color:var(--gold)}
+.sw{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.sw div{display:grid;gap:3px;font-size:12px}
+.sw i{display:block;height:70px;border-radius:10px;border:1px solid var(--line)}
+.sw code{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.font{border-top:1px dashed var(--line);padding:12px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.font:first-of-type{border-top:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:13px;font-weight:600;z-index:50;max-width:90vw;text-align:center}
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:12px}
+  .rail{position:static;display:flex;overflow-x:auto;gap:4px}
+  .rail button{white-space:nowrap}
+  .rail button[aria-current=true]{box-shadow:inset 0 -3px 0 var(--gold)}
+  .g3,.g2,.kcats{grid-template-columns:1fr}
+  .assets{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sw{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .approve{grid-template-columns:1fr}
+}
+@media (max-width:520px){.assets{grid-template-columns:1fr}.steps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:14px}.inv{padding:18px}}
+</style>
+
+<div class="ribbon">Prototype with sample data · Kgosi Coffee Co. is a made-up client · Sign-in, approvals and downloads are simulated</div>
+<div id="app"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ================= Sample data ================= */
+const DEMO = {id:"MM-KGC-2611", pw:"kgosi2026"};
+const CLIENT = {name:"Kgosi Coffee Co.", contact:"Kagiso", contactFull:"Kagiso Molefe, Owner", plan:"Brand Launch", fee:3250, start:"2026-08-01", kitSigned:"2026-08-14", platforms:["Facebook","Instagram"], ae:{name:"Lesedi Phiri", role:"Account executive", email:"lesedi@midasmedia.example", phone:"+267 7X XXX XXX"}};
+const KIT = {colors:[["Primary","#3B2418"],["Secondary","#8C5A3C"],["Tertiary","#E9D8C4"],["Accent","#E0A43A"],["Black","#000000"],["White","#FFFFFF"]], heading:"Fraunces", body:"Figtree", weights:{Fraunces:["Regular 400","SemiBold 600","Bold 700"], Figtree:["Regular 400","Medium 500","SemiBold 600","Bold 700"]}};
+const P = KIT.colors[0][1], S = KIT.colors[1][1], T = KIT.colors[2][1], A = KIT.colors[3][1];
+const pad = n => String(n).padStart(2,"0");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "P" + n.toLocaleString("en-GB", {minimumFractionDigits:2, maximumFractionDigits:2});
+const dlabel = (iso, o) => { const [y,m,d] = iso.split("-").map(Number); return new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-GB",{timeZone:"UTC", ...(o||{day:"numeric",month:"short"})}); };
+const TODAY = "2026-10-23";
+
+const TOPICS = {
+  Post:["Meet the Kgosi house blend","3 ways to brew better coffee at home","What our regulars say","Morning prep with the team","Which pastry wins: vote","New: iced honey latte","Why we roast in small batches","From Tlokweng farm to your cup","Behind the bar with Neo","Weekend breakfast menu","Milk alternatives explained","Five-star review from Tumi","Coffee and Independence Day","Our cosy corner for remote work","Oat flat white is back","How to read a coffee label","Loyalty card: 10th cup free","Saturday latte art class","Guess the origin","Thank you for 700 followers"],
+  Story:["Poll: hot or iced?","Today's special","Kitchen at 6am","Countdown to the art class"],
+  Reel:["Latte art in 30 seconds","A day at Kgosi Coffee"]
+};
+const PILLARS = ["Showcase","Educate","Proof","Behind the scenes","Engage"];
+function buildOctober(){
+  const wk = []; for(let d=1; d<=31; d++){ const iso = `2026-10-${pad(d)}`; const wd = new Date(Date.UTC(2026,9,d)).getUTCDay(); if(wd>0 && wd<6) wk.push(iso); }
+  const items = [];
+  TOPICS.Post.forEach((t,i)=>items.push({id:`P${pad(i+1)}`, type:"Post", date:wk[Math.floor(i*wk.length/20)], pillar:PILLARS[i%5], topic:t}));
+  TOPICS.Story.forEach((t,i)=>items.push({id:`S${pad(i+1)}`, type:"Story", date:`2026-10-${pad([2,12,19,29][i])}`, pillar:["Engage","Showcase","Behind the scenes","Engage"][i], topic:t}));
+  TOPICS.Reel.forEach((t,i)=>items.push({id:`R${pad(i+1)}`, type:"Reel", date:["2026-10-09","2026-10-27"][i], pillar:["Educate","Behind the scenes"][i], topic:t}));
+  items.forEach(it=>{
+    it.status = it.date < "2026-10-22" ? "Published" : it.date <= "2026-10-26" ? "Scheduled" : "Awaiting your approval";
+    it.graphic = it.topic.replace(/:.*$/,"");
+    it.caption = captionFor(it);
+  });
+  items.find(i=>i.id==="P20").status = "In design";
+  return items.sort((a,b)=>a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+}
+function captionFor(it){
+  const end = {Showcase:"Pop in this week or order on WhatsApp.", Educate:"Save this for your next brew.", Proof:"Thank you for choosing us, Gaborone.", "Behind the scenes":"Come say dumela to the team.", Engage:"Tell us in the comments."}[it.pillar];
+  return `${it.topic}. ${end}\n\n#KgosiCoffee #Gaborone #CoffeeBotswana`;
+}
+const OCT = buildOctober();
+const NOV_PLAN = [["Mon 2 Nov","Post","Showcase","Festive menu sneak peek"],["Wed 4 Nov","Reel","Educate","Pour-over in 60 seconds"],["Fri 6 Nov","Post","Proof","Corporate catering for First National"],["Tue 10 Nov","Post","Engage","Name our new festive drink"],["Thu 12 Nov","Story","Behind the scenes","Roasting day"],["Mon 16 Nov","Post","Educate","Coffee gifts under P200"],["… 20 more","","",""]];
+let APPROVALS = [
+  ...OCT.filter(i=>i.status==="Awaiting your approval").map(i=>({key:i.id, kind:"content", item:i, state:"waiting"})),
+  {key:"NOV-CAL", kind:"calendar", title:"November content calendar", detail:"20 posts, 4 stories and 2 reels, planned around the festive menu launch.", state:"waiting", due:"2026-10-25"},
+  {key:"NOV-BRIEF", kind:"brief", title:"November campaign brief: festive menu launch", detail:"Goal: WhatsApp chats. Offer: free mince pie with any large drink, 2–15 Nov. Audience: Gaborone + 20 km, 22–45. Budget P800, paid by you to Meta.", state:"waiting", due:"2026-10-25"}
+];
+const REPORTS = {
+  "2026-07":{label:"July (baseline)", reach:2900, views:5100, followers:412, profile_visits:180, saves:14, reviews:0, interactions:120, comments:11, shares:6, reel_plays:0, link_clicks:20, messages:9, ad_spend:0, ad_results:0, enquiries:4, published:0},
+  "2026-08":{label:"August", reach:6840, views:12300, followers:538, profile_visits:410, saves:61, reviews:2, interactions:281, comments:34, shares:22, reel_plays:3100, link_clicks:57, messages:22, ad_spend:500, ad_results:31, enquiries:12, published:26,
+    review:{working:"Educate posts drew the most saves; the brewing tips post was saved 19 times.", adjust:"Morning posts reach more people than afternoon ones. Moving posts to 7–8am.", top:"P02 · 3 ways to brew better coffee at home", focus:"More Proof posts now that reviews are coming in."}},
+  "2026-09":{label:"September", reach:9310, views:17800, followers:701, profile_visits:560, saves:88, reviews:3, interactions:493, comments:57, shares:41, reel_plays:5400, link_clicks:96, messages:41, ad_spend:600, ad_results:58, enquiries:19, published:26,
+    review:{working:"The spring menu campaign started 58 WhatsApp chats at P10.34 each. Reels reached 74% more people than August.", adjust:"Stories get few replies. Adding polls and question stickers to every story.", top:"R01 · Latte art in 30 seconds (2,900 plays)", focus:"Festive menu launch in November; build the follower base before it."}}
+};
+const INVOICES = [
+  {no:"MM-2026-0031", period:"August 2026", issued:"2026-08-01", due:"2026-08-08", status:"Paid", paid:"2026-08-06"},
+  {no:"MM-2026-0038", period:"September 2026", issued:"2026-09-01", due:"2026-09-08", status:"Paid", paid:"2026-09-07"},
+  {no:"MM-2026-0044", period:"October 2026", issued:"2026-10-01", due:"2026-10-31", status:"Due", paid:null},
+].map(x=>({...x, lines:[{d:`Brand Launch social media retainer · ${x.period}`, q:1, u:3250}]}));
+INVOICES[0].lines.unshift({d:"Brand kit and onboarding (Phase 1)", q:1, u:0, note:"Included in first month"});
+
+/* ================= State ================= */
+let authed = false, tab = "overview", filter = "All", openInv = null, openPost = null, reportMonth = "2026-09", loginErr = "";
+function toast(m){ const t = document.getElementById("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(()=>t.hidden=true, 3200); }
+const waiting = () => APPROVALS.filter(a=>a.state==="waiting").length;
+
+/* ================= Render ================= */
+function render(){
+  const app = document.getElementById("app");
+  if(!authed){ app.innerHTML = loginHTML(); return; }
+  const tabs = [["overview","Overview"],["approvals","Approvals"],["content","Content"],["campaigns","Campaigns"],["reports","Reports & insights"],["invoices","Invoices"],["assets","Brand assets"],["account","Account"]];
+  const body = {overview:overviewHTML, approvals:approvalsHTML, content:contentHTML, campaigns:campaignsHTML, reports:reportsHTML, invoices:invoicesHTML, assets:assetsHTML, account:accountHTML}[tab]();
+  app.innerHTML = `<header class="mast"><div class="in"><div class="brandmark"><b>MIDAS</b><span>Client portal</span></div>
+    <div class="who"><span>Signed in as <b>${esc(CLIENT.name)}</b> · ${DEMO.id}</span><button class="btn sm" type="button" data-act="logout">Sign out</button></div></div></header>
+    <div class="shell"><nav class="rail" aria-label="Portal sections">${tabs.map(([k,l])=>`<button type="button" data-tab="${k}" aria-current="${tab===k}"><span>${l}</span>${k==="approvals"&&waiting()?`<span class="badge">${waiting()}</span>`:""}</button>`).join("")}</nav>
+    <main style="min-width:0">${body}</main></div>${openInv?invoiceModal():""}${openPost?postModal():""}`;
+}
+function loginHTML(){
+  return `<div class="login"><form class="login-card" id="loginForm" novalidate>
+    <div class="brandmark"><b>MIDAS</b><span>Client portal</span></div>
+    <div><h1 style="font-size:26px">Sign in</h1><p class="sub">Use the client ID and password your account executive sent you.</p></div>
+    <label class="f">Client ID<input type="text" id="cid" autocomplete="username" placeholder="MM-XXX-0000" value="${esc(DEMO.id)}"></label>
+    <label class="f">Password<input type="password" id="cpw" autocomplete="current-password" value="${esc(DEMO.pw)}"></label>
+    ${loginErr?`<div class="err">${esc(loginErr)}</div>`:""}
+    <button class="btn pri" type="submit" style="padding:12px">Sign in</button>
+    <div class="demo">Prototype: the sample login is filled in for you. Client ID <code>${DEMO.id}</code>, password <code>${DEMO.pw}</code>.</div>
+    <p class="sub" style="margin:0;font-size:13px">Lost your client ID? Ask your account executive. Each client gets their own ID when their brand kit is signed off.</p>
+  </form></div>`;
+}
+function artHTML(it, cls){
+  const bg = {Showcase:P, Educate:T, Proof:S, "Behind the scenes":P, Engage:A}[it.pillar];
+  const fg = [T, A].includes(bg) ? P : "#FFFFFF";
+  return `<div class="art ${cls||""}" style="background:${bg};color:${fg}"><span class="eyebrow" style="color:${fg===P?S:A}">Kgosi Coffee · ${esc(it.pillar)}</span><span class="hl">${esc(it.graphic)}</span><span class="tag" style="background:${fg===P?P:A};color:${fg===P?T:P}">${esc(it.type)}</span></div>`;
+}
+const stClass = s => ({"Published":"s-good","Scheduled":"s-gold","Awaiting your approval":"s-warn","In design":"s-info","Approved":"s-good","Changes requested":"s-bad"})[s] || "";
+function statusOf(it){ const a = APPROVALS.find(x=>x.key===it.id); if(a && a.state==="approved") return "Approved"; if(a && a.state==="changes") return "Changes requested"; return it.status; }
+
+function overviewHTML(){
+  const counts = {}; OCT.forEach(i=>{ const s = statusOf(i); counts[s] = (counts[s]||0)+1; });
+  const order = ["Published","Scheduled","Approved","Awaiting your approval","Changes requested","In design"];
+  const colors = {"Published":"var(--good)","Scheduled":"var(--gold)","Approved":"var(--gold-ink)","Awaiting your approval":"var(--warn)","Changes requested":"var(--bad)","In design":"var(--info)"};
+  const next = OCT.find(i=>i.date>TODAY && statusOf(i)!=="Published");
+  const r = REPORTS["2026-09"], prev = REPORTS["2026-08"];
+  const due = INVOICES.filter(i=>i.status!=="Paid").reduce((a,i)=>a+i.lines.reduce((s,l)=>s+l.q*l.u,0),0);
+  return `<div class="head"><div><h1>Dumela, ${esc(CLIENT.contact)}</h1><p class="sub">Here's where ${esc(CLIENT.name)} stands on ${dlabel(TODAY,{weekday:"long",day:"numeric",month:"long"})}.</p></div></div>
+  <div class="grid">
+    ${waiting()?`<div class="panel" style="border-color:var(--warn);display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap"><div><h2>${waiting()} item${waiting()>1?"s":""} waiting for your approval</h2><p class="sub">Approve by Sunday 25 October so next week's posts and the November plan stay on time.</p></div><button class="btn pri" type="button" data-tab="approvals">Review now</button></div>`:`<div class="panel" style="border-color:var(--good)"><h2>You're all caught up</h2><p class="sub">Nothing is waiting for your approval.</p></div>`}
+    <div class="g3">
+      <div class="panel"><div class="label">October content</div><div class="big" style="margin-top:8px">${counts.Published||0}<span style="font-size:18px;color:var(--muted)"> / ${OCT.length}</span></div><p class="sub">pieces published</p><div class="bar" style="margin-top:12px">${order.map(s=>counts[s]?`<i style="width:${counts[s]/OCT.length*100}%;background:${colors[s]}"></i>`:"").join("")}</div><div class="legend">${order.filter(s=>counts[s]).map(s=>`<span><i style="background:${colors[s]}"></i>${s} ${counts[s]}</span>`).join("")}</div></div>
+      <div class="panel"><div class="label">Next post</div>${next?`<div style="display:grid;grid-template-columns:72px 1fr;gap:12px;margin-top:10px;align-items:center"><div style="aspect-ratio:4/5;border-radius:8px;background:${({Showcase:P, Educate:T, Proof:S, "Behind the scenes":P, Engage:A})[next.pillar]};border:1px solid var(--line)"></div><div><b>${esc(next.topic)}</b><p class="sub">${dlabel(next.date,{weekday:"short",day:"numeric",month:"short"})} · ${esc(next.type)}</p><span class="pill ${stClass(statusOf(next))}">${esc(statusOf(next))}</span></div></div>`:"<p class='sub'>Nothing scheduled.</p>"}</div>
+      <div class="panel"><div class="label">Balance due</div><div class="big" style="margin-top:8px">${money(due)}</div><p class="sub">${due?"Invoice MM-2026-0044 · due 31 October":"Nothing outstanding"}</p><button class="btn sm" type="button" data-inv="MM-2026-0044" style="margin-top:12px">View invoice</button></div>
+    </div>
+    <div class="g2">
+      <div class="panel"><div class="row between"><h2>September at a glance</h2><button class="link" type="button" data-tab="reports">Full report</button></div>
+        <div class="g3" style="margin-top:14px;gap:12px">${[["Accounts reached",r.reach,prev.reach],["New followers",r.followers-prev.followers,prev.followers-REPORTS["2026-07"].followers],["Chats started",r.messages,prev.messages]].map(([l,v,p])=>`<div><div class="label">${l}</div><div class="big" style="font-size:26px;margin-top:6px">${v.toLocaleString("en-GB")}</div>${deltaHTML(v,p)}</div>`).join("")}</div>
+        <p class="sub" style="margin-top:14px">${esc(r.review.working)}</p></div>
+      <div class="panel"><h2>Your journey with Midas</h2><div class="steps">
+        <div class="done"><b>Onboarding</b><span>Aug 2026</span></div><div class="done"><b>Brand kit</b><span>Signed off 14 Aug</span></div><div class="now"><b>Monthly content</b><span>Month 3 of 3</span></div><div><b>Review & renew</b><span>Nov 2026</span></div></div>
+        <div class="list" style="margin-top:18px"><div><span>Your account executive</span><b>${esc(CLIENT.ae.name)}</b></div><div><span>Plan</span><b>${esc(CLIENT.plan)} · ${money(CLIENT.fee)}/month</b></div><div><span>Platforms</span><b>${CLIENT.platforms.join(" + ")}</b></div></div></div>
+    </div>
+  </div>`;
+}
+function deltaHTML(v,p){ if(!p) return `<span class="delta flat">—</span>`; const d = (v-p)/Math.abs(p)*100; return `<div class="delta ${d>0.5?"up":d<-0.5?"down":"flat"}" style="text-align:left">${d>0?"▲ +":d<0?"▼ ":""}${Math.round(d)}% vs August</div>`; }
+
+function approvalsHTML(){
+  const list = APPROVALS;
+  const row = a => {
+    const st = a.state==="approved" ? `<span class="pill s-good">Approved</span>` : a.state==="changes" ? `<span class="pill s-bad">Changes requested</span>` : `<span class="pill s-warn">Waiting for you</span>`;
+    const actions = a.state==="waiting" ? (a.draft!==undefined ? `<label class="f" style="margin-top:10px">What should change?<textarea id="note_${a.key}" rows="3" placeholder="Be specific: wording, image, colour, date">${esc(a.draft)}</textarea></label><div class="row" style="margin-top:8px"><button class="btn pri sm" type="button" data-send="${a.key}">Send to Midas</button><button class="btn sm" type="button" data-cancel="${a.key}">Cancel</button></div>` : `<div class="row" style="margin-top:12px"><button class="btn good" type="button" data-approve="${a.key}">Approve</button><button class="btn" type="button" data-changes="${a.key}">Request changes</button></div>`) : (a.note?`<p class="sub" style="margin-top:8px">Your note: “${esc(a.note)}”</p>`:"")+`<button class="link" type="button" data-undo="${a.key}" style="margin-top:8px">Undo</button>`;
+    if(a.kind==="content"){ const it = a.item; return `<div class="approve"><div style="max-width:260px;border-radius:12px;overflow:hidden">${artHTML(it, it.type!=="Post"?"story":"")}</div><div><div class="row between"><h3>${esc(it.id)} · ${esc(it.topic)}</h3>${st}</div><p class="sub">${esc(it.type)} · ${esc(it.pillar)} · goes live ${dlabel(it.date,{weekday:"long",day:"numeric",month:"long"})}</p><div class="label" style="margin-top:12px">Caption</div><div class="cap" style="margin-top:6px">${esc(it.caption)}</div>${actions}</div></div>`; }
+    return `<div class="approve"><div class="panel" style="background:var(--surface-2)"><div class="label">${a.kind==="calendar"?"Content plan":"Campaign brief"}</div><div class="big" style="font-size:22px;margin-top:6px">${a.kind==="calendar"?"26 pieces":"2–15 Nov"}</div><p class="sub">Approve by ${dlabel(a.due,{weekday:"short",day:"numeric",month:"short"})}</p></div><div><div class="row between"><h3>${esc(a.title)}</h3>${st}</div><p class="sub">${esc(a.detail)}</p>${a.kind==="calendar"?`<div class="tbl" style="margin-top:10px"><table style="min-width:420px"><thead><tr><th>Date</th><th>Format</th><th>Pillar</th><th>Topic</th></tr></thead><tbody>${NOV_PLAN.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`:""}${actions}</div></div>`;
+  };
+  return `<div class="head"><div><h1>Approvals</h1><p class="sub">Nothing is posted or launched without your OK. Each piece gets one round of changes; Midas replies within 48 hours.</p></div><span class="pill ${waiting()?"s-warn":"s-good"}">${waiting()} waiting</span></div>
+    <div class="panel">${list.map(row).join("")}</div>`;
+}
+function contentHTML(){
+  const f = filter;
+  const items = OCT.filter(i=>f==="All" || i.type===f || statusOf(i)===f);
+  const weeks = {}; items.forEach(i=>{ const [y,m,d] = i.date.split("-").map(Number); const wd = (new Date(Date.UTC(y,m-1,d)).getUTCDay()+6)%7; const mon = new Date(Date.UTC(y,m-1,d-wd)).toISOString().slice(0,10); (weeks[mon] = weeks[mon] || []).push(i); });
+  return `<div class="head"><div><h1>Content · October 2026</h1><p class="sub">Every post, story and reel this month, and where each one is. Tap a piece to see it with its caption.</p></div></div>
+    <div class="filters">${["All","Post","Story","Reel","Published","Scheduled","Awaiting your approval"].map(x=>`<button type="button" class="chip" data-filter="${x}" aria-pressed="${f===x}">${x}</button>`).join("")}</div>
+    ${Object.entries(weeks).map(([mon,list])=>`<div class="weekhead"><h2>Week of ${dlabel(mon,{day:"numeric",month:"long"})}</h2><span class="sub">${list.filter(i=>statusOf(i)==="Published").length} of ${list.length} published</span></div>
+      <div class="cards">${list.map(i=>`<button class="post" type="button" data-post="${i.id}">${artHTML(i, i.type!=="Post"?"story":"")}<div class="meta"><b>${esc(i.topic)}</b><span class="sub" style="margin:0">${dlabel(i.date,{weekday:"short",day:"numeric",month:"short"})} · ${esc(i.type)}</span><span class="pill ${stClass(statusOf(i))}" style="justify-self:start">${esc(statusOf(i))}</span></div></button>`).join("")}</div>`).join("") || `<p class="sub">Nothing matches that filter.</p>`}`;
+}
+function postModal(){
+  const it = OCT.find(i=>i.id===openPost); const a = APPROVALS.find(x=>x.key===it.id);
+  return `<div class="modal" data-close="1"><div class="box" role="dialog" aria-label="${esc(it.topic)}"><div class="row between"><h2>${esc(it.id)} · ${esc(it.topic)}</h2><button class="btn sm" type="button" data-close="1">Close</button></div>
+    <div class="approve" style="border:0;padding:0"><div style="border-radius:12px;overflow:hidden">${artHTML(it, it.type!=="Post"?"story":"")}</div><div><span class="pill ${stClass(statusOf(it))}">${esc(statusOf(it))}</span><p class="sub">${esc(it.type)} · ${esc(it.pillar)} · ${dlabel(it.date,{weekday:"long",day:"numeric",month:"long"})} · ${CLIENT.platforms.join(" + ")}</p><div class="label" style="margin-top:12px">Caption</div><div class="cap" style="margin-top:6px">${esc(it.caption)}</div>
+    ${a && a.state==="waiting"?`<button class="btn pri" type="button" data-tab="approvals" style="margin-top:12px">Review in Approvals</button>`:""}</div></div></div></div>`;
+}
+function campaignsHTML(){
+  return `<div class="head"><div><h1>Campaigns</h1><p class="sub">One paid campaign a month. Midas makes the ads; the ad budget is paid by you straight to Meta.</p></div></div>
+  <div class="grid">
+    <div class="panel" style="border-color:var(--warn)"><div class="row between"><div><div class="label">November · waiting for approval</div><h2 style="margin-top:4px">Festive menu launch</h2></div><span class="pill s-warn">Brief waiting for you</span></div>
+      <div class="list" style="margin-top:12px"><div><span>Goal</span><b>WhatsApp chats</b></div><div><span>Offer</span><b>Free mince pie with any large drink</b></div><div><span>Dates</span><b>2–15 November</b></div><div><span>Audience</span><b>Gaborone + 20 km, ages 22–45</b></div><div><span>Ad budget (paid to Meta)</span><b>${money(800)}</b></div><div><span>Ads we'll make</span><b>Feed ad, story ad, 1 test version</b></div></div>
+      <button class="btn pri" type="button" data-tab="approvals" style="margin-top:14px">Review the brief</button></div>
+    <div class="g2">
+      <div class="panel"><div class="label">October · complete</div><h2 style="margin-top:4px">Independence week specials</h2><p class="sub">Running 28 Sep – 10 Oct. Results are counted when it ends and go into your October report.</p><span class="pill s-good" style="margin-top:10px">Complete · results in your October report</span></div>
+      <div class="panel"><div class="label">September · complete</div><h2 style="margin-top:4px">Spring menu</h2>
+        <div class="g3" style="margin-top:12px;gap:10px"><div><div class="big" style="font-size:24px">58</div><span class="sub">chats started</span></div><div><div class="big" style="font-size:24px">${money(600)}</div><span class="sub">spent</span></div><div><div class="big" style="font-size:24px">${money(10.34)}</div><span class="sub">per chat</span></div></div></div>
+    </div></div>`;
+}
+
+/* ---------- Reports ---------- */
+const KCATS = [
+  {cat:"Visibility", q:"Are more people seeing your brand?", items:[["reach","Accounts reached"],["views","Views"],["followers","Followers"]]},
+  {cat:"Credibility", q:"Does your brand look established and trusted?", items:[["profile_visits","Profile visits"],["saves","Saves"],["reviews","New reviews"]]},
+  {cat:"Engagement", q:"Are people reacting and talking back?", items:[["interactions","Interactions"],["_er","Engagement rate"],["comments","Comments"],["reel_plays","Reel plays"]]},
+  {cat:"Results", q:"Is it bringing in business?", items:[["messages","Chats started"],["link_clicks","Link clicks"],["_cpr","Cost per ad result"],["enquiries","Enquiries you reported"]]}
+];
+function kval(r, k){ if(k==="_er") return r.reach ? r.interactions/r.reach*100 : null; if(k==="_cpr") return r.ad_results ? r.ad_spend/r.ad_results : null; return r[k]; }
+function kfmt(k, v){ if(v==null) return "—"; if(k==="_er") return v.toFixed(1)+"%"; if(k==="_cpr") return money(v); return Math.round(v).toLocaleString("en-GB"); }
+function lineChart(){
+  const months = ["2026-07","2026-08","2026-09"], W = 560, H = 220, l = 56, rgt = 20, t = 24, b = 36;
+  const vals = months.map(m=>REPORTS[m].reach); const max = Math.ceil(Math.max(...vals)/2500)*2500;
+  const X = i => l + i*(W-l-rgt)/(months.length-1), Y = v => t + (1 - v/max)*(H-t-b);
+  const ticks = []; for(let v=0; v<=max; v+=2500) ticks.push(v);
+  const pts = vals.map((v,i)=>`${X(i)},${Y(v)}`).join(" ");
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Accounts reached rose from 2,900 in July to 9,310 in September">
+    ${ticks.map(v=>`<line x1="${l}" x2="${W-rgt}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${l-8}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v.toLocaleString("en-GB")}</text>`).join("")}
+    <polygon points="${X(0)},${Y(0)} ${pts} ${X(2)},${Y(0)}" fill="var(--gold)" fill-opacity="0.15"/>
+    <polyline points="${pts}" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+    ${vals.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="${i===2?5.5:4}" fill="${i===2?"var(--gold)":"var(--surface)"}" stroke="var(--gold)" stroke-width="2"/><text x="${X(i)}" y="${Y(v)-12}" text-anchor="${i===0?"start":i===2?"end":"middle"}" font-size="12" font-weight="700" fill="var(--ink)">${v.toLocaleString("en-GB")}</text><text x="${X(i)}" y="${H-12}" text-anchor="${i===0?"start":i===2?"end":"middle"}" font-size="12" fill="var(--muted)">${["Jul (before Midas)","Aug","Sep"][i]}</text>`).join("")}
+  </svg>`;
+}
+function reportsHTML(){
+  const r = REPORTS[reportMonth], prev = REPORTS[reportMonth==="2026-09"?"2026-08":"2026-07"];
+  const rows = cat => cat.items.map(([k,l])=>{ const v = kval(r,k), p = kval(prev,k); let d = ""; if(v!=null && p) { const pct = (v-p)/Math.abs(p)*100; const good = k==="_cpr" ? pct<0 : pct>0; d = `<span class="delta ${Math.abs(pct)<0.5?"flat":good?"up":"down"}">${pct>0?"+":""}${Math.round(pct)}%</span>`; } else d = `<span class="delta flat">—</span>`; return `<div class="krow"><span>${l}</span><b>${kfmt(k,v)}</b>${d}</div>`; }).join("");
+  return `<div class="head"><div><h1>Reports & insights</h1><p class="sub">Your monthly results, compared with the month before. A new report arrives by the 3rd of each month.</p></div>
+    <div class="filters">${["2026-08","2026-09"].map(m=>`<button type="button" class="chip" data-month="${m}" aria-pressed="${reportMonth===m}">${REPORTS[m].label}</button>`).join("")}<button type="button" class="chip" data-act="octsoon">October · due 3 Nov</button></div></div>
+  <div class="grid">
+    <div class="g2">
+      <div class="panel"><h2>Accounts reached each month</h2><p class="sub" style="margin-bottom:10px">People who saw at least one of your posts, stories or reels.</p>${lineChart()}</div>
+      <div class="panel"><h2>What we learned in ${esc(r.label)}</h2><div class="list" style="margin-top:10px">
+        <div style="display:block"><div class="label">What worked</div><p style="margin:4px 0 0">${esc(r.review.working)}</p></div>
+        <div style="display:block"><div class="label">What we're changing</div><p style="margin:4px 0 0">${esc(r.review.adjust)}</p></div>
+        <div style="display:block"><div class="label">Top piece</div><p style="margin:4px 0 0">${esc(r.review.top)}</p></div>
+        <div style="display:block"><div class="label">Next month's focus</div><p style="margin:4px 0 0">${esc(r.review.focus)}</p></div></div></div>
+    </div>
+    <div class="kcats">${KCATS.map(c=>`<div class="panel"><div class="row between"><h2>${c.cat}</h2>${c.cat==="Results"?`<span class="pill s-warn" title="Depends on your offer, ad budget and how quickly messages are answered">Shared with you</span>`:""}</div><p class="sub" style="margin-bottom:8px">${c.q}</p>${rows(c)}</div>`).join("")}</div>
+    <p class="sub">Change compares ${esc(r.label)} with ${esc(prev.label)}. Results figures depend partly on your offer, ad budget and how quickly messages are answered.</p>
+  </div>`;
+}
+
+/* ---------- Invoices ---------- */
+const invTotal = i => i.lines.reduce((s,l)=>s+l.q*l.u,0);
+function invoicesHTML(){
+  const due = INVOICES.filter(i=>i.status!=="Paid");
+  const paidYTD = INVOICES.filter(i=>i.status==="Paid").reduce((a,i)=>a+invTotal(i),0);
+  return `<div class="head"><div><h1>Invoices</h1><p class="sub">Your retainer is invoiced on the 1st of each month. Ad budgets are paid by you directly to Meta and never appear here.</p></div></div>
+  <div class="g3" style="margin-bottom:16px"><div class="panel"><div class="label">Balance due</div><div class="big" style="margin-top:8px">${money(due.reduce((a,i)=>a+invTotal(i),0))}</div><p class="sub">${due.length?`Due ${dlabel(due[0].due,{day:"numeric",month:"long"})}`:"All paid"}</p></div><div class="panel"><div class="label">Paid this year</div><div class="big" style="margin-top:8px">${money(paidYTD)}</div></div><div class="panel"><div class="label">Monthly fee</div><div class="big" style="margin-top:8px">${money(CLIENT.fee)}</div><p class="sub">${esc(CLIENT.plan)}</p></div></div>
+  <div class="tbl"><table><thead><tr><th>Invoice</th><th>Period</th><th>Issued</th><th>Due</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead><tbody>
+  ${INVOICES.slice().reverse().map(i=>`<tr><td><b>${i.no}</b></td><td>${i.period}</td><td>${dlabel(i.issued)}</td><td>${dlabel(i.due)}</td><td class="num">${money(invTotal(i))}</td><td><span class="pill ${i.status==="Paid"?"s-good":i.due<TODAY?"s-bad":"s-warn"}">${i.status==="Paid"?`Paid ${dlabel(i.paid)}`:i.due<TODAY?"Overdue":"Due"}</span></td><td><button class="link" type="button" data-inv="${i.no}">View</button></td></tr>`).join("")}</tbody></table></div>`;
+}
+function invoiceModal(){
+  const i = INVOICES.find(x=>x.no===openInv); const total = invTotal(i);
+  return `<div class="modal" data-close="1"><div class="box" role="dialog" aria-label="Invoice ${i.no}"><div class="row between"><h2>Invoice ${i.no}</h2><div class="row"><button class="btn sm" type="button" data-act="pdf">Download PDF</button><button class="btn sm" type="button" data-close="1">Close</button></div></div>
+  <div class="inv"><div class="top"><div><div class="brandmark"><b style="color:#0E2A36">MIDAS</b><span style="color:#7C5A1A">Media Solutions</span></div><small>Gaborone, Botswana<br>A Flynn Kagiso Holdings company</small></div><div style="text-align:right"><h2>INVOICE</h2><small>${i.no}<br>Issued ${dlabel(i.issued,{day:"numeric",month:"long",year:"numeric"})}<br>Due ${dlabel(i.due,{day:"numeric",month:"long",year:"numeric"})}</small></div></div>
+  <div class="row between" style="align-items:flex-start"><div><small>BILL TO</small><div><b>${esc(CLIENT.name)}</b><br>${esc(CLIENT.contactFull)}<br>Client ID ${DEMO.id}</div></div><div style="text-align:right"><small>STATUS</small><div><b style="color:${i.status==="Paid"?"#2E7D4F":"#A86A00"}">${i.status==="Paid"?`Paid ${dlabel(i.paid,{day:"numeric",month:"long"})}`:"Due"}</b></div></div></div>
+  <table><thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr></thead><tbody>${i.lines.map(l=>`<tr><td>${esc(l.d)}${l.note?`<br><small>${esc(l.note)}</small>`:""}</td><td class="num">${l.q}</td><td class="num">${money(l.u)}</td><td class="num">${money(l.q*l.u)}</td></tr>`).join("")}</tbody></table>
+  <div class="tot"><div><span>Subtotal</span><span>${money(total)}</span></div><div class="grand"><span>Total</span><span>${money(total)}</span></div></div>
+  <div><small>PAYMENT</small><div style="font-size:14px">Bank transfer, using <b>${i.no}</b> as the reference.<br>Bank: [Midas bank name] · Account: [account number] · Branch: [branch code]</div></div>
+  <small>Ad budgets are paid by the client directly to Meta and are not included. Questions: ${esc(CLIENT.ae.name)}, ${esc(CLIENT.ae.email)}</small></div></div></div>`;
+}
+
+/* ---------- Brand assets ---------- */
+function logoSVG(variant, iconOnly){
+  const c = variant==="full" ? {cup:P, steam:A, text:P, sub:S} : variant==="black" ? {cup:"#000",steam:"#000",text:"#000",sub:"#000"} : {cup:"#fff",steam:"#fff",text:"#fff",sub:"#fff"};
+  const mark = `<g transform="translate(${iconOnly?10:4},8)"><path d="M6 22h40v14a14 14 0 0 1-14 14h-12a14 14 0 0 1-14-14z" fill="${c.cup}"/><path d="M46 26h4a7 7 0 0 1 0 14h-4" fill="none" stroke="${c.cup}" stroke-width="4"/><path d="M18 4c-4 5 4 8 0 13M28 2c-4 6 4 9 0 15M38 4c-4 5 4 8 0 13" fill="none" stroke="${c.steam}" stroke-width="3" stroke-linecap="round"/></g>`;
+  if(iconOnly) return `<svg viewBox="0 0 76 76" width="76" height="76" role="img" aria-label="Kgosi Coffee icon, ${variant}">${mark}</svg>`;
+  return `<svg viewBox="0 0 250 72" width="250" height="72" role="img" aria-label="Kgosi Coffee logo, ${variant}">${mark}<text x="72" y="40" font-family="Fraunces, Georgia, serif" font-weight="700" font-size="30" fill="${c.text}">Kgosi</text><text x="73" y="60" font-family="Figtree, sans-serif" font-weight="700" font-size="11" letter-spacing="4.2" fill="${c.sub}">COFFEE CO.</text></svg>`;
+}
+function hexRgb(h){ const n = parseInt(h.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+function cmyk(h){ const [r,g,b] = hexRgb(h).map(v=>v/255); const k = 1-Math.max(r,g,b); if(k>=1) return [0,0,0,100]; return [r,g,b].map(v=>Math.round((1-v-k)/(1-k)*100)).concat(Math.round(k*100)); }
+function assetsHTML(){
+  const variants = [["full","Full colour","#F7F3EE"],["black","Black","#FFFFFF"],["white","White",P]];
+  const card = (svg, label, bg) => `<div class="asset"><div class="pv" style="background:${bg}">${svg}</div><div class="info"><b>${label}</b><div class="fmt">${["SVG","PNG","PDF"].map(f=>`<button type="button" data-dl="${label} ${f}">${f}</button>`).join("")}</div></div></div>`;
+  return `<div class="head"><div><h1>Brand assets</h1><p class="sub">Your approved brand kit, moved here from the Midas Design Studio when you signed it off on ${dlabel(CLIENT.kitSigned,{day:"numeric",month:"long",year:"numeric"})}. Use these files whenever anyone designs for you.</p></div><button class="btn pri" type="button" data-dl="Full brand kit (.zip)">Download full kit (.zip)</button></div>
+  <div class="grid">
+    <section class="panel"><h2>Logo</h2><p class="sub" style="margin-bottom:12px">SVG for any size, PNG with a transparent background for digital, PDF for print.</p><div class="assets">${variants.map(([v,l,bg])=>card(logoSVG(v),l,bg)).join("")}</div></section>
+    <section class="panel"><h2>Icon</h2><p class="sub" style="margin-bottom:12px">For profile pictures, favicons and small spaces.</p><div class="assets">${variants.map(([v,l,bg])=>card(logoSVG(v,true),l,bg)).join("")}</div></section>
+    <section class="panel"><h2>Colours</h2><p class="sub" style="margin-bottom:12px">Use these exact codes. CMYK is for print; confirm with your printer.</p>
+      <div class="sw">${KIT.colors.map(([n,h])=>{ const [r,g,b] = hexRgb(h), [c,m,y,k] = cmyk(h); return `<div><i style="background:${h}"></i><b>${n}</b><code>${h}</code><code>RGB ${r}, ${g}, ${b}</code><code>CMYK ${c}, ${m}, ${y}, ${k}</code></div>`; }).join("")}</div></section>
+    <div class="g2">
+      <section class="panel"><h2>Fonts</h2><p class="sub">Free Google Fonts, licensed for commercial use.</p>
+        ${[["Headings",KIT.heading,"'Fraunces', Georgia, serif","Good coffee, good company"],["Body text",KIT.body,"'Figtree', sans-serif","Roasted in small batches in Gaborone, served with care every morning."]].map(([role,name,stack,sample])=>`<div class="font"><div><div class="label">${role}</div><div style="font-family:${stack};font-size:${role==="Headings"?26:16}px;margin:4px 0;font-weight:${role==="Headings"?700:400}">${sample}</div><span class="sub">${name} · ${KIT.weights[name].join(", ")}</span></div><button class="btn sm" type="button" data-dl="${name} font files">Download</button></div>`).join("")}</section>
+      <section class="panel"><h2>Brand guide</h2><p class="sub">3-page PDF: brand sheet, clear space, minimum sizes, do and don't examples, colour pairings and patterns.</p>
+        <div class="row" style="margin-top:14px;align-items:stretch">${[1,2,3].map(n=>`<div style="flex:1;min-width:70px;aspect-ratio:1/1.41;border:1px solid var(--line);border-radius:6px;background:${n===1?P:"#fff"};display:grid;place-items:center;padding:6px">${n===1?logoSVG("white",true):`<span style="font-size:11px;color:#5B6A70;font-weight:700">Page ${n}</span>`}</div>`).join("")}</div>
+        <button class="btn" type="button" data-dl="Brand guide PDF" style="margin-top:14px">Download brand guide (PDF)</button></section>
+    </div>
+    <section class="panel"><h2>Patterns & extras</h2><div class="assets" style="margin-top:12px">
+      <div class="asset"><div class="pv" style="background:${T};background-image:radial-gradient(${S} 2px, transparent 2.5px);background-size:16px 16px"></div><div class="info"><b>Coffee bean pattern</b><div class="fmt"><button type="button" data-dl="Pattern SVG">SVG</button></div></div></div>
+      <div class="asset"><div class="pv" style="background:${P};background-image:repeating-linear-gradient(45deg, ${S} 0 2px, transparent 2px 14px)"></div><div class="info"><b>Stripe texture</b><div class="fmt"><button type="button" data-dl="Texture PNG">PNG</button></div></div></div>
+      <div class="asset"><div class="pv" style="background:#F7F3EE"><div style="width:62%;aspect-ratio:4/5;background:${P};border-radius:6px;display:grid;place-items:center;color:${T};font-family:Fraunces,serif;font-weight:700;font-size:13px;text-align:center;padding:8px">Post template</div></div><div class="info"><b>Post template</b><div class="fmt"><button type="button" data-dl="Post template PNG">PNG</button></div></div></div></div></section>
+  </div>`;
+}
+function accountHTML(){
+  return `<div class="head"><div><h1>Account</h1><p class="sub">Your plan, your team at Midas and your key documents.</p></div></div>
+  <div class="g2"><div class="grid">
+    <section class="panel"><div class="row between"><h2>${esc(CLIENT.plan)}</h2><span class="pill s-good">Active</span></div><p class="sub">${money(CLIENT.fee)} a month · since ${dlabel(CLIENT.start,{day:"numeric",month:"long",year:"numeric"})}</p>
+      <div class="list" style="margin-top:12px">${[["Static posts","20 a month"],["Stories","4 a month"],["Reels","2 a month, each with a custom cover"],["Platforms","Facebook + Instagram"],["Campaign ad set","1 a month (ad budget paid by you)"],["Content calendar","Planned a month ahead"],["Analytics review","Every month, by the 3rd"],["Turnaround on requests","48 hours"]].map(([a,b])=>`<div><span>${a}</span><b>${b}</b></div>`).join("")}</div></section>
+    <section class="panel"><h2>Documents</h2><div class="list" style="margin-top:10px">${[["Service agreement","Signed 1 Aug 2026"],["Brand brief","From your discovery questionnaire"],["Brand guide","Signed off 14 Aug 2026"]].map(([a,b])=>`<div><span><b>${a}</b><br><span class="sub" style="margin:0">${b}</span></span><button class="btn sm" type="button" data-dl="${a}">Download</button></div>`).join("")}</div></section>
+  </div><div class="grid">
+    <section class="panel"><h2>Your account executive</h2><p style="margin:10px 0 4px"><b>${esc(CLIENT.ae.name)}</b><br><span class="sub">${esc(CLIENT.ae.role)}</span></p><div class="list"><div><span>Email</span><b style="user-select:all">${esc(CLIENT.ae.email)}</b></div><div><span>Phone / WhatsApp</span><b style="user-select:all">${esc(CLIENT.ae.phone)}</b></div><div><span>Hours</span><b>Mon–Fri, 8am–5pm</b></div></div></section>
+    <section class="panel"><h2>Sign-in</h2><div class="list" style="margin-top:10px"><div><span>Client ID</span><b>${DEMO.id}</b></div><div><span>Password</span><button class="btn sm" type="button" data-act="pw">Change password</button></div></div><p class="sub">Your client ID is unique to ${esc(CLIENT.name)}. Anyone who needs access on your side gets their own sign-in through your account executive.</p></section>
+  </div></div>`;
+}
+
+/* ================= Events ================= */
+document.addEventListener("submit", e=>{
+  if(e.target.id!=="loginForm") return; e.preventDefault();
+  const id = document.getElementById("cid").value.trim().toUpperCase(), pw = document.getElementById("cpw").value;
+  if(id===DEMO.id && pw===DEMO.pw){ authed = true; loginErr = ""; tab = "overview"; render(); window.scrollTo(0,0); }
+  else { loginErr = "That client ID and password don't match. Check the welcome message from your account executive."; render(); }
+});
+document.addEventListener("click", e=>{
+  const t = e.target.closest("button, .modal"); if(!t) return;
+  const d = t.dataset;
+  if(d.close && (t.tagName==="BUTTON" || e.target===t)){ openInv = null; openPost = null; render(); return; }
+  if(d.tab){ tab = d.tab; openPost = null; render(); window.scrollTo(0,0); return; }
+  if(d.act==="logout"){ authed = false; render(); return; }
+  if(d.filter){ filter = d.filter; render(); return; }
+  if(d.post){ openPost = d.post; render(); return; }
+  if(d.inv){ openInv = d.inv; render(); return; }
+  if(d.month){ reportMonth = d.month; render(); return; }
+  if(d.act==="octsoon"){ toast("Your October report arrives by 3 November."); return; }
+  if(d.approve){ const a = APPROVALS.find(x=>x.key===d.approve); a.state = "approved"; render(); toast("Approved. Midas has been notified."); return; }
+  if(d.changes){ const a = APPROVALS.find(x=>x.key===d.changes); a.draft = ""; render(); setTimeout(()=>{ const n = document.getElementById(`note_${a.key}`); if(n) n.focus(); }); return; }
+  if(d.cancel){ const a = APPROVALS.find(x=>x.key===d.cancel); delete a.draft; render(); return; }
+  if(d.send){ const a = APPROVALS.find(x=>x.key===d.send); const v = document.getElementById(`note_${a.key}`).value.trim(); if(!v){ toast("Tell us what should change first."); return; } a.note = v; a.state = "changes"; delete a.draft; render(); toast("Sent. Midas replies within 48 hours."); return; }
+  if(d.undo){ const a = APPROVALS.find(x=>x.key===d.undo); a.state = "waiting"; delete a.note; render(); return; }
+  if(d.dl){ toast(`In the live portal, “${d.dl}” downloads here.`); return; }
+  if(d.act==="pdf"){ toast("In the live portal, the invoice downloads as a PDF."); return; }
+  if(d.act==="pw"){ toast("In the live portal, you'd set a new password here."); return; }
+});
+document.addEventListener("input", e=>{ const m = e.target.id && e.target.id.match(/^note_(.+)$/); if(m){ const a = APPROVALS.find(x=>x.key===m[1]); if(a) a.draft = e.target.value; } });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && (openInv || openPost)){ openInv = null; openPost = null; render(); } });
+render();
+</script>

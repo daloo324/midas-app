@@ -1,0 +1,591 @@
+<title>Midas Account Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: navy masthead; home = client grid with this month's progress; client view = tab strip (Month plan · Calendar · Campaign brief · KPIs) over one working panel. */
+:root{
+  --bg:#F2F4F5; --surface:#FFFFFF; --surface-2:#F7F9F9; --ink:#13252E; --muted:#5A6A72; --line:#D8DFE2;
+  --navy:#0E2A36; --navy-2:#18404F; --on-navy:#FFFFFF; --on-navy-muted:#B9C7CD;
+  --gold:#B88A35; --gold-soft:#F4ECDC; --gold-ink:#7C5A1A;
+  --good:#2E7D4F; --good-soft:#E3F2E8; --warn:#A86A00; --warn-soft:#FBF0D9; --bad:#B3261E; --bad-soft:#FBE4E2; --info:#1F5E8C; --info-soft:#E1EEF7;
+  --display:"Archivo","Arial Narrow",Arial,sans-serif; --body:"Figtree","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1A21; --surface:#12252E; --surface-2:#0F2028; --ink:#E6EDF0; --muted:#94A6AE; --line:#24404C;
+  --navy:#081820; --navy-2:#1C4253; --on-navy:#FFFFFF; --on-navy-muted:#9DB0B8;
+  --gold:#D4A957; --gold-soft:#2E2715; --gold-ink:#E8C67F;
+  --good:#5FBF86; --good-soft:#163024; --warn:#E0A643; --warn-soft:#33270F; --bad:#F08A82; --bad-soft:#3A1A18; --info:#7DB6E0; --info-soft:#14293A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1A21; --surface:#12252E; --surface-2:#0F2028; --ink:#E6EDF0; --muted:#94A6AE; --line:#24404C;
+  --navy:#081820; --navy-2:#1C4253; --on-navy:#FFFFFF; --on-navy-muted:#9DB0B8;
+  --gold:#D4A957; --gold-soft:#2E2715; --gold-ink:#E8C67F;
+  --good:#5FBF86; --good-soft:#163024; --warn:#E0A643; --warn-soft:#33270F; --bad:#F08A82; --bad-soft:#3A1A18; --info:#7DB6E0; --info-soft:#14293A;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mast{background:var(--navy);color:var(--on-navy);border-bottom:3px solid var(--gold)}
+.mast .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:16px}
+.brand{display:flex;align-items:baseline;gap:10px;cursor:pointer;background:none;border:0;color:inherit;padding:0}
+.brand b{font-family:var(--display);font-weight:900;font-stretch:115%;font-size:22px;letter-spacing:.02em}
+.brand span{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.mast small{color:var(--on-navy-muted);font-size:13px}
+main.wrap{padding-block:24px 64px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-weight:850;font-stretch:108%;font-size:clamp(26px,3.6vw,36px);line-height:1.05}
+h2{font-weight:800;font-size:20px}
+h3{font-weight:700;font-size:16px}
+.sub{color:var(--muted);margin:6px 0 0}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:600;cursor:pointer;font-size:14px;white-space:nowrap}
+.btn:hover{border-color:var(--navy-2)}
+.btn.pri{background:var(--navy);border-color:var(--navy);color:var(--on-navy)}
+:root[data-theme="dark"] .btn.pri{background:var(--gold);border-color:var(--gold);color:#0B1A21}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.pri{background:var(--gold);border-color:var(--gold);color:#0B1A21}}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn[disabled]{opacity:.45;cursor:default}
+.link{background:none;border:0;padding:0;color:var(--gold-ink);font-weight:600;cursor:pointer;text-decoration:underline;font-size:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.notice{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px 14px;color:var(--muted);font-size:14px}
+.notice.err{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+
+/* Home */
+.home-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.cap{font-family:var(--display);font-weight:700;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.ccard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px;cursor:pointer;text-align:left;transition:border-color .12s}
+.ccard:hover{border-color:var(--gold)}
+.ccard .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.ccard h3{font-size:18px}
+.ccard .meta{font-size:13px;color:var(--muted)}
+.bar{height:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.kv{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:13px}
+.kv span:nth-child(odd){color:var(--muted)}
+.kv span:nth-child(even){font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.empty-state{border:2px dashed var(--line);border-radius:14px;padding:40px 24px;text-align:center}
+.empty-state p{color:var(--muted);max-width:52ch;margin:8px auto 18px}
+.slot{border:2px dashed var(--line);border-radius:12px;display:grid;place-items:center;min-height:120px;color:var(--muted);font-weight:600;background:none;cursor:pointer}
+.slot:hover{border-color:var(--gold);color:var(--gold-ink)}
+
+/* Pills */
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;white-space:nowrap;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.s-good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.s-warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.s-bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.s-info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.s-gold{background:var(--gold-soft);color:var(--gold-ink);border-color:transparent}
+
+/* Client view */
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:8px}
+.chead{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}
+.month-pick{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+.month-pick button{border:0;background:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px}
+.month-pick button:hover{background:var(--surface-2)}
+.month-pick b{font-family:var(--display);font-weight:700;min-width:130px;text-align:center;font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--gold)}
+.two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+.stack{display:grid;gap:16px}
+label.f{display:grid;gap:5px;font-size:13px;font-weight:600;color:var(--muted)}
+label.f>span{color:var(--muted)}
+input[type=text],input[type=number],input[type=date],input[type=url],select,textarea{width:100%;background:var(--surface-2);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);font-weight:500;font-size:14px}
+textarea{resize:vertical;min-height:64px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fgrid .full{grid-column:1/-1}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.checks label{display:flex;gap:10px;align-items:flex-start;padding:8px 6px;border-radius:8px;cursor:pointer;font-size:14px}
+.checks label:hover{background:var(--surface-2)}
+.checks input{width:18px;height:18px;margin-top:2px;accent-color:var(--navy-2);flex:none}
+.checks .done span{color:var(--muted);text-decoration:line-through}
+.checks small{display:block;color:var(--muted);font-size:12px}
+.exp{display:grid;gap:8px}
+.exp div{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;background:var(--surface-2);font-size:14px}
+.exp div.main{outline:2px solid var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;font-weight:600}
+.chip[aria-pressed=true]{background:var(--navy);border-color:var(--navy);color:var(--on-navy)}
+.mix{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.mix label{display:grid;gap:4px;font-size:12px;font-weight:600;color:var(--muted);text-align:center}
+.mix input{text-align:center}
+
+/* Calendar */
+.cal-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.pillmix{display:grid;gap:6px;font-size:13px}
+.pillmix div{display:grid;grid-template-columns:120px 1fr 44px;gap:8px;align-items:center}
+.pillmix .track{height:8px;background:var(--surface-2);border-radius:4px;position:relative;overflow:hidden;border:1px solid var(--line)}
+.pillmix .track i{position:absolute;inset:0 auto 0 0;background:var(--navy-2)}
+.pillmix b{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.pillmix b.off{color:var(--warn)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:820px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:middle}
+th{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);font-weight:700}
+tr.grp td{background:var(--surface-2);font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.04em}
+td.slotid{font-weight:700;font-variant-numeric:tabular-nums;width:52px}
+td select,td input{padding:6px 8px;font-size:13px}
+tr[data-st="Published"] td.slotid{color:var(--good)}
+
+/* Campaign */
+.part{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.part header{display:flex;gap:12px;align-items:baseline;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.part header em{font-style:normal;font-family:var(--display);font-weight:800;color:var(--gold-ink);font-variant-numeric:tabular-nums}
+.part header p{margin:0;color:var(--muted);font-size:13px}
+.part .body{padding:16px 18px}
+.deliv{display:grid;gap:8px;margin-top:12px}
+.deliv div{display:grid;grid-template-columns:1fr 170px;gap:10px;align-items:center;font-size:14px}
+
+/* KPIs */
+.kgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.kcat header{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
+.kcat .why{color:var(--muted);font-size:13px;margin:0 0 12px}
+.krow{display:grid;grid-template-columns:minmax(0,1fr) 110px 70px;gap:10px;align-items:center;padding:6px 0;border-top:1px dashed var(--line);font-size:13.5px}
+.krow:first-of-type{border-top:0}
+.krow .auto{font-family:var(--display);font-weight:700;text-align:right;font-variant-numeric:tabular-nums;padding-right:10px}
+.krow input{text-align:right;font-variant-numeric:tabular-nums}
+.delta{font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.delta.up{color:var(--good)} .delta.down{color:var(--bad)} .delta.flat{color:var(--muted)}
+.kcat .scope{font-size:12px}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:13px;font-weight:600;z-index:30}
+@media (max-width:860px){.two,.kgrid{grid-template-columns:1fr}}
+@media (max-width:560px){.fgrid{grid-template-columns:1fr}.mix{grid-template-columns:repeat(3,minmax(0,1fr))}.deliv div{grid-template-columns:1fr}.krow{grid-template-columns:minmax(0,1fr) 96px 56px}.pillmix div{grid-template-columns:96px 1fr 40px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <button class="brand" type="button" data-act="home"><b>MIDAS</b><span>Account Desk</span></button>
+    <small>Brand Launch · Phase 2 · up to 10 clients</small>
+  </div>
+</header>
+<main class="wrap" id="app">
+  <div class="empty-state"><h2>Loading your clients…</h2><p>Connecting to the shared client list.</p></div>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ================= Constants ================= */
+const MAX_CLIENTS = 10;
+const PILLARS = ["Showcase","Educate","Proof","Behind the scenes","Engage"];
+const PILLAR_HINT = {"Showcase":"Products, services, offers","Educate":"Tips, how-tos, myths vs facts","Proof":"Reviews, results, before & after","Behind the scenes":"Team, process, workspace","Engage":"Questions, polls, events, trends"};
+const DEFAULT_MIX = {"Showcase":6,"Educate":5,"Proof":3,"Behind the scenes":3,"Engage":3};
+const STATUSES = ["Planned","In design","Client review","Approved","Scheduled","Published"];
+const ST_CLASS = {"Planned":"","In design":"s-info","Client review":"s-warn","Approved":"s-gold","Scheduled":"s-gold","Published":"s-good"};
+const ST_COLOR = {"Planned":"var(--line)","In design":"var(--info)","Client review":"var(--warn)","Approved":"var(--gold)","Scheduled":"var(--gold-ink)","Published":"var(--good)"};
+const PLATFORMS = ["Facebook","Instagram","TikTok","LinkedIn","X"];
+const CLIENT_STATUS = ["Onboarding","Active","Paused"];
+const EXPECT = [
+  {k:"Visibility", d:"Be seen regularly by more people", cover:"Covered"},
+  {k:"Credibility", d:"Look established and trustworthy", cover:"Covered"},
+  {k:"Engagement", d:"People react, comment, message, follow", cover:"Covered"},
+  {k:"Results", d:"Enquiries, bookings, sales", cover:"Partly: depends on offer, ad budget and reply speed"}
+];
+const CHECKS = [
+  {k:"review", l:"Last month's analytics review sent, next month's focus agreed", w:"By day 3"},
+  {k:"draft", l:"Content calendar drafted (20 posts, 4 stories, 2 reels)", w:"By day 20 of the month before"},
+  {k:"cal_ok", l:"Client approved the calendar", w:"By day 25 of the month before"},
+  {k:"brief_ok", l:"Campaign brief signed off by client", w:"By day 25 of the month before"},
+  {k:"wk12", l:"Weeks 1–2 content approved and scheduled", w:"Before day 1"},
+  {k:"wk34", l:"Weeks 3–4 content approved and scheduled", w:"By day 14"},
+  {k:"live", l:"Campaign ads live", w:"On the agreed start date"},
+  {k:"report", l:"Monthly analytics review sent to client", w:"By day 3 of next month"}
+];
+const PARTS = [
+  {k:"objective", t:"Objective and offer", d:"What the campaign must achieve, and the offer that gets people to act.", deliverable:"One-page brief, signed off by the client", fields:[
+    {k:"goal", l:"Goal", type:"select", opts:["","Awareness","Messages / WhatsApp chats","Leads","Website traffic","Sales","Event sign-ups"]},
+    {k:"kpi", l:"Main KPI", type:"text", ph:"e.g. 60 WhatsApp chats"},
+    {k:"offer", l:"Offer", type:"text", ph:"e.g. 20% off first order this weekend", full:true},
+    {k:"start", l:"Start date", type:"date"},{k:"end", l:"End date", type:"date"},
+    {k:"budget", l:"Ad budget (P, paid by client)", type:"number"},
+    {k:"runner", l:"Who runs the ads", type:"select", opts:["","Midas runs ads in Meta Ads Manager","Client runs ads, Midas supplies creative"]}]},
+  {k:"audience", t:"Audience", d:"Who should see the ads.", deliverable:"Audience profile and targeting settings", fields:[
+    {k:"location", l:"Location and radius", type:"text", ph:"e.g. Gaborone + 25 km"},
+    {k:"age", l:"Age range", type:"text", ph:"e.g. 25–45"},
+    {k:"interests", l:"Interests and behaviours", type:"textarea", full:true},
+    {k:"retarget", l:"Retarget existing followers or past customers?", type:"select", opts:["","Yes","No"], full:true}]},
+  {k:"message", t:"Message and copy", d:"What the ad says, and the one action it asks for.", deliverable:"Copy sheet with 2 headline and text variations", fields:[
+    {k:"hook", l:"Hook (first line)", type:"text", full:true},
+    {k:"headline_a", l:"Headline A", type:"text"},{k:"headline_b", l:"Headline B", type:"text"},
+    {k:"primary", l:"Main ad text", type:"textarea", full:true},
+    {k:"cta", l:"Call to action", type:"select", opts:["","Send message","Learn more","Book now","Shop now","Sign up","Call now"]},
+    {k:"angle", l:"Alternative angle to test", type:"text"}]},
+  {k:"creative", t:"Creative", d:"Ad artwork built from the brand kit.", deliverable:"Feed ad 4:5, story or reel ad 9:16, one test variant", fields:[
+    {k:"direction", l:"Visual direction", type:"textarea", full:true, ph:"Photo or graphic, key visual, offer placement"}], deliv:true},
+  {k:"launch", t:"Launch and reporting", d:"Where people land, how results are tracked and when they're reported.", deliverable:"Launch checklist and a results summary in the monthly review", fields:[
+    {k:"landing", l:"Where people land", type:"select", opts:["","WhatsApp chat","Instagram / Facebook DM","Website","Lead form","Phone call"]},
+    {k:"tracking", l:"How results are tracked", type:"text", ph:"e.g. Ads Manager results + client's enquiry count"},
+    {k:"replier", l:"Who answers incoming messages (client side)", type:"text"},
+    {k:"reply_time", l:"Agreed reply time", type:"text", ph:"e.g. within 1 hour, 8am–6pm"},
+    {k:"results", l:"Results summary", type:"textarea", full:true, ph:"Fill in at the end of the campaign"}]}
+];
+const DELIV = [{k:"feed",l:"Feed ad · 4:5"},{k:"story",l:"Story / reel ad · 9:16"},{k:"variant",l:"Test variant"},{k:"copy",l:"Copy sheet · 2 variations"}];
+const DELIV_ST = ["Not started","In design","Client review","Approved","Delivered"];
+const BRIEF_ST = ["Draft","Sent to client","Approved","Live","Complete"];
+const KPI = [
+  {cat:"Visibility", q:"Are more people seeing the brand?", items:[
+    {k:"reach", l:"Accounts reached"},
+    {k:"views", l:"Views / impressions"},
+    {k:"followers", l:"Total followers at month end"},
+    {k:"_growth", l:"Net new followers", auto:true},
+    {k:"_consistency", l:"Published vs planned (26)", auto:true}]},
+  {cat:"Credibility", q:"Does the brand look established and trustworthy?", items:[
+    {k:"profile_visits", l:"Profile visits"},
+    {k:"saves", l:"Saves"},
+    {k:"reviews", l:"New reviews or positive mentions"},
+    {k:"first_round", l:"Pieces approved without changes"},
+    {k:"_first_rate", l:"First-round approval rate", auto:true}]},
+  {cat:"Engagement", q:"Are people reacting and talking back?", items:[
+    {k:"interactions", l:"Interactions (likes, comments, shares, saves)"},
+    {k:"_er", l:"Engagement rate (interactions ÷ reach)", auto:true},
+    {k:"comments", l:"Comments"},
+    {k:"shares", l:"Shares"},
+    {k:"reel_plays", l:"Reel plays"}]},
+  {cat:"Results", q:"Is it bringing in business? Partly outside our control.", items:[
+    {k:"link_clicks", l:"Link clicks"},
+    {k:"messages", l:"Messages / WhatsApp chats started"},
+    {k:"ad_spend", l:"Ad spend (P)"},
+    {k:"ad_results", l:"Ad results (by campaign goal)"},
+    {k:"_cpr", l:"Cost per ad result", auto:true},
+    {k:"enquiries", l:"Enquiries reported by client"}]}
+];
+
+/* ================= Helpers ================= */
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2,"0");
+const todayYM = (() => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; })();
+function ymShift(ym, n){ let [y,m] = ym.split("-").map(Number); m += n; while(m>12){m-=12;y++} while(m<1){m+=12;y--} return `${y}-${pad(m)}`; }
+function ymLabel(ym){ const [y,m] = ym.split("-").map(Number); return new Date(Date.UTC(y,m-1,1)).toLocaleDateString("en-GB",{month:"long",year:"numeric",timeZone:"UTC"}); }
+function dayLabel(iso){ if(!iso) return ""; const [y,m,d] = iso.split("-").map(Number); return new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"}); }
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(()=>t.hidden = true, 2600); }
+function setPath(obj, path, val){ const ks = path.split("."); let o = obj; ks.slice(0,-1).forEach(k => o = (o[k] = o[k] || {})); o[ks.at(-1)] = val; return obj; }
+function getPath(obj, path){ return path.split(".").reduce((o,k)=> (o==null?undefined:o[k]), obj); }
+const num = v => (v===""||v==null||isNaN(+v)) ? null : +v;
+const fmt = n => n==null ? "—" : Math.round(n).toLocaleString("en-GB");
+
+function buildMonth(ym, mix){
+  const [y,m] = ym.split("-").map(Number); const days = new Date(Date.UTC(y,m,0)).getUTCDate();
+  const all = [], wk = [];
+  for(let d=1; d<=days; d++){ const iso = `${y}-${pad(m)}-${pad(d)}`; all.push(iso); const wd = new Date(Date.UTC(y,m-1,d)).getUTCDay(); if(wd>0 && wd<6) wk.push(iso); }
+  const remaining = {...DEFAULT_MIX, ...(mix||{})}; const order = [];
+  while(order.length < 20){ let added = false; for(const p of PILLARS){ if((remaining[p]||0)>0 && order.length<20){ order.push(p); remaining[p]--; added = true; } } if(!added) order.push("Showcase"); }
+  const items = {};
+  for(let i=0;i<20;i++) items[`P${pad(i+1)}`] = {type:"Post", n:i+1, date: wk[Math.floor(i*wk.length/20)] || "", pillar: order[i], topic:"", platform:"Both", status:"Planned"};
+  const sPill = ["Engage","Showcase","Behind the scenes","Engage"];
+  for(let i=0;i<4;i++) items[`S${pad(i+1)}`] = {type:"Story", n:i+1, date: all[Math.min(all.length-1, Math.floor((i+0.5)*all.length/4))], pillar:sPill[i], topic:"", platform:"Instagram", status:"Planned"};
+  const rPill = ["Educate","Behind the scenes"];
+  for(let i=0;i<2;i++) items[`R${pad(i+1)}`] = {type:"Reel", n:i+1, date: wk[Math.min(wk.length-1, Math.floor((i+0.5)*wk.length/2))], pillar:rPill[i], topic:"", platform:"Both", status:"Planned"};
+  return {created: Date.now(), items, checks:{}, campaign:{status:"Draft", deliv:{feed:"Not started",story:"Not started",variant:"Not started",copy:"Not started"}}, kpis:{}, review:{}};
+}
+function monthStats(md){
+  const out = {total:0, byStatus:{}, byPillar:{}, published:0, ready:0, next:null};
+  if(!md || !md.items) return out;
+  const today = new Date().toISOString().slice(0,10);
+  Object.entries(md.items).forEach(([id,it])=>{
+    out.total++; out.byStatus[it.status] = (out.byStatus[it.status]||0)+1;
+    if(it.type==="Post") out.byPillar[it.pillar] = (out.byPillar[it.pillar]||0)+1;
+    if(it.status==="Published") out.published++;
+    if(["Approved","Scheduled","Published"].includes(it.status)) out.ready++;
+    if(it.status!=="Published" && it.date && it.date>=today && (!out.next || it.date<out.next.date)) out.next = {id, ...it};
+  });
+  return out;
+}
+
+/* ================= State ================= */
+let db = null, canWrite = true;
+let clients = null;               // array, null = loading
+const months = {};                // "clientId/ym" -> data | null (missing) | undefined (loading)
+const subs = new Map();
+let view = {name:"home", client:null, tab:"plan", ym: todayYM};
+let confirmDel = false, adding = false, pendingRender = false, errorMsg = "";
+
+/* ================= Data ================= */
+const chains = {};
+function queue(path, fn){
+  chains[path] = (chains[path]||Promise.resolve()).then(fn).catch(e=>{
+    if(e && e.code==="invalid_argument" && !canWriteChecked){ canWrite = false; render(); toast("You have view-only access, so changes aren't saved."); }
+    else if(e && e.code==="quota_exceeded") toast("Storage is full. Delete an old client to free space.");
+    else toast("That change didn't save. Check your connection and try again.");
+  });
+  return chains[path];
+}
+let canWriteChecked = false;
+function writeClient(id, patch){ return queue(`clients/${id}`, ()=> db.doc(`clients/${id}`).update(patch)); }
+function writeMonth(id, ym, patch){ return queue(`clients/${id}/months/${ym}`, ()=> db.doc(`clients/${id}/months/${ym}`).update(patch)); }
+
+function syncSubs(){
+  const want = new Set();
+  (clients||[]).forEach(c => want.add(`${c.id}/${todayYM}`));
+  if(view.name==="client" && view.client){ want.add(`${view.client}/${view.ym}`); want.add(`${view.client}/${ymShift(view.ym,-1)}`); }
+  for(const [k,un] of subs) if(!want.has(k)){ un(); subs.delete(k); delete months[k]; }
+  for(const k of want) if(!subs.has(k)){
+    const [cid, ym] = k.split("/");
+    months[k] = undefined;
+    subs.set(k, db.doc(`clients/${cid}/months/${ym}`).onSnapshot(s=>{ months[k] = s.exists ? s.data() : null; requestRender(); }, e=>{ if(e.code!=="revoked"){ months[k] = null; requestRender(); } }));
+  }
+}
+function isEditing(){ const a = document.activeElement; return a && $("#app").contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type!=="checkbox"; }
+function requestRender(){ if(isEditing()) pendingRender = true; else render(); }
+document.addEventListener("focusout", ()=> setTimeout(()=>{ if(pendingRender && !isEditing()){ pendingRender = false; render(); } }, 0));
+
+async function init(){
+  try { db = await claude.use("db"); } catch(e){ db = null; }
+  if(!db){ $("#app").innerHTML = `<div class="empty-state"><h2>Client list unavailable</h2><p>Open this page in Claude while signed in to your Midas Media account to see and edit clients.</p></div>`; return; }
+  try { const user = await claude.use("user"); if(user){ const c = await user.can("data.write"); if(c===false){ canWrite = false; } if(c!==null) canWriteChecked = true; } } catch(e){}
+  db.collection("clients").onSnapshot(snap=>{
+    clients = snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(a.created||0)-(b.created||0));
+    if(view.name==="client" && !clients.find(c=>c.id===view.client)) view = {name:"home", client:null, tab:"plan", ym:todayYM};
+    syncSubs(); requestRender();
+  }, e=>{ errorMsg = "The client list stopped updating. Reload the page."; render(); });
+}
+
+/* ================= Render: home ================= */
+function render(){
+  const app = $("#app");
+  if(clients===null){ return; }
+  app.innerHTML = (errorMsg ? `<div class="notice err" style="margin-bottom:14px">${esc(errorMsg)}</div>` : "") + (!canWrite ? `<div class="notice" style="margin-bottom:14px">You have view-only access. Ask Dave for Contributor access to make changes.</div>` : "") + (view.name==="home" ? homeHTML() : clientHTML());
+}
+function homeHTML(){
+  const n = clients.length;
+  const head = `<div class="home-head"><div><h1>Clients</h1><p class="sub">${esc(ymLabel(todayYM))} at a glance. Open a client to plan, brief and report.</p></div>
+    <div class="row"><span class="cap">${n} of ${MAX_CLIENTS} slots used</span>${canWrite?`<button class="btn pri" type="button" data-act="add" ${n>=MAX_CLIENTS?"disabled":""}>+ Add client</button>`:""}</div></div>`;
+  const form = adding ? addFormHTML() : "";
+  if(!n) return head + form + (adding ? "" : `<div class="empty-state"><h2>No clients yet</h2><p>Add a Brand Launch client once Phase 1 is signed off. Each client gets a monthly content calendar, a campaign brief and a KPI review.</p>${canWrite?`<button class="btn pri" type="button" data-act="add">Add your first client</button>`:""}</div>`);
+  const cards = clients.map(c=>{
+    const md = months[`${c.id}/${todayYM}`]; const st = monthStats(md);
+    const segs = md ? STATUSES.map(s=>{ const v = st.byStatus[s]||0; return v ? `<i style="width:${v/st.total*100}%;background:${ST_COLOR[s]}" title="${s}: ${v}"></i>` : ""; }).join("") : "";
+    const checks = md ? CHECKS.filter(k=>md.checks && md.checks[k.k]).length : 0;
+    const camp = md && md.campaign ? md.campaign.status : null;
+    return `<button class="ccard" type="button" data-open="${c.id}">
+      <div class="top"><div><h3>${esc(c.name)}</h3><div class="meta">${esc(c.industry||"No industry set")}${c.ae?` · AE ${esc(c.ae)}`:""}</div></div><span class="pill ${c.status==="Active"?"s-good":c.status==="Paused"?"s-bad":"s-info"}">${esc(c.status||"Onboarding")}</span></div>
+      ${md===undefined ? `<div class="meta">Loading this month…</div>` : md===null ? `<div class="notice">${esc(ymLabel(todayYM))} not planned yet</div>` : `
+      <div><div class="bar" aria-label="Content status">${segs}</div></div>
+      <div class="kv"><span>Published</span><span>${st.published} / ${st.total}</span><span>Approved or ready</span><span>${st.ready} / ${st.total}</span><span>Month checklist</span><span>${checks} / ${CHECKS.length}</span><span>Campaign brief</span><span>${esc(camp||"Draft")}</span><span>Next due</span><span>${st.next ? `${esc(st.next.id)} · ${esc(dayLabel(st.next.date))}` : "—"}</span></div>`}
+    </button>`;
+  }).join("");
+  const slots = canWrite && n < MAX_CLIENTS && !adding ? `<button class="slot" type="button" data-act="add">+ Add client (${MAX_CLIENTS-n} free)</button>` : "";
+  return head + form + `<div class="grid">${cards}${slots}</div>
+    <div class="legend" style="margin-top:14px">${STATUSES.map(s=>`<span><i style="background:${ST_COLOR[s]}"></i>${s}</span>`).join("")}</div>`;
+}
+function addFormHTML(){
+  return `<form class="panel" id="addForm" style="margin-bottom:16px"><h2 style="margin-bottom:12px">New client</h2>
+    <div class="fgrid">
+      <label class="f">Business name<input type="text" id="new_name" required placeholder="e.g. Kgosi Coffee Co."></label>
+      <label class="f">Industry<input type="text" id="new_industry" placeholder="e.g. Food & beverage"></label>
+      <label class="f">Account exec<input type="text" id="new_ae" placeholder="Who owns this client"></label>
+      <label class="f">Retainer start<input type="date" id="new_start"></label>
+    </div>
+    <div class="row" style="margin-top:14px"><button class="btn pri" type="submit">Add client</button><button class="btn" type="button" data-act="cancelAdd">Cancel</button></div></form>`;
+}
+
+/* ================= Render: client ================= */
+function clientHTML(){
+  const c = clients.find(x=>x.id===view.client); if(!c) return "";
+  const key = `${c.id}/${view.ym}`; const md = months[key];
+  const tabs = [["plan","Month plan"],["calendar","Content calendar"],["campaign","Campaign brief"],["kpis","KPIs & review"],["profile","Client profile"]];
+  let body;
+  if(view.tab==="profile") body = profileHTML(c);
+  else if(md===undefined) body = `<div class="notice">Loading ${esc(ymLabel(view.ym))}…</div>`;
+  else if(md===null) body = `<div class="empty-state"><h2>${esc(ymLabel(view.ym))} isn't planned yet</h2><p>Starting the month creates 26 calendar slots (20 posts, 4 stories, 2 reels) spread across the month, with pillars set from this client's content mix. You can change every date, pillar and topic afterwards.</p>${canWrite?`<button class="btn pri" type="button" data-act="startMonth">Start ${esc(ymLabel(view.ym))}</button>`:""}</div>`;
+  else body = view.tab==="plan" ? planHTML(c, md) : view.tab==="calendar" ? calendarHTML(c, md) : view.tab==="campaign" ? campaignHTML(c, md) : kpiHTML(c, md);
+  return `<div class="crumbs"><button class="link" type="button" data-act="home">All clients</button> / ${esc(c.name)}</div>
+    <div class="chead"><div><h1>${esc(c.name)}</h1><p class="sub">${esc(c.industry||"")}${c.ae?` · AE ${esc(c.ae)}`:""}${(c.platforms||[]).length?` · ${esc(c.platforms.join(" + "))}`:""}</p></div>
+      ${view.tab!=="profile" ? `<div class="month-pick"><button type="button" data-act="prev" aria-label="Previous month">‹</button><b>${esc(ymLabel(view.ym))}</b><button type="button" data-act="next" aria-label="Next month">›</button></div>` : ""}</div>
+    <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-selected="${view.tab===k}">${l}</button>`).join("")}</div>
+    ${body}`;
+}
+const dis = () => canWrite ? "" : "disabled";
+function fieldHTML(scope, path, f, val){
+  const attrs = `data-scope="${scope}" data-path="${path}" ${dis()} id="${esc((scope+"_"+path).replace(/\./g,"_"))}"`;
+  if(f.type==="select") return `<select ${attrs}>${f.opts.map(o=>`<option ${o===(val||"")?"selected":""} value="${esc(o)}">${esc(o||"Choose…")}</option>`).join("")}</select>`;
+  if(f.type==="textarea") return `<textarea ${attrs} rows="3" placeholder="${esc(f.ph||"")}">${esc(val)}</textarea>`;
+  return `<input type="${f.type}" ${attrs} ${f.type==="number"?'data-num="1" step="any" min="0"':""} value="${esc(val)}" placeholder="${esc(f.ph||"")}">`;
+}
+
+function planHTML(c, md){
+  const st = monthStats(md); const pri = c.priority || "";
+  const checks = CHECKS.map(k=>{ const on = !!(md.checks||{})[k.k]; return `<li><label class="${on?"done":""}"><input type="checkbox" data-scope="month" data-path="checks.${k.k}" ${on?"checked":""} ${dis()} id="chk_${k.k}"><span>${esc(k.l)}<small>${esc(k.w)}</small></span></label></li>`; }).join("");
+  const done = CHECKS.filter(k=>(md.checks||{})[k.k]).length;
+  return `<div class="two">
+    <section class="panel"><div class="row between" style="margin-bottom:10px"><h2>Month checklist</h2><span class="pill ${done===CHECKS.length?"s-good":"s-warn"}">${done} of ${CHECKS.length} done</span></div><ul class="checks">${checks}</ul></section>
+    <div class="stack">
+      <section class="panel"><h2 style="margin-bottom:10px">This month's content</h2>
+        <div class="bar" style="height:12px">${STATUSES.map(s=>{ const v = st.byStatus[s]||0; return v?`<i style="width:${v/st.total*100}%;background:${ST_COLOR[s]}"></i>`:""; }).join("")}</div>
+        <div class="legend">${STATUSES.map(s=>`<span><i style="background:${ST_COLOR[s]}"></i>${s} ${st.byStatus[s]||0}</span>`).join("")}</div>
+        <div class="kv" style="margin-top:12px"><span>Next due</span><span>${st.next?`${esc(st.next.id)} · ${esc(dayLabel(st.next.date))}`:"—"}</span><span>Campaign brief</span><span>${esc((md.campaign||{}).status||"Draft")}</span></div>
+        <div class="row" style="margin-top:12px"><button class="btn" type="button" data-tab="calendar">Open calendar</button><button class="btn" type="button" data-tab="campaign">Open brief</button></div></section>
+      <section class="panel"><h2>What the client expects</h2><p class="sub" style="margin-bottom:12px">Their main goal is outlined in gold. Brand Launch covers the first three fully.</p>
+        <div class="exp">${EXPECT.map(e=>`<div class="${pri===e.k?"main":""}"><span><b>${e.k}</b><br><span style="color:var(--muted);font-size:13px">${e.d}</span></span><span class="pill ${e.cover==="Covered"?"s-good":"s-warn"}" title="${esc(e.cover)}">${e.cover==="Covered"?"Covered":"Partly"}</span></div>`).join("")}</div>
+        <p class="sub" style="font-size:13px;margin-top:10px">Results depend on the client's offer, ad budget and how fast they reply to messages. Set the main goal in Client profile.</p></section>
+    </div></div>`;
+}
+
+function calendarHTML(c, md){
+  const st = monthStats(md); const mix = {...DEFAULT_MIX, ...(c.mix||{})};
+  const plats = ["Both", ...(c.platforms && c.platforms.length ? c.platforms : ["Facebook","Instagram"])];
+  const rows = ["Post","Story","Reel"].map(type=>{
+    const items = Object.entries(md.items||{}).filter(([,it])=>it.type===type).sort((a,b)=>a[0].localeCompare(b[0]));
+    return `<tr class="grp"><td colspan="6">${type}s · ${items.length}</td></tr>` + items.map(([id,it])=>`<tr data-st="${esc(it.status)}">
+      <td class="slotid">${esc(id)}</td>
+      <td style="width:150px"><input type="date" data-scope="month" data-path="items.${id}.date" value="${esc(it.date)}" ${dis()} id="d_${id}" aria-label="${id} date"></td>
+      <td style="width:170px"><select data-scope="month" data-path="items.${id}.pillar" ${dis()} id="p_${id}" aria-label="${id} pillar">${PILLARS.map(p=>`<option ${p===it.pillar?"selected":""}>${p}</option>`).join("")}</select></td>
+      <td><input type="text" data-scope="month" data-path="items.${id}.topic" value="${esc(it.topic)}" placeholder="Topic or hook" ${dis()} id="t_${id}" aria-label="${id} topic"></td>
+      <td style="width:130px"><select data-scope="month" data-path="items.${id}.platform" ${dis()} id="pl_${id}" aria-label="${id} platform">${[...new Set([...plats, it.platform])].map(p=>`<option ${p===it.platform?"selected":""}>${esc(p)}</option>`).join("")}</select></td>
+      <td style="width:150px"><select data-scope="month" data-path="items.${id}.status" ${dis()} id="s_${id}" aria-label="${id} status">${STATUSES.map(s=>`<option ${s===it.status?"selected":""}>${s}</option>`).join("")}</select></td></tr>`).join("");
+  }).join("");
+  const maxMix = Math.max(...PILLARS.map(p=>Math.max(mix[p]||0, st.byPillar[p]||0)), 1);
+  return `<div class="cal-sum">
+    <section class="panel"><h3 style="margin-bottom:10px">Post pillar mix · planned vs target</h3><div class="pillmix">${PILLARS.map(p=>{ const v = st.byPillar[p]||0, t = mix[p]||0; return `<div><span title="${esc(PILLAR_HINT[p])}">${p}</span><span class="track"><i style="width:${v/maxMix*100}%"></i></span><b class="${v!==t?"off":""}">${v}/${t}</b></div>`; }).join("")}</div></section>
+    <section class="panel"><h3 style="margin-bottom:10px">Status</h3><div class="bar" style="height:12px">${STATUSES.map(s=>{ const v = st.byStatus[s]||0; return v?`<i style="width:${v/st.total*100}%;background:${ST_COLOR[s]}"></i>`:""; }).join("")}</div><div class="legend">${STATUSES.map(s=>`<span><i style="background:${ST_COLOR[s]}"></i>${s} ${st.byStatus[s]||0}</span>`).join("")}</div>
+      <p class="sub" style="font-size:13px;margin-top:10px">Pillars: ${PILLARS.map(p=>`<b>${p}</b> ${esc(PILLAR_HINT[p].toLowerCase())}`).join(" · ")}.</p></section></div>
+    <div class="row between" style="margin-bottom:10px"><p class="sub" style="margin:0">Hand the approved month to design: export it and import it in the Design Studio.</p><div class="row"><button class="btn" type="button" data-act="copyCsv">Copy CSV</button><button class="btn pri" type="button" data-act="exportCsv">Export CSV for design</button></div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Slot</th><th>Date</th><th>Pillar</th><th>Topic</th><th>Platform</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function campaignHTML(c, md){
+  const cp = md.campaign || {};
+  const parts = PARTS.map((p,i)=>`<section class="part"><header><em>${i+1}</em><div><h3>${p.t}</h3><p>${p.d} <b>Deliverable:</b> ${p.deliverable}.</p></div></header><div class="body">
+    <div class="fgrid">${p.fields.map(f=>`<label class="f ${f.full||f.type==="textarea"?"full":""}">${f.l}${fieldHTML("month", `campaign.${p.k}.${f.k}`, f, getPath(cp, `${p.k}.${f.k}`))}</label>`).join("")}</div>
+    ${p.deliv ? `<div class="deliv">${DELIV.map(d=>`<div><span>${d.l}</span>${fieldHTML("month", `campaign.deliv.${d.k}`, {type:"select", opts:DELIV_ST}, (cp.deliv||{})[d.k]||"Not started")}</div>`).join("")}</div>` : ""}
+  </div></section>`).join("");
+  return `<div class="panel" style="margin-bottom:16px"><div class="row between"><div><h2>Campaign ad set brief</h2><p class="sub">One campaign per month: a promotion, launch or seasonal push. Ad budget is separate and paid by the client.</p></div>
+    <label class="f" style="min-width:200px">Brief status${fieldHTML("month","campaign.status",{type:"select",opts:BRIEF_ST}, cp.status||"Draft")}</label></div></div>
+    <div class="stack">${parts}</div>`;
+}
+
+function kpiCompute(md, prev, c){
+  const k = (md && md.kpis) || {}, p = (prev && prev.kpis) || {}, b = c.baseline || {};
+  const st = monthStats(md);
+  const prevFollowers = num(p.followers) ?? num(b.followers);
+  return {
+    _growth: num(k.followers)!=null && prevFollowers!=null ? {v:k.followers - prevFollowers, s: fmt(k.followers - prevFollowers)} : null,
+    _consistency: st.total ? {v: st.published/st.total, s: `${st.published}/${st.total} · ${Math.round(st.published/st.total*100)}%`} : null,
+    _first_rate: num(k.first_round)!=null && st.total ? {v:k.first_round/st.total, s:`${Math.round(k.first_round/st.total*100)}%`} : null,
+    _er: num(k.interactions)!=null && num(k.reach) ? {v:k.interactions/k.reach, s:`${(k.interactions/k.reach*100).toFixed(1)}%`} : null,
+    _cpr: num(k.ad_spend)!=null && num(k.ad_results) ? {v:k.ad_spend/k.ad_results, s:`P${(k.ad_spend/k.ad_results).toFixed(2)}`} : null
+  };
+}
+function kpiHTML(c, md){
+  const prevYM = ymShift(view.ym,-1); const prev = months[`${c.id}/${prevYM}`];
+  const k = md.kpis || {}, p = (prev && prev.kpis) || {}, b = c.baseline || {};
+  const auto = kpiCompute(md, prev, c), autoPrev = prev ? kpiCompute(prev, null, c) : {};
+  const delta = (cur, old) => { if(cur==null || old==null || old===0) return `<span class="delta flat">${cur!=null&&old===0?"new":"—"}</span>`; const d = (cur-old)/Math.abs(old)*100; return `<span class="delta ${d>0.5?"up":d<-0.5?"down":"flat"}">${d>0?"+":""}${Math.round(d)}%</span>`; };
+  const cats = KPI.map(cat=>`<section class="panel kcat"><header><h2>${cat.cat}</h2><span class="pill ${cat.cat==="Results"?"s-warn":"s-good"} scope">${cat.cat==="Results"?"Partly in our control":"Brand Launch covers"}</span></header><p class="why">${cat.q}${c.priority===cat.cat?" <b>Client's main goal.</b>":""}</p>
+    ${cat.items.map(it=>{
+      if(it.auto){ const a = auto[it.k], ap = autoPrev[it.k]; return `<div class="krow"><span>${it.l}</span><span class="auto">${a?a.s:"—"}</span>${delta(a?a.v:null, ap?ap.v:null)}</div>`; }
+      const old = num(p[it.k]) ?? num(b[it.k]);
+      return `<div class="krow"><label for="k_${it.k}">${it.l}</label><input type="number" min="0" step="any" id="k_${it.k}" data-scope="month" data-path="kpis.${it.k}" data-num="1" value="${esc(k[it.k])}" ${dis()}>${delta(num(k[it.k]), old)}</div>`;
+    }).join("")}</section>`).join("");
+  const rv = md.review || {};
+  return `<p class="sub" style="margin:-6px 0 14px">Enter month-end figures from Meta Business Suite insights and Ads Manager. Changes compare with ${prev && prev.kpis && Object.keys(prev.kpis).length ? esc(ymLabel(prevYM)) : "the baseline in Client profile"}.</p>
+    <div class="kgrid">${cats}</div>
+    <section class="panel" style="margin-top:16px"><h2 style="margin-bottom:12px">Monthly analytics review</h2>
+      <div class="fgrid">
+        <label class="f">What's working${fieldHTML("month","review.working",{type:"textarea"}, rv.working)}</label>
+        <label class="f">What to adjust${fieldHTML("month","review.adjust",{type:"textarea"}, rv.adjust)}</label>
+        <label class="f">Top post this month${fieldHTML("month","review.top",{type:"text", ph:"Slot and why it worked"}, rv.top)}</label>
+        <label class="f">Next month's focus${fieldHTML("month","review.focus",{type:"text", ph:"e.g. more Proof posts, test reels"}, rv.focus)}</label>
+      </div></section>`;
+}
+
+function profileHTML(c){
+  const F = (path, l, type, ph, full) => `<label class="f ${full?"full":""}">${l}${fieldHTML("client", path, {type, ph}, getPath(c, path))}</label>`;
+  const mix = {...DEFAULT_MIX, ...(c.mix||{})}; const tot = PILLARS.reduce((s,p)=>s+(+mix[p]||0),0);
+  return `<div class="two"><div class="stack">
+    <section class="panel"><h2 style="margin-bottom:12px">Details</h2><div class="fgrid">
+      ${F("name","Business name","text")}${F("industry","Industry","text")}
+      ${F("ae","Account exec","text")}<label class="f">Status${fieldHTML("client","status",{type:"select",opts:CLIENT_STATUS}, c.status||"Onboarding")}</label>
+      ${F("contact","Client contact","text","Name and role")}${F("phone","Phone / WhatsApp","text")}
+      ${F("start","Retainer start","date")}${F("decider","Signs off content","text")}
+      ${F("brandkit","Brand kit link","url","https://…",true)}${F("folder","Client folder link","url","https://…",true)}
+      <div class="full"><div class="f" style="margin-bottom:6px">Platforms managed (2 on Brand Launch)</div><div class="chips">${PLATFORMS.map(p=>`<button type="button" class="chip" data-plat="${p}" aria-pressed="${(c.platforms||[]).includes(p)}" ${dis()}>${p}</button>`).join("")}</div></div>
+    </div></section>
+    <section class="panel"><h2>Post pillar mix</h2><p class="sub" style="margin-bottom:12px">Target posts per pillar each month. Used when a new month is started. Total ${tot} of 20.</p>
+      <div class="mix">${PILLARS.map(p=>`<label>${p}<input type="number" min="0" max="20" data-scope="client" data-path="mix.${p}" data-num="1" value="${esc(mix[p])}" ${dis()} id="mix_${p.replace(/\s/g,"")}"></label>`).join("")}</div></section>
+  </div><div class="stack">
+    <section class="panel"><h2>Client's main goal</h2><p class="sub" style="margin-bottom:12px">Agreed at kick-off. Their KPI tab highlights it.</p>
+      <div class="chips">${EXPECT.map(e=>`<button type="button" class="chip" data-prio="${e.k}" aria-pressed="${c.priority===e.k}" ${dis()}>${e.k}</button>`).join("")}</div>
+      <label class="f" style="margin-top:12px">Expectations in their words${fieldHTML("client","expect_notes",{type:"textarea"}, c.expect_notes)}</label></section>
+    <section class="panel"><h2>Baseline</h2><p class="sub" style="margin-bottom:12px">Recorded during Phase 1 platform audit. Month 1 KPIs compare against these.</p><div class="fgrid">
+      ${["followers:Followers","reach:Monthly reach","interactions:Monthly interactions","profile_visits:Profile visits","messages:Messages a month"].map(s=>{ const [k,l] = s.split(":"); return `<label class="f">${l}<input type="number" min="0" data-scope="client" data-path="baseline.${k}" data-num="1" value="${esc((c.baseline||{})[k])}" ${dis()} id="base_${k}"></label>`; }).join("")}
+    </div></section>
+    ${canWrite ? `<section class="panel"><h2>Remove client</h2><p class="sub" style="margin-bottom:12px">Frees a slot. The client disappears from the desk for everyone.</p>
+      ${confirmDel ? `<div class="row"><span>Remove ${esc(c.name)}?</span><button class="btn danger" type="button" data-act="doDelete">Yes, remove</button><button class="btn" type="button" data-act="noDelete">Keep</button></div>` : `<button class="btn danger" type="button" data-act="askDelete">Remove client</button>`}</section>` : ""}
+  </div></div>`;
+}
+
+/* ================= CSV export ================= */
+function csvCell(v){ const s = String(v ?? ""); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; }
+function calendarCSV(c, md){
+  const rows = [["Client","Month","Slot","Format","Date","Pillar","Topic","Platform","AE status","Notes"]];
+  Object.entries(md.items||{}).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([id,it])=> rows.push([c.name, view.ym, id, it.type, it.date, it.pillar, it.topic, it.platform, it.status, ""]));
+  const cp = md.campaign || {}, o = cp.objective || {}, m = cp.message || {}, cr = cp.creative || {}, d = cp.deliv || {};
+  const topic = [o.offer, m.headline_a].filter(Boolean).join(" · ");
+  const notes = [o.goal && `Goal: ${o.goal}`, m.hook && `Hook: ${m.hook}`, m.headline_b && `Headline B: ${m.headline_b}`, m.cta && `CTA: ${m.cta}`, m.angle && `Test angle: ${m.angle}`, cr.direction && `Direction: ${cr.direction}`].filter(Boolean).join(" | ");
+  [["A01","Ad · Feed 4:5","feed"],["A02","Ad · Story 9:16","story"],["A03","Ad · Test variant","variant"]].forEach(([id,fmtName,k])=> rows.push([c.name, view.ym, id, fmtName, o.start||"", "Campaign", topic, "Ads", d[k]||"Not started", notes]));
+  return "﻿" + rows.map(r=>r.map(csvCell).join(",")).join("\r\n");
+}
+async function exportCsv(copyOnly){
+  const c = clients.find(x=>x.id===view.client); const md = months[`${c.id}/${view.ym}`]; if(!md) return;
+  const csv = calendarCSV(c, md); const filename = `Calendar-${c.name.replace(/[^\w]+/g,"-")}-${view.ym}.csv`;
+  if(!copyOnly){
+    let dl = null; try { dl = await claude.use("downloads"); } catch(e){}
+    if(dl){ try { await dl.save({filename, data: new Blob([csv], {type:"text/csv"})}); toast("Calendar exported."); return; } catch(e){ if(e && e.code==="declined") return; } }
+  }
+  try { await navigator.clipboard.writeText(csv); toast(copyOnly ? "CSV copied. Paste it into the Design Studio." : "Download unavailable here, so the CSV was copied instead."); }
+  catch(e){ toast("Couldn't copy. Try Export CSV instead."); }
+}
+
+/* ================= Events ================= */
+document.addEventListener("click", async e=>{
+  const t = e.target.closest("button"); if(!t || !$("body").contains(t)) return;
+  const act = t.dataset.act;
+  if(t.dataset.open){ view = {name:"client", client:t.dataset.open, tab:"plan", ym:todayYM}; confirmDel = false; syncSubs(); render(); window.scrollTo(0,0); return; }
+  if(t.dataset.tab){ view.tab = t.dataset.tab; confirmDel = false; render(); return; }
+  if(act==="home"){ view = {name:"home", client:null, tab:"plan", ym:todayYM}; adding = false; syncSubs(); render(); return; }
+  if(act==="add"){ if(clients.length>=MAX_CLIENTS) return; adding = true; render(); setTimeout(()=>{ const i = $("#new_name"); if(i) i.focus(); }); return; }
+  if(act==="cancelAdd"){ adding = false; render(); return; }
+  if(act==="prev"||act==="next"){ view.ym = ymShift(view.ym, act==="prev"?-1:1); syncSubs(); render(); return; }
+  if(act==="startMonth"){ const c = clients.find(x=>x.id===view.client); const path = `clients/${c.id}/months/${view.ym}`; t.disabled = true;
+    queue(path, ()=> db.doc(path).set(buildMonth(view.ym, c.mix))).then(()=>toast(`${ymLabel(view.ym)} planned: 26 slots created.`)); return; }
+  if(act==="exportCsv"){ exportCsv(false); return; }
+  if(act==="copyCsv"){ exportCsv(true); return; }
+  if(act==="askDelete"){ confirmDel = true; render(); return; }
+  if(act==="noDelete"){ confirmDel = false; render(); return; }
+  if(act==="doDelete"){ const id = view.client; confirmDel = false; view = {name:"home", client:null, tab:"plan", ym:todayYM}; syncSubs(); render(); queue(`clients/${id}`, ()=> db.doc(`clients/${id}`).delete()).then(()=>toast("Client removed.")); return; }
+  if(t.dataset.plat){ const c = clients.find(x=>x.id===view.client); const set = new Set(c.platforms||[]); set.has(t.dataset.plat) ? set.delete(t.dataset.plat) : set.add(t.dataset.plat); writeClient(c.id, {platforms:[...set]}); return; }
+  if(t.dataset.prio){ const c = clients.find(x=>x.id===view.client); writeClient(c.id, {priority: c.priority===t.dataset.prio ? "" : t.dataset.prio}); return; }
+});
+document.addEventListener("submit", e=>{
+  if(e.target.id!=="addForm") return; e.preventDefault();
+  const name = $("#new_name").value.trim(); if(!name){ $("#new_name").focus(); return; }
+  if(clients.length>=MAX_CLIENTS){ toast(`All ${MAX_CLIENTS} slots are in use.`); return; }
+  const ref = db.collection("clients").doc();
+  const body = {name, industry:$("#new_industry").value.trim(), ae:$("#new_ae").value.trim(), start:$("#new_start").value, status:"Onboarding", platforms:["Facebook","Instagram"], mix:{...DEFAULT_MIX}, baseline:{}, priority:"", created:Date.now()};
+  adding = false;
+  queue(`clients/${ref.id}`, ()=> ref.set(body)).then(()=>toast(`${name} added.`));
+});
+document.addEventListener("change", e=>{
+  const t = e.target; if(!t.dataset || !t.dataset.scope || !canWrite) return;
+  let val = t.type==="checkbox" ? t.checked : t.value;
+  if(t.dataset.num) val = num(val);
+  const patch = setPath({}, t.dataset.path, val);
+  if(t.dataset.scope==="client") writeClient(view.client, patch);
+  else writeMonth(view.client, view.ym, patch);
+  if(t.tagName==="SELECT") t.blur();
+});
+
+init();
+</script>
