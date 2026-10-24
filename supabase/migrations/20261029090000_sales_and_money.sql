@@ -843,11 +843,11 @@ revoke all on public.billing_details from anon, authenticated;
 grant select on public.billing_details to authenticated, service_role;
 
 -- ---------------------------------------------------------------------------
--- documents bucket: {client_id}/invoices/…, {client_id|lead-…}/quotes/…
+-- documents bucket: {client_id}/invoices/…, quotes/…, company/logo-…
 -- ---------------------------------------------------------------------------
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('documents', 'documents', false, 10485760, array['application/pdf'])
+values ('documents', 'documents', false, 10485760, array['application/pdf', 'image/png', 'image/jpeg'])
 on conflict (id) do update set public = false, file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 

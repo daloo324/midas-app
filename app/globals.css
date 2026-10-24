@@ -510,6 +510,11 @@
     background: var(--good-soft);
     color: var(--good);
   }
+  .notice.warn {
+    border-color: var(--warn);
+    background: var(--warn-soft);
+    color: var(--warn);
+  }
   .empty-state {
     border: 2px dashed var(--line);
     border-radius: 14px;
@@ -2157,6 +2162,40 @@
     .steps {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       row-gap: 14px;
+    }
+  }
+}
+
+/* CEO dashboard (Phase 5): built from the same pieces as the prototypes. */
+@layer components {
+  .svc {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+  }
+  .svc > summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  .svc > summary::-webkit-details-marker {
+    display: none;
+  }
+  .num {
+    font-family: var(--display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .settings-grid {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 }
