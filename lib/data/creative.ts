@@ -1,6 +1,6 @@
 import "server-only";
 import type { PlanStatus, WorkStatus } from "@/lib/content/constants";
-import { KIT_TOTAL } from "@/lib/creative/constants";
+import { KIT_TOTAL, type Palette } from "@/lib/creative/constants";
 import type { ClientStatus } from "@/lib/format/status";
 import { createClient } from "@/lib/supabase/server";
 
@@ -555,4 +555,50 @@ export async function getFontLibrary(): Promise<{
     })),
     pairings: pairings ?? [],
   };
+}
+
+export type PaletteTemplate = {
+  id: string;
+  name: string;
+  colors: Palette;
+  /** Brand kits whose four colours match this template. */
+  usedBy: number;
+};
+
+/** The palette builder's templates, with how many brand kits use each. */
+export async function listPaletteTemplates(): Promise<PaletteTemplate[]> {
+  const supabase = await createClient();
+  const [{ data: templates }, { data: kits }] = await Promise.all([
+    supabase
+      .from("palette_templates")
+      .select(
+        "id, name, primary_color, secondary_color, tertiary_color, accent_color",
+      )
+      .order("sort_order")
+      .order("created_at"),
+    supabase.from("brand_kits").select("colors"),
+  ]);
+  const key = (c: Partial<Record<string, string>>) =>
+    ["primary", "secondary", "tertiary", "accent"]
+      .map((r) => (c[r] ?? "").toUpperCase())
+      .join();
+  const counts = new Map<string, number>();
+  for (const k of kits ?? []) {
+    const id = key((k.colors ?? {}) as Record<string, string>);
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+  return (templates ?? []).map((t) => {
+    const colors = {
+      primary: t.primary_color,
+      secondary: t.secondary_color,
+      tertiary: t.tertiary_color,
+      accent: t.accent_color,
+    };
+    return {
+      id: t.id,
+      name: t.name,
+      colors,
+      usedBy: counts.get(key(colors)) ?? 0,
+    };
+  });
 }

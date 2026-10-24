@@ -39,14 +39,25 @@ export const kitColor = z.object({
   ]),
 });
 
+const paletteColors = z.object({
+  primary: hex,
+  secondary: hex,
+  tertiary: hex,
+  accent: hex,
+});
+
 export const palette = z.object({
   clientId: uuid,
-  colors: z.object({
-    primary: hex,
-    secondary: hex,
-    tertiary: hex,
-    accent: hex,
-  }),
+  colors: paletteColors,
+});
+
+export const paletteTemplate = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, { error: "Give the template a name." })
+    .max(60, { error: "Keep the name under 60 characters." }),
+  colors: paletteColors,
 });
 
 export const guideCheck = z.object({

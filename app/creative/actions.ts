@@ -21,6 +21,7 @@ import {
   libraryPairing,
   manualTime,
   palette,
+  paletteTemplate,
   uuid,
   workMove,
 } from "@/lib/validation/creative";
@@ -550,6 +551,60 @@ export async function deleteInspirationAction(
   await supabase.storage.from("inspiration").remove([data[0].storage_path]);
   refresh();
   return { ok: "Removed." };
+}
+
+// ---------------------------------------------------------------------------
+// Palette templates: the creative director (or CEO) adds and removes them.
+// Brand kits keep their own copy of the colours.
+// ---------------------------------------------------------------------------
+
+const PALETTES_ONLY: ActionState = {
+  error: "Only the creative director can change the palette templates.",
+};
+
+export async function addPaletteTemplateAction(
+  input: unknown,
+): Promise<ActionState> {
+  const me = await staffWithRole(["ceo", "creative_director"]);
+  if (!me) return PALETTES_ONLY;
+  const parsed = paletteTemplate.safeParse(input);
+  if (!parsed.success) return { error: first(parsed.error.issues) };
+  const { name, colors } = parsed.data;
+  const supabase = await createClient();
+  const { error } = await supabase.from("palette_templates").insert({
+    name,
+    primary_color: colors.primary.toUpperCase(),
+    secondary_color: colors.secondary.toUpperCase(),
+    tertiary_color: colors.tertiary.toUpperCase(),
+    accent_color: colors.accent.toUpperCase(),
+    created_by: me.id,
+  });
+  if (error)
+    return {
+      error:
+        error.code === "23505"
+          ? `There's already a template called ${name}. Choose another name.`
+          : friendlyError(error, "The template didn't save. Try again."),
+    };
+  refresh();
+  return { ok: `${name} added to the templates.` };
+}
+
+export async function removePaletteTemplateAction(
+  id: string,
+): Promise<ActionState> {
+  if (!(await staffWithRole(["ceo", "creative_director"])))
+    return PALETTES_ONLY;
+  if (!uuid.safeParse(id).success) return BAD_INPUT;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("palette_templates")
+    .delete()
+    .eq("id", id)
+    .select("name");
+  if (error || !data?.length) return PALETTES_ONLY;
+  refresh();
+  return { ok: `${data[0].name} removed.` };
 }
 
 // ---------------------------------------------------------------------------
