@@ -81,7 +81,7 @@ export async function loadCompany(supabase: Db): Promise<Company> {
     address: st.address,
     email: st.email,
     phone: st.phone,
-    vatNumber: st.vat_registered ? st.vat_number : null,
+    vatNumber: st.vat_number,
     logo,
     bank: (st.bank_details ?? {}) as Record<string, string | null>,
     footer: st.invoice_footer,
@@ -177,7 +177,7 @@ export function quotePdfData(q: Quote, c: Company): PdfData {
       { label: "Issued", value: formatDay(q.issue_date) },
       { label: "Valid until", value: formatDay(q.valid_until) },
     ],
-    company: c,
+    company: { ...c, vatNumber: q.vat_rate > 0 ? c.vatNumber : null },
     billTo: {
       name: to.name,
       lines: [to.contact, to.email, to.code && `Client ID ${to.code}`].filter(
@@ -363,7 +363,7 @@ export function invoicePdfData(
       { label: "Issued", value: formatDay(inv.issue_date) },
       { label: "Due", value: formatDay(inv.due_date) },
     ],
-    company: c,
+    company: { ...c, vatNumber: inv.vat_rate > 0 ? c.vatNumber : null },
     billTo: {
       name: inv.client.name,
       lines: [
@@ -408,7 +408,7 @@ export function creditNotePdfData(
       { label: "Issued", value: formatDay(note.issued_on) },
       { label: "Against", value: inv.number ?? "—" },
     ],
-    company: c,
+    company: { ...c, vatNumber: inv.vat_rate > 0 ? c.vatNumber : null },
     billTo: {
       name: inv.client.name,
       lines: [
@@ -489,4 +489,26 @@ export async function storePdf(
     if (existing) return Buffer.from(await existing.arrayBuffer());
   }
   return pdf;
+}
+
+/** Company and bank details for showing documents to anyone signed in (portal). */
+export async function loadBillingCompany(supabase: Db): Promise<Company> {
+  const { data: b } = await supabase
+    .from("billing_details")
+    .select("*")
+    .maybeSingle();
+  return {
+    name: b?.company_name ?? "Midas Media Solutions",
+    legalName: b?.legal_name ?? null,
+    address: b?.address ?? null,
+    email: b?.email ?? null,
+    phone: b?.phone ?? null,
+    vatNumber: b?.vat_number ?? null,
+    logo: null,
+    bank: (b?.bank_details ?? {}) as Record<string, string | null>,
+    footer: b?.invoice_footer ?? null,
+    paymentTermsDays: 7,
+    vatRegistered: false,
+    vatRate: 0,
+  };
 }

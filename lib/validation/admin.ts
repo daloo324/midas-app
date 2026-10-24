@@ -3,6 +3,7 @@ import {
   LEAD_SOURCES,
   LEAD_STAGES,
   LOST_REASONS,
+  PAYMENT_METHODS,
   SERVICE_UNITS,
 } from "@/lib/format/status";
 
@@ -209,4 +210,22 @@ export const newQuote = z.object({
   recipient: z.string().regex(/^(lead|client):[0-9a-f-]{36}$/i, {
     error: "Choose who the quote is for.",
   }),
+});
+
+export const paymentSchema = z.object({
+  invoiceId: uuid,
+  amount: money.pipe(
+    z.number().positive({ error: "Enter an amount more than P0.00." }),
+  ),
+  paidOn: z.iso.date({ error: "Enter the date it was paid." }),
+  method: z.enum(PAYMENT_METHODS, { error: "Choose how it was paid." }),
+  reference: optionalText(120),
+});
+
+export const creditNoteSchema = z.object({
+  invoiceId: uuid,
+  amount: money.pipe(
+    z.number().positive({ error: "Enter an amount more than P0.00." }),
+  ),
+  reason: text(500).min(1, { error: "Give a reason for the credit note." }),
 });

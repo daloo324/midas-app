@@ -1,5 +1,10 @@
 import "server-only";
 import {
+  INVOICE_COLUMNS,
+  toInvoice,
+  type Invoice,
+} from "@/lib/documents/money";
+import {
   checkDue,
   type CampaignStatus,
   type ItemFormat,
@@ -556,4 +561,46 @@ export async function getBrief(clientId: string) {
         submitted_at: data.submitted_at,
       }
     : null;
+}
+
+// ---------------------------------------------------------------------------
+// Invoices (Phase 5). Drafts are filtered out here too, so the CEO's preview
+// shows exactly what the client sees.
+// ---------------------------------------------------------------------------
+
+export async function listPortalInvoices(clientId: string): Promise<Invoice[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("invoices")
+    .select(INVOICE_COLUMNS)
+    .eq("client_id", clientId)
+    .neq("status", "draft")
+    .order("issue_date", { ascending: false })
+    .order("number", { ascending: false });
+  return ((data ?? []) as unknown as Parameters<typeof toInvoice>[0][]).map(
+    toInvoice,
+  );
+}
+
+export type PortalBalance = {
+  due: number;
+  nextDue: string | null;
+  overdue: boolean;
+};
+
+export function portalBalance(
+  invoices: Invoice[],
+  today: string,
+): PortalBalance {
+  const open = invoices
+    .filter(
+      (i) =>
+        i.balance > 0 && (i.status === "issued" || i.status === "part_paid"),
+    )
+    .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""));
+  return {
+    due: Math.round(open.reduce((a, i) => a + i.balance, 0) * 100) / 100,
+    nextDue: open[0]?.due_date ?? null,
+    overdue: open.some((i) => !!i.due_date && i.due_date < today),
+  };
 }

@@ -11,9 +11,11 @@ import {
   getPortalClient,
   getPortalKit,
   listApprovals,
+  listPortalInvoices,
   listReports,
   monthItems,
   monthTotals,
+  portalBalance,
 } from "@/lib/data/portal";
 import { formatMoney, todayInGaborone } from "@/lib/format";
 
@@ -42,14 +44,17 @@ function Delta({
 export async function OverviewPage({ viewer }: { viewer: Viewer }) {
   const today = todayInGaborone();
   const month = `${today.slice(0, 7)}-01`;
-  const [client, approvals, totals, items, reports, kit] = await Promise.all([
-    getPortalClient(viewer.clientId),
-    listApprovals(viewer.clientId),
-    monthTotals(viewer.clientId, month),
-    monthItems(viewer.clientId, month),
-    listReports(viewer.clientId),
-    getPortalKit(viewer.clientId),
-  ]);
+  const [client, approvals, totals, items, reports, kit, invoices] =
+    await Promise.all([
+      getPortalClient(viewer.clientId),
+      listApprovals(viewer.clientId),
+      monthTotals(viewer.clientId, month),
+      monthItems(viewer.clientId, month),
+      listReports(viewer.clientId),
+      getPortalKit(viewer.clientId),
+      listPortalInvoices(viewer.clientId),
+    ]);
+  const balance = portalBalance(invoices, today);
   const counts = Object.fromEntries(
     CLIENT_STATUS_ORDER.map((s) => [
       s,
@@ -229,9 +234,16 @@ export async function OverviewPage({ viewer }: { viewer: Viewer }) {
           <div className="panel">
             <div className="label">Balance due</div>
             <div className="big" style={{ marginTop: 8 }}>
-              {formatMoney(0)}
+              {formatMoney(balance.due)}
             </div>
-            <p className="sub">Nothing outstanding</p>
+            <p
+              className="sub"
+              style={balance.overdue ? { color: "var(--bad)" } : undefined}
+            >
+              {balance.due
+                ? `${balance.overdue ? "Overdue since" : "Due"} ${dayLabel(balance.nextDue!)}`
+                : "Nothing outstanding"}
+            </p>
             <Link
               className="btn sm"
               href={`${viewer.base}/invoices`}
