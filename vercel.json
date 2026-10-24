@@ -1,4 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    { "path": "/api/cron/retainer-invoices", "schedule": "0 4 1 * *" },
+    { "path": "/api/cron/invoice-reminders", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/approval-nudges", "schedule": "0 7 * * 1-5" },
+    { "path": "/api/cron/cleanup", "schedule": "0 2 * * 0" }
+  ]
 }

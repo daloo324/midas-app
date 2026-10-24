@@ -14,6 +14,7 @@ import {
   type Invoice,
 } from "@/lib/documents/money";
 import { friendlyError } from "@/lib/data/errors";
+import { appUrl } from "@/lib/auth/links";
 import { sendEmail } from "@/lib/email/send";
 import { invoiceEmail } from "@/lib/email/templates";
 import { formatDay, formatMoney, todayInGaborone } from "@/lib/format";
@@ -157,7 +158,7 @@ async function deliver(inv: Invoice, replyTo: string): Promise<string | null> {
       title: inv.title ?? "Invoice",
       total: formatMoney(inv.total),
       dueDate: formatDay(inv.due_date),
-      portalUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/portal/invoices?view=${inv.number}`,
+      portalUrl: `${appUrl()}/portal/invoices?view=${inv.number}`,
       from: "Midas Media",
       replyTo: company.email ?? replyTo,
       pdf,

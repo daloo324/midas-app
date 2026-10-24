@@ -1618,6 +1618,25 @@ export type Database = {
           },
         ];
       };
+      sent_emails: {
+        Row: {
+          kind: string;
+          ref: string;
+          sent_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          kind: string;
+          ref: string;
+          sent_at?: string;
+        };
+        Update: {
+          kind?: string;
+          ref?: string;
+          sent_at?: string;
+        };
+        Relationships: [];
+      };
       services: {
         Row: {
           active: boolean;
@@ -2303,6 +2322,7 @@ export type Database = {
         Args: { p_client_id: string; p_items: number };
         Returns: number;
       };
+      cleanup_old_records: { Args: Record<PropertyKey, never>; Returns: Json };
       client_code_letters: { Args: { p_name: string }; Returns: string };
       client_login_locked: { Args: { p_login_id: string }; Returns: boolean };
       client_sees_kit_slot: {

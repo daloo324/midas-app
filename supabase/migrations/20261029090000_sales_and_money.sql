@@ -893,3 +893,51 @@ from public.clients c
 left join public.profiles ae on ae.id = c.account_exec_id
 left join public.services s on s.id = c.service_id
 where public.can_access_client(c.id);
+
+-- ---------------------------------------------------------------------------
+-- Scheduled jobs (07-integrations.md): Vercel Cron calls /api/cron/*, which
+-- runs as the service role. Each job is safe to run twice.
+-- ---------------------------------------------------------------------------
+
+-- Which automatic emails went out, so a re-run never sends one twice.
+-- kind: 'reminder_due_soon' | 'reminder_overdue_1' | 'reminder_overdue_7' |
+-- 'approvals_waiting'; ref: the invoice id, or client id and date.
+create table public.sent_emails (
+  kind text not null check (kind in ('reminder_due_soon', 'reminder_overdue_1', 'reminder_overdue_7', 'approvals_waiting')),
+  ref text not null check (length(ref) <= 120),
+  sent_at timestamptz not null default now(),
+  primary key (kind, ref)
+);
+
+alter table public.sent_emails enable row level security;
+grant select, insert, update, delete on public.sent_emails to service_role;
+
+-- Weekly tidy-up: sign-in attempts older than 30 days, and questionnaire
+-- links that expired over 90 days ago without being used.
+create function public.cleanup_old_records()
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_attempts int;
+  v_links int;
+begin
+  delete from public.login_attempts where created_at < now() - interval '30 days';
+  get diagnostics v_attempts = row_count;
+  delete from public.questionnaire_invites
+  where used_at is null and expires_at < now() - interval '90 days';
+  get diagnostics v_links = row_count;
+  delete from public.sent_emails where sent_at < now() - interval '400 days';
+  return jsonb_build_object('login_attempts', v_attempts, 'questionnaire_links', v_links);
+end;
+$$;
+
+revoke execute on function public.cleanup_old_records() from public, anon, authenticated;
+grant execute on function public.cleanup_old_records() to service_role;
+
+-- The stale-review nudge moves from pg_cron to the approval-nudges job.
+grant execute on function public.notify_stale_client_reviews() to service_role;
+select cron.unschedule('nudge-client-reviews')
+where exists (select 1 from cron.job where jobname = 'nudge-client-reviews');
