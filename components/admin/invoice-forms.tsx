@@ -95,12 +95,13 @@ export function PaymentForm({
 }) {
   const [state, action] = useActionState(recordPaymentAction, initialState);
   return (
-    <form action={action} noValidate className="grid gap-4" key={balance}>
+    <form action={action} noValidate className="grid gap-4">
       <input type="hidden" name="invoiceId" value={invoiceId} />
       <div className="fgrid">
         <label className="f">
           Amount (P)
           <input
+            key={balance}
             className="field"
             name="amount"
             inputMode="decimal"
@@ -153,7 +154,7 @@ export function CreditNoteForm({
 }) {
   const [state, action] = useActionState(creditNoteAction, initialState);
   return (
-    <form action={action} noValidate className="grid gap-4" key={balance}>
+    <form action={action} noValidate className="grid gap-4">
       <input type="hidden" name="invoiceId" value={invoiceId} />
       <div className="fgrid">
         <label className="f">

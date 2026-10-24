@@ -13,6 +13,7 @@ import {
 } from "@/lib/documents/money";
 import { formatDateTime } from "@/lib/format";
 import { QUOTE_STATUS_LABELS, QUOTE_STATUS_PILL } from "@/lib/format/status";
+import { requireArea } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Quote" };
@@ -21,6 +22,7 @@ export default async function QuotePage({
   params,
   searchParams,
 }: PageProps<"/admin/quotes/[number]">) {
+  await requireArea("admin");
   const { number } = await params;
   const sp = await searchParams;
   const supabase = await createClient();

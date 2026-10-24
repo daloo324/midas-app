@@ -863,3 +863,33 @@ create policy "Documents: read with the document" on storage.objects
       or exists (select 1 from public.credit_notes n where n.pdf_path = name)
     )
   );
+
+-- ---------------------------------------------------------------------------
+-- The portal's own client row gains the contact, for the bill-to on invoices
+-- (clients can't read public.clients directly).
+-- ---------------------------------------------------------------------------
+
+create or replace view public.portal_client
+with (security_barrier = true)
+as
+select
+  c.id,
+  c.name,
+  c.client_code,
+  c.status,
+  c.start_date,
+  c.platforms,
+  c.monthly_fee,
+  ae.full_name as account_exec_name,
+  ae.email as account_exec_email,
+  c.main_goal,
+  c.baseline,
+  s.name as service_name,
+  s.inclusions as service_inclusions,
+  ae.phone as account_exec_phone,
+  c.contact_name,
+  c.contact_email
+from public.clients c
+left join public.profiles ae on ae.id = c.account_exec_id
+left join public.services s on s.id = c.service_id
+where public.can_access_client(c.id);

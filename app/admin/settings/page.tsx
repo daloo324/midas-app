@@ -8,6 +8,7 @@ import {
   saveVatAction,
 } from "@/app/admin/settings/actions";
 import { SettingsForm, VatForm } from "@/components/admin/settings-form";
+import { requireArea } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -20,6 +21,7 @@ type Bank = Partial<
 >;
 
 export default async function SettingsPage() {
+  await requireArea("admin");
   const supabase = await createClient();
   const { data: s } = await supabase
     .from("settings")

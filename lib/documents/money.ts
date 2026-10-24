@@ -246,6 +246,10 @@ export type Invoice = {
   }[];
 };
 
+/** Without the client join, for readers who can't see public.clients (the portal). */
+export const INVOICE_COLUMNS_OWN =
+  "id, number, status, title, period_label, period_month, is_retainer, issue_date, due_date, subtotal, vat_rate, vat_amount, total, amount_paid, amount_credited, balance, notes, pdf_path, quote_id, created_at, invoice_lines(id, service_id, name, description, unit, quantity, unit_price, line_total, sort), payments(id, amount, paid_on, method, reference), credit_notes(id, number, amount, reason, issued_on, pdf_path)";
+
 export const INVOICE_COLUMNS =
   "id, number, status, title, period_label, period_month, is_retainer, issue_date, due_date, subtotal, vat_rate, vat_amount, total, amount_paid, amount_credited, balance, notes, pdf_path, quote_id, created_at, client:clients(id, name, contact_name, contact_email, client_code, reminders_enabled), invoice_lines(id, service_id, name, description, unit, quantity, unit_price, line_total, sort), payments(id, amount, paid_on, method, reference), credit_notes(id, number, amount, reason, issued_on, pdf_path)";
 

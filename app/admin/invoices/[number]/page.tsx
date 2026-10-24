@@ -22,6 +22,7 @@ import {
   PAYMENT_METHOD_LABELS,
   type PaymentMethod,
 } from "@/lib/format/status";
+import { requireArea } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Invoice" };
@@ -30,6 +31,7 @@ export default async function InvoicePage({
   params,
   searchParams,
 }: PageProps<"/admin/invoices/[number]">) {
+  await requireArea("admin");
   const { number } = await params;
   const sp = await searchParams;
   const supabase = await createClient();

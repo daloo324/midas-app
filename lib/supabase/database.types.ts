@@ -2090,6 +2090,8 @@ export type Database = {
           account_exec_phone: string | null;
           baseline: Json | null;
           client_code: string | null;
+          contact_email: string | null;
+          contact_name: string | null;
           id: string | null;
           main_goal: Database["public"]["Enums"]["goal_category"] | null;
           monthly_fee: number | null;
