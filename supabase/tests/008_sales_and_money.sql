@@ -3,7 +3,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(64);
+select plan(67);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures: the CEO, an account exec, a designer, client X (with a login,
@@ -236,6 +236,16 @@ select is((select string_agg(coalesce(from_status::text, '-') || '>' || to_statu
 set local request.jwt.claims to '{"sub":"e8000000-0000-4000-8000-000000000003","role":"authenticated"}';
 select is_empty($$ select 1 from public.client_status_history where client_id = 'f8000000-0000-4000-8000-000000000001' $$,
   'Another account exec can''t read that history');
+
+-- Midas's own marketing figures: the CEO only.
+set local request.jwt.claims to '{"sub":"e8000000-0000-4000-8000-000000000001","role":"authenticated"}';
+select lives_ok($$ insert into public.metric_daily (source, channel, day, metrics)
+  values ('manual', 'instagram', '2031-03-01', '{"followers": 1200, "reach": 9000, "interactions": 400}') $$,
+  'The CEO enters Midas''s own monthly figures');
+set local request.jwt.claims to '{"sub":"e8000000-0000-4000-8000-000000000002","role":"authenticated"}';
+select is_empty($$ select 1 from public.metric_daily where client_id is null $$, 'Account execs can''t see them');
+select throws_ok($$ insert into public.metric_daily (source, channel, day) values ('manual', 'website', '2031-03-01') $$,
+  '42501', null, 'or add to them');
 
 reset role;
 set local role anon;

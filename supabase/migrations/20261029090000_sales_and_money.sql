@@ -986,3 +986,42 @@ create trigger clients_log_status after insert or update of status on public.cli
 -- Existing clients start their history at the status they have now.
 insert into public.client_status_history (client_id, from_status, to_status, created_at)
 select id, null, status, created_at from public.clients;
+
+-- ---------------------------------------------------------------------------
+-- metric_daily (02-data-model.md "Performance"): raw figures per channel.
+-- Phase 6 fills it from Meta and GA4; until then the CEO enters Midas's own
+-- monthly figures by hand (source 'manual', day = the month's first day).
+-- ---------------------------------------------------------------------------
+
+create table public.metric_daily (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid references public.clients (id),
+  source public.metric_source not null,
+  channel text not null check (channel in ('facebook', 'instagram', 'website')),
+  day date not null,
+  metrics jsonb not null default '{}'::jsonb check (jsonb_typeof(metrics) = 'object'),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique nulls not distinct (client_id, source, channel, day)
+);
+
+create trigger metric_daily_updated_at before update on public.metric_daily
+  for each row execute function public.set_updated_at();
+
+alter table public.metric_daily enable row level security;
+create policy "Metrics: the CEO for Midas, staff with access for a client" on public.metric_daily
+  for select to authenticated using (
+    (client_id is null and public.is_ceo())
+    or (client_id is not null and public.is_staff() and public.can_access_client(client_id))
+  );
+create policy "CEO enters Midas's own figures" on public.metric_daily
+  for insert to authenticated with check (client_id is null and source = 'manual' and public.is_ceo());
+create policy "CEO corrects Midas's own figures" on public.metric_daily
+  for update to authenticated
+  using (client_id is null and source = 'manual' and public.is_ceo())
+  with check (client_id is null and source = 'manual' and public.is_ceo());
+
+grant select on public.metric_daily to authenticated;
+grant insert (client_id, source, channel, day, metrics) on public.metric_daily to authenticated;
+grant update (metrics) on public.metric_daily to authenticated;
+grant select, insert, update, delete on public.metric_daily to service_role;

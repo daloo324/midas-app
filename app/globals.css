@@ -2351,3 +2351,19 @@
     color: var(--ink);
   }
 }
+
+@layer components {
+  .mk-set {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px 14px;
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+  }
+  .mk-set legend {
+    font-family: var(--display);
+    font-weight: 800;
+    padding: 0 6px;
+  }
+}

@@ -229,3 +229,56 @@ export const creditNoteSchema = z.object({
   ),
   reason: text(500).min(1, { error: "Give a reason for the credit note." }),
 });
+
+// Midas's own marketing figures for one month, entered by hand until Phase 6.
+const count = z
+  .string()
+  .trim()
+  .transform((v) => v.replace(/[,\s]/g, ""))
+  .pipe(
+    z.union([
+      z.literal("").transform(() => null),
+      z
+        .string()
+        .regex(/^\d{1,9}$/, { error: "Use whole numbers, like 1200." })
+        .transform(Number),
+    ]),
+  )
+  .optional()
+  .transform((v) => v ?? null);
+
+export const marketingMonth = z.object({
+  month: z.string().regex(/^\d{4}-\d{2}$/, { error: "Choose a month." }),
+  facebookFollowers: count,
+  facebookReach: count,
+  facebookInteractions: count,
+  instagramFollowers: count,
+  instagramReach: count,
+  instagramInteractions: count,
+  websiteVisitors: count,
+  websiteEnquiries: count,
+  topPages: text(2000)
+    .optional()
+    .transform((v, ctx) => {
+      const pages: { path: string; views: number }[] = [];
+      for (const line of (v ?? "")
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .slice(0, 10)) {
+        const m = line.match(/^(\S+)\s+([\d,]+)$/);
+        if (!m) {
+          ctx.addIssue({
+            code: "custom",
+            message: `Write each top page as "/path 120": "${line}" isn't.`,
+          });
+          return z.NEVER;
+        }
+        pages.push({
+          path: m[1].slice(0, 200),
+          views: Number(m[2].replace(/,/g, "")),
+        });
+      }
+      return pages;
+    }),
+});

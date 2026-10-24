@@ -1249,6 +1249,55 @@ export type Database = {
         };
         Relationships: [];
       };
+      metric_daily: {
+        Row: {
+          channel: string;
+          client_id: string | null;
+          created_at: string;
+          day: string;
+          id: string;
+          metrics: NonNullable<Json>;
+          source: Database["public"]["Enums"]["metric_source"];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          channel: string;
+          client_id?: string | null;
+          created_at?: string;
+          day: string;
+          id?: string;
+          metrics?: NonNullable<Json>;
+          source: Database["public"]["Enums"]["metric_source"];
+          updated_at?: string;
+        };
+        Update: {
+          channel?: string;
+          client_id?: string | null;
+          created_at?: string;
+          day?: string;
+          id?: string;
+          metrics?: NonNullable<Json>;
+          source?: Database["public"]["Enums"]["metric_source"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "metric_daily_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "metric_daily_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       notifications: {
         Row: {
           body: string | null;
