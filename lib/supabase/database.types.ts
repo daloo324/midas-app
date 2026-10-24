@@ -790,6 +790,93 @@ export type Database = {
           },
         ];
       };
+      library_fonts: {
+        Row: {
+          created_at: string;
+          family: string;
+          file_name: string;
+          id: string;
+          italic: boolean;
+          licence_note: string | null;
+          size_bytes: number;
+          storage_path: string;
+          uploaded_by: string;
+          weight: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          family: string;
+          file_name: string;
+          id?: string;
+          italic?: boolean;
+          licence_note?: string | null;
+          size_bytes: number;
+          storage_path: string;
+          uploaded_by?: string;
+          weight: number;
+        };
+        Update: {
+          created_at?: string;
+          family?: string;
+          file_name?: string;
+          id?: string;
+          italic?: boolean;
+          licence_note?: string | null;
+          size_bytes?: number;
+          storage_path?: string;
+          uploaded_by?: string;
+          weight?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "library_fonts_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      library_pairings: {
+        Row: {
+          body_family: string;
+          created_at: string;
+          created_by: string;
+          good_for: string | null;
+          heading_family: string;
+          id: string;
+          style: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body_family: string;
+          created_at?: string;
+          created_by?: string;
+          good_for?: string | null;
+          heading_family: string;
+          id?: string;
+          style: string;
+        };
+        Update: {
+          body_family?: string;
+          created_at?: string;
+          created_by?: string;
+          good_for?: string | null;
+          heading_family?: string;
+          id?: string;
+          style?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "library_pairings_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       login_attempts: {
         Row: {
           created_at: string;
@@ -1660,6 +1747,10 @@ export type Database = {
           p_to: string;
         };
         Returns: undefined;
+      };
+      manages_font_library: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
       };
       month_label: { Args: { p_month: string }; Returns: string };
       notify: {

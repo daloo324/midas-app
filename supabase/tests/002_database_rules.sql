@@ -140,8 +140,8 @@ select set_eq(
   $$ select table_name::text from information_schema.role_table_grants
      where table_schema = 'public' and grantee = 'authenticated'
        and privilege_type = 'DELETE' $$,
-  $$ values ('brand_kit_files'), ('inspiration') $$,
-  'Signed-in users delete only kit files and inspiration images (each with its own policy)');
+  $$ values ('brand_kit_files'), ('inspiration'), ('library_fonts'), ('library_pairings') $$,
+  'Signed-in users delete only kit files, inspiration images and library fonts and pairings (each with its own policy)');
 
 select * from finish();
 rollback;
