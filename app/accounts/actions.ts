@@ -5,9 +5,11 @@ import { redirect } from "next/navigation";
 import type { ActionState } from "@/lib/auth/action-state";
 import { resendClientWelcome } from "@/lib/auth/admin";
 import { appUrl } from "@/lib/auth/links";
-import { staffWithRole } from "@/lib/auth/session";
-import { monthParam } from "@/lib/content/constants";
+import { getCurrentUser, staffWithRole } from "@/lib/auth/session";
+import { monthLabel, monthParam } from "@/lib/content/constants";
 import { friendlyError } from "@/lib/data/errors";
+import { sendEmail } from "@/lib/email/send";
+import { reviewPublishedEmail } from "@/lib/email/templates";
 import type { Json, TablesUpdate } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -334,9 +336,42 @@ export async function publishReviewAction(
       error: friendlyError(error, "The review didn't publish. Try again."),
     };
   refresh();
+  await emailReviewPublished(monthId);
   return {
     ok: "Published. The client can see it in their portal, and this month's KPIs are locked.",
   };
+}
+
+/** Emails the client's logins that their review is ready. Best effort. */
+async function emailReviewPublished(monthId: string) {
+  try {
+    const me = await getCurrentUser();
+    const supabase = await createClient();
+    const { data: m } = await supabase
+      .from("content_months")
+      .select("client_id, month")
+      .eq("id", monthId)
+      .single();
+    if (!m) return;
+    const { data: logins } = await supabase
+      .from("client_users")
+      .select("email, full_name")
+      .eq("client_id", m.client_id)
+      .eq("active", true);
+    for (const l of logins ?? [])
+      await sendEmail(
+        reviewPublishedEmail({
+          to: l.email,
+          name: l.full_name.split(/\s+/)[0] || l.full_name,
+          month: monthLabel(m.month),
+          portalUrl: `${appUrl()}/portal/reports?month=${m.month.slice(0, 7)}`,
+          from: me?.name ?? "Midas Media",
+          replyTo: me?.kind === "staff" ? me.email : undefined,
+        }),
+      );
+  } catch (e) {
+    console.error("Review email failed", monthId, e);
+  }
 }
 
 export async function unpublishReviewAction(

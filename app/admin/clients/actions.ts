@@ -10,6 +10,7 @@ import {
   updateClientProfile,
 } from "@/lib/data/clients";
 import type { ClientStatus } from "@/lib/format/status";
+import { createClient } from "@/lib/supabase/server";
 import {
   clientAdminSchema,
   clientRecordSchema,
@@ -92,4 +93,26 @@ export async function updateClientAccountAction(
   revalidatePath("/admin/clients");
   revalidatePath("/admin/team");
   return result;
+}
+
+/** Payment reminders on or off for one client (06-admin.md "Reminders"). */
+export async function setRemindersAction(
+  clientId: string,
+  enabled: boolean,
+): Promise<ActionState> {
+  if (!(await staffWithRole(["ceo"]))) return { error: CEO_ONLY };
+  if (!/^[0-9a-f-]{36}$/i.test(clientId) || typeof enabled !== "boolean")
+    return { error: "Reload the page and try again." };
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("clients")
+    .update({ reminders_enabled: enabled })
+    .eq("id", clientId);
+  if (error) return { error: "That didn't save. Try again." };
+  revalidatePath(`/admin/clients/${clientId}`);
+  return {
+    ok: enabled
+      ? "Payment reminders are on for this client."
+      : "Payment reminders are off for this client.",
+  };
 }

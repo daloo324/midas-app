@@ -112,3 +112,81 @@ export async function setStaffActive(
   }
   return { ok: message };
 }
+
+export type Workload = {
+  id: string;
+  name: string;
+  role: StaffRole;
+  clients: number;
+  /** Account execs: calendars and campaign briefs still to send. */
+  toSend: number;
+  /** Designers: items in design and in revisions, and hours this month. */
+  inDesign: number;
+  inRevisions: number;
+  hoursThisMonth: number;
+};
+
+/** Who is carrying what this month (06-admin.md "Workload"). */
+export async function listWorkload(month: string): Promise<Workload[]> {
+  const supabase = await createClient();
+  const [
+    { data: staff },
+    { data: clients },
+    { data: months },
+    { data: campaigns },
+    { data: items },
+    { data: time },
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, full_name, role")
+      .eq("active", true)
+      .in("role", ["account_exec", "designer", "creative_director"])
+      .order("full_name"),
+    supabase
+      .from("clients")
+      .select("id, account_exec_id, status")
+      .in("status", ["onboarding", "active", "paused"]),
+    supabase
+      .from("content_months")
+      .select("client_id, plan_status, month")
+      .gte("month", month),
+    supabase
+      .from("campaigns")
+      .select("client_id, status")
+      .eq("status", "draft"),
+    supabase
+      .from("content_items")
+      .select("assigned_designer_id, status")
+      .in("status", ["in_design", "changes_requested"]),
+    supabase
+      .from("time_entries")
+      .select("user_id, minutes, started_at")
+      .gte("started_at", `${month}T00:00:00+02:00`)
+      .not("minutes", "is", null),
+  ]);
+  return (staff ?? []).map((p) => {
+    const mine = (clients ?? [])
+      .filter((c) => c.account_exec_id === p.id)
+      .map((c) => c.id);
+    const toSend =
+      (months ?? []).filter(
+        (m) => mine.includes(m.client_id) && m.plan_status === "draft",
+      ).length +
+      (campaigns ?? []).filter((c) => mine.includes(c.client_id)).length;
+    const work = (items ?? []).filter((i) => i.assigned_designer_id === p.id);
+    const minutes = (time ?? [])
+      .filter((t) => t.user_id === p.id)
+      .reduce((a, t) => a + (t.minutes ?? 0), 0);
+    return {
+      id: p.id,
+      name: p.full_name,
+      role: p.role,
+      clients: mine.length,
+      toSend,
+      inDesign: work.filter((i) => i.status === "in_design").length,
+      inRevisions: work.filter((i) => i.status === "changes_requested").length,
+      hoursThisMonth: Math.round((minutes / 60) * 10) / 10,
+    };
+  });
+}

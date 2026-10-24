@@ -63,11 +63,13 @@ export async function signInClient(
   await settled(page, "/portal/login");
 }
 
-type OutboxEmail = {
+export type OutboxEmail = {
   to: string;
   subject: string;
   html: string;
   text: string;
+  replyTo?: string;
+  attachments?: { filename: string; bytes: number; pdf: boolean }[];
   sentAt: string;
 };
 
