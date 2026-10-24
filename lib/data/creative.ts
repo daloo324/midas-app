@@ -502,3 +502,57 @@ export async function listInspiration() {
 export function minutesSince(iso: string): number {
   return Math.ceil((Date.now() - Date.parse(iso)) / 60_000);
 }
+
+export type LibraryFont = {
+  id: string;
+  family: string;
+  weight: number;
+  italic: boolean;
+  file_name: string;
+  licence_note: string | null;
+  url: string | null;
+};
+
+export type LibraryPairing = {
+  id: string;
+  heading_family: string;
+  body_family: string;
+  style: string;
+  good_for: string | null;
+};
+
+/** The shared font library: uploaded fonts (with short-lived links) and pairings. */
+export async function getFontLibrary(): Promise<{
+  fonts: LibraryFont[];
+  pairings: LibraryPairing[];
+}> {
+  const supabase = await createClient();
+  const [{ data: fonts }, { data: pairings }] = await Promise.all([
+    supabase
+      .from("library_fonts")
+      .select(
+        "id, family, weight, italic, file_name, licence_note, storage_path",
+      )
+      .order("family")
+      .order("weight")
+      .order("italic"),
+    supabase
+      .from("library_pairings")
+      .select("id, heading_family, body_family, style, good_for")
+      .order("created_at"),
+  ]);
+  const list = fonts ?? [];
+  const { data: signed } = list.length
+    ? await supabase.storage.from("fonts").createSignedUrls(
+        list.map((f) => f.storage_path),
+        SIGNED_URL_SECONDS,
+      )
+    : { data: [] };
+  return {
+    fonts: list.map(({ storage_path, ...f }, i) => ({
+      ...f,
+      url: signed?.[i]?.path === storage_path ? signed[i].signedUrl : null,
+    })),
+    pairings: pairings ?? [],
+  };
+}

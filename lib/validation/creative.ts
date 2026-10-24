@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { INSPIRATION_TAGS } from "@/lib/creative/constants";
+import {
+  LIBRARY_WEIGHTS,
+  INSPIRATION_TAGS,
+  LETTERING_STYLES,
+} from "@/lib/creative/constants";
 
 // Inputs to the Design Studio's server actions. The database checks access,
 // slots, file types and status moves again.
@@ -132,4 +136,41 @@ export const inspirationEdit = z.object({
     .union([z.literal("").transform(() => null), uuid])
     .nullable()
     .optional(),
+});
+
+// The shared font library (Fonts & pairings). Family names go into CSS, so
+// they're limited to letters, numbers, spaces and hyphens.
+const fontFamily = z
+  .string()
+  .trim()
+  .regex(/^[A-Za-z0-9][A-Za-z0-9 -]{0,59}$/, {
+    error: "Font names use letters, numbers, spaces and hyphens (60 at most).",
+  });
+
+export const libraryFont = z.object({
+  path: z
+    .string()
+    .regex(/^[0-9a-f-]{36}\/[A-Za-z0-9._-]{1,80}\.(ttf|otf|woff|woff2)$/i),
+  fileName: z
+    .string()
+    .max(200)
+    .regex(/\.(ttf|otf|woff|woff2)$/i, {
+      error: "Choose a TTF, OTF, WOFF or WOFF2 file.",
+    }),
+  size: z
+    .number()
+    .int()
+    .min(1)
+    .max(10 * 1024 * 1024, { error: "Font files can be up to 10 MB." }),
+  family: fontFamily,
+  weight: z.union(LIBRARY_WEIGHTS.map((w) => z.literal(w))),
+  italic: z.boolean(),
+  licence: optional(300),
+});
+
+export const libraryPairing = z.object({
+  heading: fontFamily,
+  body: fontFamily,
+  style: z.enum(LETTERING_STYLES),
+  goodFor: optional(120),
 });

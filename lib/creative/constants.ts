@@ -112,6 +112,24 @@ export const FONT_ROLES = [
   { key: "body", label: "Body font" },
 ] as const;
 export const FONT_EXTS = ["ttf", "otf", "woff", "woff2"] as const;
+export const LIBRARY_WEIGHTS = [
+  100, 200, 300, 400, 500, 600, 700, 800, 900,
+] as const;
+export const WEIGHT_NAMES: Record<number, string> = {
+  100: "Thin",
+  200: "Extra light",
+  300: "Light",
+  400: "Regular",
+  500: "Medium",
+  600: "Semibold",
+  700: "Bold",
+  800: "Extra bold",
+  900: "Black",
+};
+export function weightLabel(weight: number, italic: boolean) {
+  return `${WEIGHT_NAMES[weight] ?? weight}${italic ? " italic" : ""}`;
+}
+
 export const EXTRA_EXTS = ["svg", "png", "jpg", "jpeg", "pdf"] as const;
 
 export const GUIDE_CHECKS = [
