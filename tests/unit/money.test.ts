@@ -196,3 +196,20 @@ describe("sales numbers", () => {
     ]);
   });
 });
+
+describe("checkboxes", () => {
+  it("read an unticked box (no field at all) as off", async () => {
+    const { invoicingSchema, vatSchema } =
+      await import("@/lib/validation/admin");
+    expect(
+      invoicingSchema.parse({ paymentTermsDays: "7" }).remindersEnabled,
+    ).toBe(false);
+    expect(
+      vatSchema.parse({ vatNumber: "", vatRate: "14" }).vatRegistered,
+    ).toBe(false);
+    expect(
+      vatSchema.safeParse({ vatRegistered: "on", vatNumber: "", vatRate: "14" })
+        .success,
+    ).toBe(false);
+  });
+});

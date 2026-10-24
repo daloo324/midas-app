@@ -1,8 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { FormMessage } from "@/components/shared/form-message";
-import { SubmitButton } from "@/components/shared/submit-button";
 import { initialState, type ActionState } from "@/lib/auth/action-state";
 import { cx } from "@/lib/cx";
 
@@ -18,13 +17,25 @@ export function SettingsForm({
   children: React.ReactNode;
   button?: string;
 }) {
-  const [state, run] = useActionState(action, initialState);
+  const [state, run, pending] = useActionState(action, initialState);
+  // Submitted by hand so a failed save keeps what was typed (a form action
+  // would reset the fields).
   return (
-    <form action={run} noValidate className="grid gap-4">
+    <form
+      noValidate
+      className="grid gap-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        startTransition(() => run(data));
+      }}
+    >
       <div className="fgrid">{children}</div>
       <FormMessage state={state} />
       <div>
-        <SubmitButton pendingText="Saving…">{button}</SubmitButton>
+        <button className="btn pri" type="submit" disabled={pending}>
+          {pending ? "Saving…" : button}
+        </button>
       </div>
     </form>
   );

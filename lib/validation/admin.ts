@@ -22,8 +22,10 @@ const optionalText = (max: number) =>
     .nullable()
     .optional()
     .transform((v) => v ?? null);
+// An unticked checkbox sends nothing, so the field is optional.
 const checkbox = z
-  .union([z.literal("on"), z.literal("true"), z.literal(""), z.undefined()])
+  .union([z.literal("on"), z.literal("true"), z.literal("")])
+  .optional()
   .transform((v) => v === "on" || v === "true");
 
 /** "P3,250.00", "3250" or "3 250.5" → 3250.5. */
