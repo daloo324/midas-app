@@ -2307,3 +2307,47 @@
     white-space: nowrap;
   }
 }
+
+@layer components {
+  .stat > .tile-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s;
+  }
+  .stat > .tile-link:hover {
+    border-color: var(--gold);
+  }
+  .attention {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+  }
+  .attention li {
+    padding: 9px 0 9px 14px;
+    border-top: 1px solid var(--line);
+    position: relative;
+    font-size: 14px;
+  }
+  .attention li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 15px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--warn);
+  }
+  .attention li.bad::before {
+    background: var(--bad);
+  }
+  .attention li.sub::before {
+    display: none;
+  }
+  .attention a {
+    color: var(--ink);
+  }
+}

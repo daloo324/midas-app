@@ -5,7 +5,14 @@ import {
   listAccountExecs,
   listClients,
 } from "@/lib/data/clients";
-import { formatDay, formatMoney } from "@/lib/format";
+import {
+  InvoicePill,
+  ProgressPill,
+  RatePill,
+} from "@/components/admin/health-pills";
+import { WORK_STATUS_LABELS } from "@/lib/content/constants";
+import { getOverview } from "@/lib/data/overview";
+import { formatDay, formatMoney, todayInGaborone } from "@/lib/format";
 import {
   CLIENT_STATUSES,
   CLIENT_STATUS_LABELS,
@@ -27,11 +34,13 @@ export default async function ClientsPage({
       ? params.ae
       : null;
 
-  const [rows, execs, capacity] = await Promise.all([
+  const [rows, execs, capacity, overview] = await Promise.all([
     listClients({ status, ae }),
     listAccountExecs(),
     activeClientCapacity(),
+    getOverview(todayInGaborone()),
   ]);
+  const health = new Map(overview.clients.map((h) => [h.id, h]));
 
   return (
     <>
@@ -109,6 +118,10 @@ export default async function ClientsPage({
                   <th>Service</th>
                   <th className="num">Monthly fee</th>
                   <th>Start date</th>
+                  <th>Brand kit</th>
+                  <th>This month</th>
+                  <th>Balance owed</th>
+                  <th>Effective rate</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,6 +147,36 @@ export default async function ClientsPage({
                     <td>{c.service_name ?? "—"}</td>
                     <td className="num">{formatMoney(c.monthly_fee)}</td>
                     <td>{formatDay(c.start_date)}</td>
+                    {(() => {
+                      const h = health.get(c.id);
+                      if (!h)
+                        return (
+                          <td colSpan={4} className="sub">
+                            —
+                          </td>
+                        );
+                      return (
+                        <>
+                          <td>
+                            {h.kitStatus
+                              ? WORK_STATUS_LABELS[h.kitStatus]
+                              : "—"}
+                          </td>
+                          <td>
+                            <ProgressPill p={h.progress} />
+                          </td>
+                          <td>
+                            <InvoicePill s={h.invoice} balance={h.balance} />
+                          </td>
+                          <td>
+                            <RatePill
+                              rate={h.rate}
+                              threshold={overview.threshold}
+                            />
+                          </td>
+                        </>
+                      );
+                    })()}
                   </tr>
                 ))}
               </tbody>

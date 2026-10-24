@@ -941,3 +941,48 @@ grant execute on function public.cleanup_old_records() to service_role;
 grant execute on function public.notify_stale_client_reviews() to service_role;
 select cron.unschedule('nudge-client-reviews')
 where exists (select 1 from cron.job where jobname = 'nudge-client-reviews');
+
+-- ---------------------------------------------------------------------------
+-- Client status history, for the CEO's client record.
+-- ---------------------------------------------------------------------------
+
+create table public.client_status_history (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references public.clients (id),
+  from_status public.client_status,
+  to_status public.client_status not null,
+  changed_by uuid references auth.users (id),
+  created_at timestamptz not null default now()
+);
+
+create index client_status_history_client_idx on public.client_status_history (client_id, created_at);
+
+alter table public.client_status_history enable row level security;
+create policy "CEO and the client's account exec read status history" on public.client_status_history
+  for select to authenticated using (
+    public.is_ceo() or (public.auth_role() = 'account_exec' and public.can_access_client(client_id))
+  );
+grant select on public.client_status_history to authenticated;
+grant select, insert, update, delete on public.client_status_history to service_role;
+
+create function public.log_client_status()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if tg_op = 'INSERT' or new.status is distinct from old.status then
+    insert into public.client_status_history (client_id, from_status, to_status, changed_by)
+    values (new.id, case when tg_op = 'UPDATE' then old.status end, new.status, auth.uid());
+  end if;
+  return null;
+end;
+$$;
+
+create trigger clients_log_status after insert or update of status on public.clients
+  for each row execute function public.log_client_status();
+
+-- Existing clients start their history at the status they have now.
+insert into public.client_status_history (client_id, from_status, to_status, created_at)
+select id, null, status, created_at from public.clients;

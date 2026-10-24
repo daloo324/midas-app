@@ -286,6 +286,49 @@ export type Database = {
           },
         ];
       };
+      client_status_history: {
+        Row: {
+          changed_by: string | null;
+          client_id: string;
+          created_at: string;
+          from_status: Database["public"]["Enums"]["client_status"] | null;
+          id: string;
+          to_status: Database["public"]["Enums"]["client_status"];
+        };
+        ComputedFields: never;
+        Insert: {
+          changed_by?: string | null;
+          client_id: string;
+          created_at?: string;
+          from_status?: Database["public"]["Enums"]["client_status"] | null;
+          id?: string;
+          to_status: Database["public"]["Enums"]["client_status"];
+        };
+        Update: {
+          changed_by?: string | null;
+          client_id?: string;
+          created_at?: string;
+          from_status?: Database["public"]["Enums"]["client_status"] | null;
+          id?: string;
+          to_status?: Database["public"]["Enums"]["client_status"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "client_status_history_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "client_status_history_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       client_users: {
         Row: {
           active: boolean;

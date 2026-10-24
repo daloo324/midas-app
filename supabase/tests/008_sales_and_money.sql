@@ -3,7 +3,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(62);
+select plan(64);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures: the CEO, an account exec, a designer, client X (with a login,
@@ -227,6 +227,15 @@ select is((select title || ' ' || vat_amount || ' ' || total from public.invoice
   'Tax invoice 140.00 1140.00', 'With VAT on, new invoices add VAT and are tax invoices');
 select is((select title || ' ' || vat_amount from public.invoices where notes = 'inv-a'), 'Invoice 0.00',
   'Old invoices never change');
+
+-- Client status changes are kept for the client record.
+update public.clients set status = 'paused' where id = 'f8000000-0000-4000-8000-000000000001';
+select is((select string_agg(coalesce(from_status::text, '-') || '>' || to_status, ',' order by created_at)
+  from public.client_status_history where client_id = 'f8000000-0000-4000-8000-000000000001'),
+  '->active,active>paused', 'Client status changes are logged');
+set local request.jwt.claims to '{"sub":"e8000000-0000-4000-8000-000000000003","role":"authenticated"}';
+select is_empty($$ select 1 from public.client_status_history where client_id = 'f8000000-0000-4000-8000-000000000001' $$,
+  'Another account exec can''t read that history');
 
 reset role;
 set local role anon;
