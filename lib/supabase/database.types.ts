@@ -666,6 +666,58 @@ export type Database = {
           },
         ];
       };
+      credit_notes: {
+        Row: {
+          amount: number;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          invoice_id: string;
+          issued_on: string;
+          number: string;
+          pdf_path: string | null;
+          reason: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          invoice_id: string;
+          issued_on: string;
+          number: string;
+          pdf_path?: string | null;
+          reason: string;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          invoice_id?: string;
+          issued_on?: string;
+          number?: string;
+          pdf_path?: string | null;
+          reason?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "credit_notes_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "credit_notes_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       document_counters: {
         Row: {
           doc_type: string;
@@ -741,6 +793,175 @@ export type Database = {
           },
         ];
       };
+      invoice_lines: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          invoice_id: string;
+          line_total: number | null;
+          name: string;
+          quantity: number;
+          service_id: string | null;
+          sort: number;
+          unit: Database["public"]["Enums"]["service_unit"] | null;
+          unit_price: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          invoice_id: string;
+          line_total?: never;
+          name: string;
+          quantity?: number;
+          service_id?: string | null;
+          sort?: number;
+          unit?: Database["public"]["Enums"]["service_unit"] | null;
+          unit_price: number;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          invoice_id?: string;
+          line_total?: never;
+          name?: string;
+          quantity?: number;
+          service_id?: string | null;
+          sort?: number;
+          unit?: Database["public"]["Enums"]["service_unit"] | null;
+          unit_price?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invoice_lines_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "invoice_lines_service_id_fkey";
+            columns: ["service_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      invoices: {
+        Row: {
+          amount_credited: number;
+          amount_paid: number;
+          balance: number | null;
+          client_id: string;
+          created_at: string;
+          created_by: string | null;
+          due_date: string | null;
+          id: string;
+          is_retainer: boolean;
+          issue_date: string | null;
+          issued_at: string | null;
+          notes: string | null;
+          number: string | null;
+          pdf_path: string | null;
+          period_label: string | null;
+          period_month: string | null;
+          quote_id: string | null;
+          status: Database["public"]["Enums"]["invoice_status"];
+          subtotal: number;
+          title: string | null;
+          total: number;
+          updated_at: string;
+          vat_amount: number;
+          vat_rate: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_credited?: number;
+          amount_paid?: number;
+          balance?: never;
+          client_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          due_date?: string | null;
+          id?: string;
+          is_retainer?: boolean;
+          issue_date?: string | null;
+          issued_at?: string | null;
+          notes?: string | null;
+          number?: string | null;
+          pdf_path?: string | null;
+          period_label?: string | null;
+          period_month?: string | null;
+          quote_id?: string | null;
+          status?: Database["public"]["Enums"]["invoice_status"];
+          subtotal?: number;
+          title?: string | null;
+          total?: number;
+          updated_at?: string;
+          vat_amount?: number;
+          vat_rate?: number;
+        };
+        Update: {
+          amount_credited?: number;
+          amount_paid?: number;
+          balance?: never;
+          client_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          due_date?: string | null;
+          id?: string;
+          is_retainer?: boolean;
+          issue_date?: string | null;
+          issued_at?: string | null;
+          notes?: string | null;
+          number?: string | null;
+          pdf_path?: string | null;
+          period_label?: string | null;
+          period_month?: string | null;
+          quote_id?: string | null;
+          status?: Database["public"]["Enums"]["invoice_status"];
+          subtotal?: number;
+          title?: string | null;
+          total?: number;
+          updated_at?: string;
+          vat_amount?: number;
+          vat_rate?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invoices_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "invoices_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "invoices_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "invoices_quote_id_fkey";
+            columns: ["quote_id"];
+            isOneToOne: false;
+            referencedRelation: "quotes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       kpi_months: {
         Row: {
           client_id: string | null;
@@ -786,6 +1007,89 @@ export type Database = {
             columns: ["client_id"];
             isOneToOne: false;
             referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      leads: {
+        Row: {
+          client_id: string | null;
+          closed_at: string | null;
+          company: string;
+          contact_name: string | null;
+          created_at: string;
+          email: string | null;
+          estimated_value: number | null;
+          id: string;
+          lost_reason: string | null;
+          next_action: string | null;
+          next_action_date: string | null;
+          notes: string | null;
+          owner_id: string | null;
+          phone: string | null;
+          source: Database["public"]["Enums"]["lead_source"];
+          stage: Database["public"]["Enums"]["lead_stage"];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id?: string | null;
+          closed_at?: string | null;
+          company: string;
+          contact_name?: string | null;
+          created_at?: string;
+          email?: string | null;
+          estimated_value?: number | null;
+          id?: string;
+          lost_reason?: string | null;
+          next_action?: string | null;
+          next_action_date?: string | null;
+          notes?: string | null;
+          owner_id?: string | null;
+          phone?: string | null;
+          source?: Database["public"]["Enums"]["lead_source"];
+          stage?: Database["public"]["Enums"]["lead_stage"];
+          updated_at?: string;
+        };
+        Update: {
+          client_id?: string | null;
+          closed_at?: string | null;
+          company?: string;
+          contact_name?: string | null;
+          created_at?: string;
+          email?: string | null;
+          estimated_value?: number | null;
+          id?: string;
+          lost_reason?: string | null;
+          next_action?: string | null;
+          next_action_date?: string | null;
+          notes?: string | null;
+          owner_id?: string | null;
+          phone?: string | null;
+          source?: Database["public"]["Enums"]["lead_source"];
+          stage?: Database["public"]["Enums"]["lead_stage"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "leads_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leads_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "leads_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -978,6 +1282,55 @@ export type Database = {
           },
         ];
       };
+      payments: {
+        Row: {
+          amount: number;
+          created_at: string;
+          id: string;
+          invoice_id: string;
+          method: string;
+          paid_on: string;
+          recorded_by: string | null;
+          reference: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          created_at?: string;
+          id?: string;
+          invoice_id: string;
+          method: string;
+          paid_on: string;
+          recorded_by?: string | null;
+          reference?: string | null;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          id?: string;
+          invoice_id?: string;
+          method?: string;
+          paid_on?: string;
+          recorded_by?: string | null;
+          reference?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payments_recorded_by_fkey";
+            columns: ["recorded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           active: boolean;
@@ -1060,6 +1413,207 @@ export type Database = {
             columns: ["client_id"];
             isOneToOne: false;
             referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      quote_lines: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          line_total: number | null;
+          name: string;
+          quantity: number;
+          quote_id: string;
+          service_id: string | null;
+          sort: number;
+          unit: Database["public"]["Enums"]["service_unit"] | null;
+          unit_price: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          line_total?: never;
+          name: string;
+          quantity?: number;
+          quote_id: string;
+          service_id?: string | null;
+          sort?: number;
+          unit?: Database["public"]["Enums"]["service_unit"] | null;
+          unit_price: number;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          line_total?: never;
+          name?: string;
+          quantity?: number;
+          quote_id?: string;
+          service_id?: string | null;
+          sort?: number;
+          unit?: Database["public"]["Enums"]["service_unit"] | null;
+          unit_price?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "quote_lines_quote_id_fkey";
+            columns: ["quote_id"];
+            isOneToOne: false;
+            referencedRelation: "quotes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quote_lines_service_id_fkey";
+            columns: ["service_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      quotes: {
+        Row: {
+          accepted_at: string | null;
+          client_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          declined_at: string | null;
+          id: string;
+          intro: string | null;
+          issue_date: string | null;
+          lead_id: string | null;
+          number: string | null;
+          pdf_path: string | null;
+          sent_at: string | null;
+          status: Database["public"]["Enums"]["quote_status"];
+          subtotal: number;
+          terms: string | null;
+          total: number;
+          updated_at: string;
+          valid_until: string | null;
+          vat_amount: number;
+          vat_rate: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          accepted_at?: string | null;
+          client_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          declined_at?: string | null;
+          id?: string;
+          intro?: string | null;
+          issue_date?: string | null;
+          lead_id?: string | null;
+          number?: string | null;
+          pdf_path?: string | null;
+          sent_at?: string | null;
+          status?: Database["public"]["Enums"]["quote_status"];
+          subtotal?: number;
+          terms?: string | null;
+          total?: number;
+          updated_at?: string;
+          valid_until?: string | null;
+          vat_amount?: number;
+          vat_rate?: number;
+        };
+        Update: {
+          accepted_at?: string | null;
+          client_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          declined_at?: string | null;
+          id?: string;
+          intro?: string | null;
+          issue_date?: string | null;
+          lead_id?: string | null;
+          number?: string | null;
+          pdf_path?: string | null;
+          sent_at?: string | null;
+          status?: Database["public"]["Enums"]["quote_status"];
+          subtotal?: number;
+          terms?: string | null;
+          total?: number;
+          updated_at?: string;
+          valid_until?: string | null;
+          vat_amount?: number;
+          vat_rate?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "quotes_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quotes_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quotes_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quotes_lead_id_fkey";
+            columns: ["lead_id"];
+            isOneToOne: false;
+            referencedRelation: "leads";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      retainer_runs: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          invoice_id: string | null;
+          month: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          invoice_id?: string | null;
+          month: string;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          invoice_id?: string | null;
+          month?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "retainer_runs_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "retainer_runs_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "retainer_runs_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
             referencedColumns: ["id"];
           },
         ];
@@ -1365,6 +1919,40 @@ export type Database = {
       };
     };
     Views: {
+      billing_details: {
+        Row: {
+          address: string | null;
+          bank_details: Json | null;
+          company_name: string | null;
+          email: string | null;
+          invoice_footer: string | null;
+          legal_name: string | null;
+          phone: string | null;
+          vat_number: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          address?: string | null;
+          bank_details?: Json | null;
+          company_name?: string | null;
+          email?: string | null;
+          invoice_footer?: string | null;
+          legal_name?: string | null;
+          phone?: string | null;
+          vat_number?: string | null;
+        };
+        Update: {
+          address?: string | null;
+          bank_details?: Json | null;
+          company_name?: string | null;
+          email?: string | null;
+          invoice_footer?: string | null;
+          legal_name?: string | null;
+          phone?: string | null;
+          vat_number?: string | null;
+        };
+        Relationships: [];
+      };
       kpi_months_calc: {
         Row: {
           client_id: string | null;
@@ -1702,6 +2290,13 @@ export type Database = {
       auth_role: { Args: Record<PropertyKey, never>; Returns: string };
       brand_kit_progress: { Args: { p_client_id: string }; Returns: number };
       can_access_client: { Args: { p_client_id: string }; Returns: boolean };
+      can_read_invoice: {
+        Args: {
+          p_client_id: string;
+          p_status: Database["public"]["Enums"]["invoice_status"];
+        };
+        Returns: boolean;
+      };
       claim_suggestion_call: {
         Args: { p_client_id: string; p_items: number };
         Returns: number;
@@ -1763,6 +2358,8 @@ export type Database = {
         Args: { p_client_id: string };
         Returns: string;
       };
+      create_retainer_drafts: { Args: { p_month: string }; Returns: number };
+      current_vat_rate: { Args: Record<PropertyKey, never>; Returns: number };
       entry_minutes: {
         Args: {
           t: Omit<
@@ -1772,9 +2369,24 @@ export type Database = {
         };
         Returns: number;
       };
+      expire_quotes: { Args: Record<PropertyKey, never>; Returns: number };
+      gaborone_today: { Args: Record<PropertyKey, never>; Returns: string };
+      invoice_status_for: {
+        Args: { p_credited: number; p_paid: number; p_total: number };
+        Returns: Database["public"]["Enums"]["invoice_status"];
+      };
       is_ceo: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_service_request: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
       is_staff: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_trusted_caller: { Args: Record<PropertyKey, never>; Returns: boolean };
+      issue_credit_note: {
+        Args: { p_amount: number; p_invoice_id: string; p_reason: string };
+        Returns: string;
+      };
+      issue_invoice: { Args: { p_invoice_id: string }; Returns: string };
       kit_object_readable: { Args: { p_name: string }; Returns: boolean };
       kit_object_writable: { Args: { p_name: string }; Returns: boolean };
       kit_slot_accepts: {
@@ -1799,6 +2411,7 @@ export type Database = {
       };
       manages_palettes: { Args: Record<PropertyKey, never>; Returns: boolean };
       month_label: { Args: { p_month: string }; Returns: string };
+      next_document_number: { Args: { p_type: string }; Returns: string };
       notify: {
         Args: {
           p_body: string;
@@ -1839,6 +2452,7 @@ export type Database = {
         Returns: undefined;
       };
       send_calendar: { Args: { p_month_id: string }; Returns: undefined };
+      send_quote: { Args: { p_quote_id: string }; Returns: string };
       set_brand_kit_status: {
         Args: {
           p_client_id: string;
@@ -1862,6 +2476,17 @@ export type Database = {
           p_comment?: string;
           p_item_id: string;
           p_new_status: Database["public"]["Enums"]["work_status"];
+        };
+        Returns: undefined;
+      };
+      set_document_pdf: {
+        Args: { p_id: string; p_kind: string; p_path: string };
+        Returns: undefined;
+      };
+      set_quote_outcome: {
+        Args: {
+          p_outcome: Database["public"]["Enums"]["quote_status"];
+          p_quote_id: string;
         };
         Returns: undefined;
       };
