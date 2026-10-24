@@ -933,6 +933,51 @@ export type Database = {
         };
         Relationships: [];
       };
+      palette_templates: {
+        Row: {
+          accent_color: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          name: string;
+          primary_color: string;
+          secondary_color: string;
+          sort_order: number;
+          tertiary_color: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accent_color: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          name: string;
+          primary_color: string;
+          secondary_color: string;
+          sort_order?: number;
+          tertiary_color: string;
+        };
+        Update: {
+          accent_color?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          name?: string;
+          primary_color?: string;
+          secondary_color?: string;
+          sort_order?: number;
+          tertiary_color?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "palette_templates_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           active: boolean;
@@ -1752,6 +1797,7 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: boolean;
       };
+      manages_palettes: { Args: Record<PropertyKey, never>; Returns: boolean };
       month_label: { Args: { p_month: string }; Returns: string };
       notify: {
         Args: {
