@@ -655,6 +655,8 @@
   /* Tables */
   .tbl-wrap {
     overflow-x: auto;
+    /* Hidden labels (sr-only) inside a wide table stay inside its scroll box. */
+    position: relative;
   }
   .tbl {
     width: 100%;
