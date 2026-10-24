@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/shared/coming-soon";
+import { InvoicesPage } from "@/components/portal/pages/invoices";
+import { clientViewer } from "@/lib/portal/viewer";
 
 export const metadata: Metadata = { title: "Invoices" };
 
-export default function InvoicesPage() {
-  return (
-    <ComingSoon title="Invoices" phase={4}>
-      Your invoices and payments.
-    </ComingSoon>
-  );
+export default async function Page() {
+  return <InvoicesPage viewer={await clientViewer()} />;
 }

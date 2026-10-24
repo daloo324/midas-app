@@ -17,6 +17,7 @@ test("the CEO invites a designer, who sets a password and lands in the Design St
   browser,
 }) => {
   const email = uniqueEmail("new.designer");
+  const name = `New Test Designer ${Date.now().toString(36)}`;
   await signInStaff(page, STAFF.ceo);
   await page.goto("/admin/team");
 
@@ -24,7 +25,7 @@ test("the CEO invites a designer, who sets a password and lands in the Design St
   const invite = page.locator("form", {
     has: page.getByRole("button", { name: "Send invite", exact: true }),
   });
-  await invite.getByLabel("Name").fill("New Test Designer");
+  await invite.getByLabel("Name").fill(name);
   await invite.getByLabel("Email").fill(email);
   await invite.getByLabel("Role").selectOption("designer");
   await invite
@@ -33,7 +34,7 @@ test("the CEO invites a designer, who sets a password and lands in the Design St
   await expect(page.getByText(`Invite sent to ${email}.`)).toBeVisible();
   await expect(
     page
-      .getByRole("row", { name: /New Test Designer/ })
+      .getByRole("row", { name: new RegExp(name) })
       .getByText("Invite pending"),
   ).toBeVisible();
 
@@ -53,7 +54,7 @@ test("the CEO invites a designer, who sets a password and lands in the Design St
 
   // The CEO deactivates them: they can't sign in any more.
   await page.reload();
-  const row = page.getByRole("row", { name: /New Test Designer/ });
+  const row = page.getByRole("row", { name: new RegExp(name) });
   await row.getByRole("button", { name: "Deactivate" }).click();
   await expect(row.getByText("Deactivated", { exact: true })).toBeVisible();
   const after = await browser.newPage();

@@ -97,3 +97,7 @@ update public.brand_kits k
        signed_off_by = 'Sample contact (sample data)', signed_off_at = now() - interval '60 days'
   from public.clients c
  where c.id = k.client_id and c.status = 'active' and c.notes = 'Sample client. Not a real business.';
+
+-- Sample phone numbers (not real) so the portal shows how to reach the account exec.
+update public.profiles set phone = '+267 7100 0102' where email = 'ae.one@example.com';
+update public.profiles set phone = '+267 7100 0103' where email = 'ae.two@example.com';

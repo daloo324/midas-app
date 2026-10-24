@@ -1,6 +1,6 @@
 import "server-only";
 import type { PlanStatus, WorkStatus } from "@/lib/content/constants";
-import { KIT_TOTAL } from "@/lib/creative/constants";
+import { KIT_TOTAL, type Palette } from "@/lib/creative/constants";
 import type { ClientStatus } from "@/lib/format/status";
 import { createClient } from "@/lib/supabase/server";
 
@@ -501,4 +501,104 @@ export async function listInspiration() {
 /** Whole minutes a running timer has run so far, counted the way the database counts them. */
 export function minutesSince(iso: string): number {
   return Math.ceil((Date.now() - Date.parse(iso)) / 60_000);
+}
+
+export type LibraryFont = {
+  id: string;
+  family: string;
+  weight: number;
+  italic: boolean;
+  file_name: string;
+  licence_note: string | null;
+  url: string | null;
+};
+
+export type LibraryPairing = {
+  id: string;
+  heading_family: string;
+  body_family: string;
+  style: string;
+  good_for: string | null;
+};
+
+/** The shared font library: uploaded fonts (with short-lived links) and pairings. */
+export async function getFontLibrary(): Promise<{
+  fonts: LibraryFont[];
+  pairings: LibraryPairing[];
+}> {
+  const supabase = await createClient();
+  const [{ data: fonts }, { data: pairings }] = await Promise.all([
+    supabase
+      .from("library_fonts")
+      .select(
+        "id, family, weight, italic, file_name, licence_note, storage_path",
+      )
+      .order("family")
+      .order("weight")
+      .order("italic"),
+    supabase
+      .from("library_pairings")
+      .select("id, heading_family, body_family, style, good_for")
+      .order("created_at"),
+  ]);
+  const list = fonts ?? [];
+  const { data: signed } = list.length
+    ? await supabase.storage.from("fonts").createSignedUrls(
+        list.map((f) => f.storage_path),
+        SIGNED_URL_SECONDS,
+      )
+    : { data: [] };
+  return {
+    fonts: list.map(({ storage_path, ...f }, i) => ({
+      ...f,
+      url: signed?.[i]?.path === storage_path ? signed[i].signedUrl : null,
+    })),
+    pairings: pairings ?? [],
+  };
+}
+
+export type PaletteTemplate = {
+  id: string;
+  name: string;
+  colors: Palette;
+  /** Brand kits whose four colours match this template. */
+  usedBy: number;
+};
+
+/** The palette builder's templates, with how many brand kits use each. */
+export async function listPaletteTemplates(): Promise<PaletteTemplate[]> {
+  const supabase = await createClient();
+  const [{ data: templates }, { data: kits }] = await Promise.all([
+    supabase
+      .from("palette_templates")
+      .select(
+        "id, name, primary_color, secondary_color, tertiary_color, accent_color",
+      )
+      .order("sort_order")
+      .order("created_at"),
+    supabase.from("brand_kits").select("colors"),
+  ]);
+  const key = (c: Partial<Record<string, string>>) =>
+    ["primary", "secondary", "tertiary", "accent"]
+      .map((r) => (c[r] ?? "").toUpperCase())
+      .join();
+  const counts = new Map<string, number>();
+  for (const k of kits ?? []) {
+    const id = key((k.colors ?? {}) as Record<string, string>);
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+  return (templates ?? []).map((t) => {
+    const colors = {
+      primary: t.primary_color,
+      secondary: t.secondary_color,
+      tertiary: t.tertiary_color,
+      accent: t.accent_color,
+    };
+    return {
+      id: t.id,
+      name: t.name,
+      colors,
+      usedBy: counts.get(key(colors)) ?? 0,
+    };
+  });
 }

@@ -58,6 +58,9 @@ export default async function ClientRecordPage({
             <span>Added {formatDay(client.created_at)}</span>
           </p>
         </div>
+        <Link className="btn" href={`/portal/preview/${client.id}`}>
+          Preview their portal
+        </Link>
       </div>
 
       <div className="two">

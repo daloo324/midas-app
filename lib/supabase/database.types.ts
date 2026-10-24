@@ -790,6 +790,93 @@ export type Database = {
           },
         ];
       };
+      library_fonts: {
+        Row: {
+          created_at: string;
+          family: string;
+          file_name: string;
+          id: string;
+          italic: boolean;
+          licence_note: string | null;
+          size_bytes: number;
+          storage_path: string;
+          uploaded_by: string;
+          weight: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          family: string;
+          file_name: string;
+          id?: string;
+          italic?: boolean;
+          licence_note?: string | null;
+          size_bytes: number;
+          storage_path: string;
+          uploaded_by?: string;
+          weight: number;
+        };
+        Update: {
+          created_at?: string;
+          family?: string;
+          file_name?: string;
+          id?: string;
+          italic?: boolean;
+          licence_note?: string | null;
+          size_bytes?: number;
+          storage_path?: string;
+          uploaded_by?: string;
+          weight?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "library_fonts_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      library_pairings: {
+        Row: {
+          body_family: string;
+          created_at: string;
+          created_by: string;
+          good_for: string | null;
+          heading_family: string;
+          id: string;
+          style: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body_family: string;
+          created_at?: string;
+          created_by?: string;
+          good_for?: string | null;
+          heading_family: string;
+          id?: string;
+          style: string;
+        };
+        Update: {
+          body_family?: string;
+          created_at?: string;
+          created_by?: string;
+          good_for?: string | null;
+          heading_family?: string;
+          id?: string;
+          style?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "library_pairings_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       login_attempts: {
         Row: {
           created_at: string;
@@ -846,6 +933,51 @@ export type Database = {
         };
         Relationships: [];
       };
+      palette_templates: {
+        Row: {
+          accent_color: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          name: string;
+          primary_color: string;
+          secondary_color: string;
+          sort_order: number;
+          tertiary_color: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accent_color: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          name: string;
+          primary_color: string;
+          secondary_color: string;
+          sort_order?: number;
+          tertiary_color: string;
+        };
+        Update: {
+          accent_color?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          name?: string;
+          primary_color?: string;
+          secondary_color?: string;
+          sort_order?: number;
+          tertiary_color?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "palette_templates_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           active: boolean;
@@ -854,6 +986,7 @@ export type Database = {
           email: string;
           full_name: string;
           id: string;
+          phone: string | null;
           role: Database["public"]["Enums"]["staff_role"];
           updated_at: string;
         };
@@ -865,6 +998,7 @@ export type Database = {
           email: string;
           full_name: string;
           id: string;
+          phone?: string | null;
           role: Database["public"]["Enums"]["staff_role"];
           updated_at?: string;
         };
@@ -875,6 +1009,7 @@ export type Database = {
           email?: string;
           full_name?: string;
           id?: string;
+          phone?: string | null;
           role?: Database["public"]["Enums"]["staff_role"];
           updated_at?: string;
         };
@@ -1213,6 +1348,13 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "time_entries_content_item_id_fkey";
+            columns: ["content_item_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_items";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "time_entries_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
@@ -1317,6 +1459,7 @@ export type Database = {
           name: string | null;
           offer: string | null;
           results: string | null;
+          results_metrics: Json | null;
           start_date: string | null;
           status: Database["public"]["Enums"]["campaign_status"] | null;
         };
@@ -1356,16 +1499,124 @@ export type Database = {
         Row: {
           account_exec_email: string | null;
           account_exec_name: string | null;
+          account_exec_phone: string | null;
+          baseline: Json | null;
           client_code: string | null;
           id: string | null;
+          main_goal: Database["public"]["Enums"]["goal_category"] | null;
           monthly_fee: number | null;
           name: string | null;
           platforms: string[] | null;
+          service_inclusions: Json | null;
+          service_name: string | null;
           start_date: string | null;
           status: Database["public"]["Enums"]["client_status"] | null;
         };
         ComputedFields: never;
         Relationships: [];
+      };
+      portal_item_history: {
+        Row: {
+          actor_kind: string | null;
+          client_id: string | null;
+          created_at: string | null;
+          id: string | null;
+          item_id: string | null;
+          to_status: string | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "content_items_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      portal_items: {
+        Row: {
+          caption: string | null;
+          client_id: string | null;
+          format: Database["public"]["Enums"]["item_format"] | null;
+          graphic_copy: string | null;
+          hashtags: string | null;
+          id: string | null;
+          month: string | null;
+          month_id: string | null;
+          pillar: Database["public"]["Enums"]["pillar"] | null;
+          platform: string | null;
+          preview_path: string | null;
+          revision_rounds: number | null;
+          scheduled_date: string | null;
+          shown_to_client_at: string | null;
+          slot_code: string | null;
+          status: Database["public"]["Enums"]["work_status"] | null;
+          topic: string | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "content_items_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: false;
+            referencedRelation: "content_months";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "content_items_month_id_fkey";
+            columns: ["month_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_months";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      portal_kpis: {
+        Row: {
+          client_id: string | null;
+          metrics: Json | null;
+          month: string | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "kpi_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "kpi_months_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "portal_client";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       portal_months: {
         Row: {
@@ -1457,6 +1708,10 @@ export type Database = {
       };
       client_code_letters: { Args: { p_name: string }; Returns: string };
       client_login_locked: { Args: { p_login_id: string }; Returns: boolean };
+      client_sees_kit_slot: {
+        Args: { p_client_id: string; p_slot: string };
+        Returns: boolean;
+      };
       client_time: {
         Args: { p_client_id: string; p_month: string };
         Returns: {
@@ -1538,6 +1793,11 @@ export type Database = {
         };
         Returns: undefined;
       };
+      manages_font_library: {
+        Args: Record<PropertyKey, never>;
+        Returns: boolean;
+      };
+      manages_palettes: { Args: Record<PropertyKey, never>; Returns: boolean };
       month_label: { Args: { p_month: string }; Returns: string };
       notify: {
         Args: {
@@ -1632,6 +1892,10 @@ export type Database = {
         }[];
       };
       today_gaborone: { Args: Record<PropertyKey, never>; Returns: string };
+      undo_client_response: {
+        Args: { p_entity_id: string; p_entity_type: string };
+        Returns: undefined;
+      };
       unpublish_review: { Args: { p_month_id: string }; Returns: undefined };
       valid_kit_colors: { Args: { c: Json }; Returns: boolean };
       valid_kit_slot: { Args: { p_slot: string }; Returns: boolean };

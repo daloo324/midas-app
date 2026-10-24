@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/shared/coming-soon";
+import { OverviewPage } from "@/components/portal/pages/overview";
+import { clientViewer } from "@/lib/portal/viewer";
 
 export const metadata: Metadata = { title: "Overview" };
 
-export default function OverviewPage() {
-  return (
-    <ComingSoon title="Overview" phase={4}>
-      Your content progress, approvals and account at a glance.
-    </ComingSoon>
-  );
+export default async function Page() {
+  return <OverviewPage viewer={await clientViewer()} />;
 }

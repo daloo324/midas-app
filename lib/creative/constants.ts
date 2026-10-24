@@ -20,81 +20,6 @@ export const DEFAULT_PALETTE: Palette = {
   accent: "#C49A47",
 };
 
-export const PALETTE_PRESETS: { name: string; colors: Palette }[] = [
-  {
-    name: "Midas navy & gold",
-    colors: {
-      primary: "#0E2A36",
-      secondary: "#18404F",
-      tertiary: "#4F8C8F",
-      accent: "#C49A47",
-    },
-  },
-  {
-    name: "Earth & sand",
-    colors: {
-      primary: "#6E4A2B",
-      secondary: "#B98B5E",
-      tertiary: "#E6D2B5",
-      accent: "#2F6B3C",
-    },
-  },
-  {
-    name: "Fresh greens",
-    colors: {
-      primary: "#2F6B3C",
-      secondary: "#5FA05B",
-      tertiary: "#BFDCA8",
-      accent: "#F2CF45",
-    },
-  },
-  {
-    name: "Calm blues",
-    colors: {
-      primary: "#1F5E8C",
-      secondary: "#4E9AC7",
-      tertiary: "#BFE0F2",
-      accent: "#F2A65A",
-    },
-  },
-  {
-    name: "Warm reds",
-    colors: {
-      primary: "#B83A2E",
-      secondary: "#E0663A",
-      tertiary: "#F6D9C7",
-      accent: "#F2CF45",
-    },
-  },
-  {
-    name: "Plum & blush",
-    colors: {
-      primary: "#4B2B5E",
-      secondary: "#7E4E9C",
-      tertiary: "#E58AAE",
-      accent: "#C49A47",
-    },
-  },
-  {
-    name: "Mono & sun",
-    colors: {
-      primary: "#1A1A1A",
-      secondary: "#7A7A7A",
-      tertiary: "#D9D9D9",
-      accent: "#F2CF45",
-    },
-  },
-  {
-    name: "Teal & coral",
-    colors: {
-      primary: "#1D5560",
-      secondary: "#4F8C8F",
-      tertiary: "#CFE3E2",
-      accent: "#E5735C",
-    },
-  },
-];
-
 export const MARK_VARIANTS = [
   { key: "full", label: "Full colour" },
   { key: "black", label: "Black" },
@@ -112,6 +37,24 @@ export const FONT_ROLES = [
   { key: "body", label: "Body font" },
 ] as const;
 export const FONT_EXTS = ["ttf", "otf", "woff", "woff2"] as const;
+export const LIBRARY_WEIGHTS = [
+  100, 200, 300, 400, 500, 600, 700, 800, 900,
+] as const;
+export const WEIGHT_NAMES: Record<number, string> = {
+  100: "Thin",
+  200: "Extra light",
+  300: "Light",
+  400: "Regular",
+  500: "Medium",
+  600: "Semibold",
+  700: "Bold",
+  800: "Extra bold",
+  900: "Black",
+};
+export function weightLabel(weight: number, italic: boolean) {
+  return `${WEIGHT_NAMES[weight] ?? weight}${italic ? " italic" : ""}`;
+}
+
 export const EXTRA_EXTS = ["svg", "png", "jpg", "jpeg", "pdf"] as const;
 
 export const GUIDE_CHECKS = [

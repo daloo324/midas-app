@@ -433,7 +433,7 @@ test("publishing the review locks the KPIs and shows the review in the portal", 
   await signInClient(client, loginId, PASSWORD);
   await client.goto("/portal/reports");
   await expect(
-    client.getByRole("heading", { name: `${label(ym)} review` }),
+    client.getByRole("heading", { name: `What we learned in ${label(ym)}` }),
   ).toBeVisible();
   await expect(
     client.getByText("Reels reached the most people."),

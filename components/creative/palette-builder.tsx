@@ -1,24 +1,35 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { savePaletteAction } from "@/app/creative/actions";
+import {
+  addPaletteTemplateAction,
+  removePaletteTemplateAction,
+  savePaletteAction,
+} from "@/app/creative/actions";
 import { useReport, useToast } from "@/components/shared/toast";
 import {
   COLOR_ROLES,
+  DEFAULT_PALETTE,
   FONT_PAIRINGS,
-  PALETTE_PRESETS,
   fontStack,
   hexToRgb,
   type Palette,
 } from "@/lib/creative/constants";
+import type { PaletteTemplate } from "@/lib/data/creative";
 import { ContrastTable, SamplePost } from "./palette-preview";
 
 export function PaletteBuilder({
   clients,
+  templates,
+  canManage,
 }: {
   clients: { id: string; name: string }[];
+  templates: PaletteTemplate[];
+  canManage: boolean;
 }) {
-  const [palette, setPalette] = useState<Palette>(PALETTE_PRESETS[0].colors);
+  const [palette, setPalette] = useState<Palette>(
+    templates[0]?.colors ?? DEFAULT_PALETTE,
+  );
   const [pair, setPair] = useState(0);
   const [clientId, setClientId] = useState("");
   const [pending, start] = useTransition();
@@ -36,8 +47,11 @@ export function PaletteBuilder({
       <div style={{ display: "grid", gap: 16 }}>
         <section className="panel">
           <h2>Start from a template</h2>
+          {templates.length === 0 ? (
+            <p className="sub">No templates yet.</p>
+          ) : null}
           <div className="chips" style={{ marginTop: 10 }}>
-            {PALETTE_PRESETS.map((t) => (
+            {templates.map((t) => (
               <button
                 key={t.name}
                 type="button"
@@ -69,6 +83,9 @@ export function PaletteBuilder({
               </button>
             ))}
           </div>
+          {canManage ? (
+            <ManageTemplates templates={templates} palette={palette} />
+          ) : null}
         </section>
         <section className="panel">
           <h2>Four brand colours, plus black and white</h2>
@@ -174,6 +191,130 @@ export function PaletteBuilder({
         />
         <ContrastTable palette={palette} />
       </section>
+    </div>
+  );
+}
+
+function Swatches({ colors }: { colors: Palette }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        borderRadius: 4,
+        overflow: "hidden",
+        border: "1px solid var(--line)",
+      }}
+    >
+      {COLOR_ROLES.map((r) => (
+        <i
+          key={r.key}
+          style={{
+            display: "inline-block",
+            width: 14,
+            height: 18,
+            background: colors[r.key],
+          }}
+        />
+      ))}
+    </span>
+  );
+}
+
+/** The creative director saves the current colours as a template, or removes one. */
+function ManageTemplates({
+  templates,
+  palette,
+}: {
+  templates: PaletteTemplate[];
+  palette: Palette;
+}) {
+  const [name, setName] = useState("");
+  const [pending, start] = useTransition();
+  const report = useReport();
+  return (
+    <div style={{ marginTop: 16, borderTop: "1px solid var(--line)" }}>
+      <form
+        className="row"
+        style={{ gap: 8, marginTop: 14, alignItems: "end", flexWrap: "wrap" }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          start(async () => {
+            if (
+              report(await addPaletteTemplateAction({ name, colors: palette }))
+            )
+              setName("");
+          });
+        }}
+      >
+        <label className="f" style={{ flex: 1, minWidth: 180 }}>
+          Save these colours as a template
+          <input
+            className="field"
+            value={name}
+            maxLength={60}
+            required
+            placeholder="e.g. Kalahari dusk"
+            onChange={(e) => setName(e.target.value)}
+          />
+        </label>
+        <Swatches colors={palette} />
+        <button
+          className="btn gold"
+          type="submit"
+          disabled={pending || !name.trim()}
+        >
+          Add template
+        </button>
+      </form>
+      {templates.length ? (
+        <div className="tbl-wrap" style={{ marginTop: 14 }}>
+          <table className="tbl">
+            <thead>
+              <tr>
+                <th>Template</th>
+                <th>Colours</th>
+                <th>In use</th>
+                <th aria-label="Actions" />
+              </tr>
+            </thead>
+            <tbody>
+              {templates.map((t) => (
+                <tr key={t.id}>
+                  <td>{t.name}</td>
+                  <td>
+                    <Swatches colors={t.colors} />
+                  </td>
+                  <td>
+                    {t.usedBy ? (
+                      `${t.usedBy} brand kit${t.usedBy === 1 ? "" : "s"}`
+                    ) : (
+                      <span className="pill">Not used</span>
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      className="btn sm"
+                      type="button"
+                      disabled={pending}
+                      aria-label={`Remove ${t.name}`}
+                      onClick={() =>
+                        start(async () => {
+                          report(await removePaletteTemplateAction(t.id));
+                        })
+                      }
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+      <p className="sub" style={{ marginTop: 8 }}>
+        Removing a template doesn&apos;t change any client&apos;s brand kit.
+      </p>
     </div>
   );
 }

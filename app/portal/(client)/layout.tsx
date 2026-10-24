@@ -19,7 +19,8 @@ export default async function PortalLayout({
   children,
 }: LayoutProps<"/portal">) {
   const user = await requireArea("portal");
-  const waiting = await countApprovals();
+  const waiting =
+    user.kind === "client" ? await countApprovals(user.clientId) : 0;
   const menu = MENU.map((m) =>
     m.href === "/portal/approvals" ? { ...m, badge: waiting } : m,
   );

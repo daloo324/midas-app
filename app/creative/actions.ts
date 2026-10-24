@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import type { ActionState } from "@/lib/auth/action-state";
 import { staffWithRole } from "@/lib/auth/session";
+import { FONT_PAIRINGS } from "@/lib/creative/constants";
 import { friendlyError } from "@/lib/data/errors";
 import type { TablesUpdate } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
@@ -16,8 +17,11 @@ import {
   kitColor,
   kitField,
   kitFile,
+  libraryFont,
+  libraryPairing,
   manualTime,
   palette,
+  paletteTemplate,
   uuid,
   workMove,
 } from "@/lib/validation/creative";
@@ -547,6 +551,209 @@ export async function deleteInspirationAction(
   await supabase.storage.from("inspiration").remove([data[0].storage_path]);
   refresh();
   return { ok: "Removed." };
+}
+
+// ---------------------------------------------------------------------------
+// Palette templates: the creative director (or CEO) adds and removes them.
+// Brand kits keep their own copy of the colours.
+// ---------------------------------------------------------------------------
+
+const PALETTES_ONLY: ActionState = {
+  error: "Only the creative director can change the palette templates.",
+};
+
+export async function addPaletteTemplateAction(
+  input: unknown,
+): Promise<ActionState> {
+  const me = await staffWithRole(["ceo", "creative_director"]);
+  if (!me) return PALETTES_ONLY;
+  const parsed = paletteTemplate.safeParse(input);
+  if (!parsed.success) return { error: first(parsed.error.issues) };
+  const { name, colors } = parsed.data;
+  const supabase = await createClient();
+  const { error } = await supabase.from("palette_templates").insert({
+    name,
+    primary_color: colors.primary.toUpperCase(),
+    secondary_color: colors.secondary.toUpperCase(),
+    tertiary_color: colors.tertiary.toUpperCase(),
+    accent_color: colors.accent.toUpperCase(),
+    created_by: me.id,
+  });
+  if (error)
+    return {
+      error:
+        error.code === "23505"
+          ? `There's already a template called ${name}. Choose another name.`
+          : friendlyError(error, "The template didn't save. Try again."),
+    };
+  refresh();
+  return { ok: `${name} added to the templates.` };
+}
+
+export async function removePaletteTemplateAction(
+  id: string,
+): Promise<ActionState> {
+  if (!(await staffWithRole(["ceo", "creative_director"])))
+    return PALETTES_ONLY;
+  if (!uuid.safeParse(id).success) return BAD_INPUT;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("palette_templates")
+    .delete()
+    .eq("id", id)
+    .select("name");
+  if (error || !data?.length) return PALETTES_ONLY;
+  refresh();
+  return { ok: `${data[0].name} removed.` };
+}
+
+// ---------------------------------------------------------------------------
+// Font library: the creative director (or CEO) adds downloaded fonts and
+// pairings; the whole team sees and uses them.
+// ---------------------------------------------------------------------------
+
+const LIBRARY_ONLY: ActionState = {
+  error: "Only the creative director can change the font library.",
+};
+
+async function librarian() {
+  return staffWithRole(["ceo", "creative_director"]);
+}
+
+export async function addLibraryFontAction(
+  input: unknown,
+): Promise<ActionState> {
+  const me = await librarian();
+  if (!me) return LIBRARY_ONLY;
+  const parsed = libraryFont.safeParse(input);
+  const supabase = await createClient();
+  const path =
+    typeof (input as { path?: unknown })?.path === "string"
+      ? (input as { path: string }).path
+      : null;
+  if (!parsed.success) {
+    if (path) await supabase.storage.from("fonts").remove([path]);
+    return { error: first(parsed.error.issues) };
+  }
+  const f = parsed.data;
+  const { error } = await supabase.from("library_fonts").insert({
+    family: f.family,
+    weight: f.weight,
+    italic: f.italic,
+    storage_path: f.path,
+    file_name: f.fileName,
+    size_bytes: f.size,
+    licence_note: f.licence,
+    uploaded_by: me.id,
+  });
+  if (error) {
+    await supabase.storage.from("fonts").remove([f.path]);
+    return {
+      error:
+        error.code === "23505"
+          ? `${f.family} ${f.weight}${f.italic ? " italic" : ""} is already in the library. Remove it first to replace it.`
+          : friendlyError(error, "The font didn't save. Try again."),
+    };
+  }
+  refresh();
+  return { ok: `${f.family} added to the library.` };
+}
+
+export async function removeLibraryFontAction(
+  id: string,
+): Promise<ActionState> {
+  if (!(await librarian())) return LIBRARY_ONLY;
+  if (!uuid.safeParse(id).success) return BAD_INPUT;
+  const supabase = await createClient();
+  const { data: font } = await supabase
+    .from("library_fonts")
+    .select("family")
+    .eq("id", id)
+    .maybeSingle();
+  if (!font) return BAD_INPUT;
+  // The last file of a family can't go while a pairing still uses it.
+  const [{ count: files }, { count: pairings }] = await Promise.all([
+    supabase
+      .from("library_fonts")
+      .select("id", { count: "exact", head: true })
+      .eq("family", font.family),
+    supabase
+      .from("library_pairings")
+      .select("id", { count: "exact", head: true })
+      .or(`heading_family.eq."${font.family}",body_family.eq."${font.family}"`),
+  ]);
+  if (files === 1 && pairings)
+    return {
+      error: `Remove the pairings that use ${font.family} first.`,
+    };
+  const { data, error } = await supabase
+    .from("library_fonts")
+    .delete()
+    .eq("id", id)
+    .select("storage_path");
+  if (error || !data?.length) return LIBRARY_ONLY;
+  await supabase.storage.from("fonts").remove([data[0].storage_path]);
+  refresh();
+  return { ok: "Removed from the library." };
+}
+
+const BUILT_IN_FAMILIES = new Set(
+  FONT_PAIRINGS.flatMap((p) => [p.heading, p.body]),
+);
+
+export async function addLibraryPairingAction(
+  input: unknown,
+): Promise<ActionState> {
+  const me = await librarian();
+  if (!me) return LIBRARY_ONLY;
+  const parsed = libraryPairing.safeParse(input);
+  if (!parsed.success) return { error: first(parsed.error.issues) };
+  const p = parsed.data;
+  if (FONT_PAIRINGS.some((b) => b.heading === p.heading && b.body === p.body))
+    return { error: "That pairing is already in the list." };
+  const supabase = await createClient();
+  const { data: library } = await supabase
+    .from("library_fonts")
+    .select("family")
+    .in("family", [p.heading, p.body]);
+  const known = new Set([
+    ...BUILT_IN_FAMILIES,
+    ...(library ?? []).map((f) => f.family),
+  ]);
+  const missing = [p.heading, p.body].find((f) => !known.has(f));
+  if (missing) return { error: `Add ${missing} to the font library first.` };
+  const { error } = await supabase.from("library_pairings").insert({
+    heading_family: p.heading,
+    body_family: p.body,
+    style: p.style,
+    good_for: p.goodFor,
+    created_by: me.id,
+  });
+  if (error)
+    return {
+      error:
+        error.code === "23505"
+          ? "That pairing is already in the list."
+          : friendlyError(error, "The pairing didn't save. Try again."),
+    };
+  refresh();
+  return { ok: `${p.heading} + ${p.body} added.` };
+}
+
+export async function removeLibraryPairingAction(
+  id: string,
+): Promise<ActionState> {
+  if (!(await librarian())) return LIBRARY_ONLY;
+  if (!uuid.safeParse(id).success) return BAD_INPUT;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("library_pairings")
+    .delete()
+    .eq("id", id)
+    .select("id");
+  if (error || !data?.length) return LIBRARY_ONLY;
+  refresh();
+  return { ok: "Pairing removed." };
 }
 
 // ---------------------------------------------------------------------------
