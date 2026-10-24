@@ -2199,3 +2199,62 @@
     }
   }
 }
+
+@layer components {
+  .pipeline-wrap {
+    overflow-x: auto;
+    margin: 0 -2px;
+    padding: 0 2px 6px;
+  }
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(220px, 1fr));
+    gap: 12px;
+    align-items: start;
+    min-width: 1140px;
+  }
+  .pcol {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px;
+    display: grid;
+    gap: 10px;
+    min-height: 140px;
+  }
+  .pcol.over {
+    border-color: var(--gold);
+    background: var(--gold-soft);
+  }
+  .pcol h3 {
+    font-size: 14px;
+  }
+  .pcard {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px;
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    cursor: grab;
+  }
+  .pcard .pname {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .pnext {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .pnext.late {
+    color: var(--bad);
+    font-weight: 600;
+  }
+  .lost-ask {
+    display: grid;
+    gap: 6px;
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+  }
+}

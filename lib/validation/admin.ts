@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { SERVICE_UNITS } from "@/lib/format/status";
+import {
+  LEAD_SOURCES,
+  LEAD_STAGES,
+  LOST_REASONS,
+  SERVICE_UNITS,
+} from "@/lib/format/status";
 
 // Inputs to the CEO's services and settings forms. The database checks again.
 
@@ -111,4 +116,55 @@ export const vatSchema = z
 export const capacitySchema = z.object({
   maxActiveClients: wholeNumber(0, 500, "Maximum active clients"),
   profitThreshold: money,
+});
+
+const optionalDate = z
+  .string()
+  .trim()
+  .transform((v) => (v === "" ? null : v))
+  .pipe(z.iso.date({ error: "Use a valid date." }).nullable())
+  .optional()
+  .transform((v) => v ?? null);
+const optionalMoney = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => v ?? "")
+  .pipe(z.union([z.literal("").transform(() => null), money]));
+
+export const leadSchema = z.object({
+  id: z.union([z.literal("").transform(() => null), uuid]).optional(),
+  company: text(120).min(1, { error: "Enter the company name." }),
+  contactName: optionalText(120),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .transform((v) => (v === "" ? null : v))
+    .pipe(z.email({ error: "Use a valid email address." }).nullable()),
+  phone: optionalText(40),
+  source: z.enum(LEAD_SOURCES as [string, ...string[]], {
+    error: "Choose where the lead came from.",
+  }),
+  estimatedValue: optionalMoney,
+  ownerId: z.union([z.literal("").transform(() => null), uuid]),
+  nextAction: optionalText(200),
+  nextActionDate: optionalDate,
+  notes: optionalText(5000),
+});
+
+export const leadMove = z
+  .object({
+    id: uuid,
+    stage: z.enum(LEAD_STAGES as [string, ...string[]]),
+    lostReason: z.enum(LOST_REASONS).nullable().optional(),
+  })
+  .refine((v) => v.stage !== "lost" || v.lostReason, {
+    error: "Choose why the lead was lost.",
+  });
+
+export const winLead = z.object({
+  leadId: uuid,
+  accountExecId: z.uuid({ error: "Choose an account exec." }),
+  serviceId: z.uuid({ error: "Choose a service." }),
 });
