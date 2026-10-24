@@ -2258,3 +2258,52 @@
     padding-top: 8px;
   }
 }
+
+@layer components {
+  .doc-lines td {
+    vertical-align: top;
+  }
+  .doc-totals {
+    display: grid;
+    justify-content: end;
+    gap: 4px;
+    font-size: 15px;
+  }
+  .doc-totals > div {
+    display: grid;
+    grid-template-columns: 160px 130px;
+    text-align: right;
+  }
+  .doc-totals .grand {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 800;
+    border-top: 2px solid var(--navy);
+    padding-top: 6px;
+  }
+}
+
+@layer components {
+  .brandmark {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .brandmark b {
+    font-family: var(--display);
+    font-weight: 900;
+    font-stretch: 115%;
+    font-size: 24px;
+    letter-spacing: 0.02em;
+  }
+  .brandmark span {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .tbl .num-c {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+}

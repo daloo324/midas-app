@@ -168,3 +168,45 @@ export const winLead = z.object({
   accountExecId: z.uuid({ error: "Choose an account exec." }),
   serviceId: z.uuid({ error: "Choose a service." }),
 });
+
+// Quote and invoice drafts: the editor posts the whole draft at once.
+const quantity = z.coerce
+  .number({ error: "Quantity must be a number." })
+  .positive({ error: "Quantity must be more than 0." })
+  .max(9999, { error: "Quantity must be 9999 or less." })
+  .transform((n) => Math.round(n * 100) / 100);
+const unitPrice = z.coerce
+  .number({ error: "Price must be a number." })
+  .min(0, { error: "Price can't be negative." })
+  .max(9_999_999, { error: "Price is too large." })
+  .transform((n) => Math.round(n * 100) / 100);
+
+export const docLine = z.object({
+  serviceId: uuid.nullable(),
+  name: text(200).min(1, { error: "Every line needs a description." }),
+  description: optionalText(2000),
+  unit: z.enum(SERVICE_UNITS as [string, ...string[]]).nullable(),
+  quantity,
+  unitPrice,
+});
+
+export const quoteDraft = z.object({
+  id: uuid,
+  intro: optionalText(3000),
+  terms: optionalText(3000),
+  validUntil: optionalDate,
+  lines: z.array(docLine).max(50, { error: "Keep it to 50 lines or fewer." }),
+});
+
+export const invoiceDraft = z.object({
+  id: uuid,
+  periodLabel: optionalText(60),
+  notes: optionalText(2000),
+  lines: z.array(docLine).max(50, { error: "Keep it to 50 lines or fewer." }),
+});
+
+export const newQuote = z.object({
+  recipient: z.string().regex(/^(lead|client):[0-9a-f-]{36}$/i, {
+    error: "Choose who the quote is for.",
+  }),
+});

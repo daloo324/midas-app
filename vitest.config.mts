@@ -3,7 +3,11 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   resolve: {
-    alias: { "@": path.resolve(import.meta.dirname) },
+    alias: {
+      "@": path.resolve(import.meta.dirname),
+      // Server-only modules can be unit tested; the guard is for bundling.
+      "server-only": path.resolve(import.meta.dirname, "tests/unit/empty.ts"),
+    },
   },
   test: {
     include: ["tests/unit/**/*.test.ts"],
