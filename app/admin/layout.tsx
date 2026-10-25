@@ -1,5 +1,6 @@
 import { Masthead } from "@/components/shared/masthead";
 import { MastNav, Rail, type NavItem } from "@/components/shared/nav-links";
+import { ToastProvider } from "@/components/shared/toast";
 import { requireArea } from "@/lib/auth/session";
 
 const MENU: NavItem[] = [
@@ -22,7 +23,7 @@ const OTHER_AREAS: NavItem[] = [
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const user = await requireArea("admin");
   return (
-    <>
+    <ToastProvider>
       <Masthead label="CEO dashboard" home="/admin" user={user}>
         <MastNav items={OTHER_AREAS} label="Other areas" />
       </Masthead>
@@ -30,6 +31,6 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
         <Rail items={MENU} label="CEO dashboard sections" />
         <main style={{ minWidth: 0 }}>{children}</main>
       </div>
-    </>
+    </ToastProvider>
   );
 }

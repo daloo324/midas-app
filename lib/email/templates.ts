@@ -105,3 +105,193 @@ ${idLine ? `<p>${escapeHtml(idLine)}</p>` : ""}
     text: `Hi ${name},\n\nSomeone asked to reset your password. If it was you, choose a new one:\n${link}\n\n${idLine ? idLine + "\n\n" : ""}${LINK_NOTE} If you didn't ask for this, ignore this email; your password stays the same.`,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Phase 5: quotes, invoices, reminders and workflow emails
+// ---------------------------------------------------------------------------
+
+function paragraphs(lines: string[]): string {
+  return lines.map((l) => `<p>${escapeHtml(l)}</p>`).join("\n");
+}
+
+function signOff(from: string): string {
+  return `<p style="font-size:13px;color:#5A6A72">Questions? Reply to this email to reach ${escapeHtml(from)}.</p>`;
+}
+
+export function quoteEmail(opts: {
+  to: string;
+  name: string | null;
+  number: string;
+  total: string;
+  validUntil: string;
+  from: string;
+  replyTo?: string;
+  pdf: Buffer;
+}): Email {
+  const hi = `Hi ${opts.name || "there"},`;
+  const body = [
+    hi,
+    `Here is quote ${opts.number} from Midas Media for ${opts.total}. It's attached as a PDF and is valid until ${opts.validUntil}.`,
+    "To go ahead, reply to this email and we'll get started.",
+  ];
+  return {
+    to: opts.to,
+    replyTo: opts.replyTo,
+    subject: `Quote ${opts.number} from Midas Media`,
+    html: layout("Quote", paragraphs(body) + signOff(opts.from)),
+    text: `${body.join("\n\n")}\n\nQuestions? Reply to this email to reach ${opts.from}.`,
+    attachments: [{ filename: `${opts.number}.pdf`, content: opts.pdf }],
+  };
+}
+
+export function invoiceEmail(opts: {
+  to: string;
+  name: string | null;
+  number: string;
+  title: string;
+  total: string;
+  dueDate: string;
+  portalUrl: string;
+  from: string;
+  replyTo?: string;
+  pdf: Buffer;
+}): Email {
+  const body = [
+    `Hi ${opts.name || "there"},`,
+    `${opts.title} ${opts.number} for ${opts.total} is attached. Please pay by ${opts.dueDate}, using ${opts.number} as the payment reference.`,
+    "You can also see it, and every invoice, in your client portal.",
+  ];
+  return {
+    to: opts.to,
+    replyTo: opts.replyTo,
+    subject: `${opts.title} ${opts.number} from Midas Media`,
+    html: layout(
+      "Invoice",
+      paragraphs(body) +
+        button(opts.portalUrl, "View in your portal") +
+        signOff(opts.from),
+    ),
+    text: `${body.join("\n\n")}\n${opts.portalUrl}\n\nQuestions? Reply to this email to reach ${opts.from}.`,
+    attachments: [{ filename: `${opts.number}.pdf`, content: opts.pdf }],
+  };
+}
+
+export type ReminderKind = "due_soon" | "overdue_1" | "overdue_7";
+
+export function reminderEmail(opts: {
+  to: string;
+  name: string | null;
+  number: string;
+  balance: string;
+  dueDate: string;
+  kind: ReminderKind;
+  portalUrl: string;
+  from: string;
+  replyTo?: string;
+}): Email {
+  const line =
+    opts.kind === "due_soon"
+      ? `A friendly reminder that invoice ${opts.number} (${opts.balance} to pay) is due on ${opts.dueDate}.`
+      : opts.kind === "overdue_1"
+        ? `Invoice ${opts.number} was due on ${opts.dueDate} and ${opts.balance} is still to pay.`
+        : `Invoice ${opts.number} is now a week overdue, with ${opts.balance} still to pay. Please pay as soon as you can, or reply if something is wrong with it.`;
+  const body = [
+    `Hi ${opts.name || "there"},`,
+    line,
+    `Use ${opts.number} as the payment reference. If you've already paid, thank you, and please ignore this email.`,
+  ];
+  return {
+    to: opts.to,
+    replyTo: opts.replyTo,
+    subject:
+      opts.kind === "due_soon"
+        ? `Invoice ${opts.number} is due on ${opts.dueDate}`
+        : `Invoice ${opts.number} is overdue`,
+    html: layout(
+      "Invoice",
+      paragraphs(body) +
+        button(opts.portalUrl, "View the invoice") +
+        signOff(opts.from),
+    ),
+    text: `${body.join("\n\n")}\n${opts.portalUrl}`,
+  };
+}
+
+/** To a client: work has been waiting for their OK for more than 2 working days. */
+export function approvalsWaitingEmail(opts: {
+  to: string;
+  name: string;
+  count: number;
+  portalUrl: string;
+  from: string;
+  replyTo?: string;
+}): Email {
+  const what = opts.count === 1 ? "1 item is" : `${opts.count} items are`;
+  const body = [
+    `Hi ${opts.name},`,
+    `${what} waiting for your approval in the Midas client portal. Nothing is posted without your OK, so a quick look keeps your content on schedule.`,
+  ];
+  return {
+    to: opts.to,
+    replyTo: opts.replyTo,
+    subject: `${what} waiting for your approval`,
+    html: layout(
+      "Client portal",
+      paragraphs(body) +
+        button(opts.portalUrl, "Review and approve") +
+        signOff(opts.from),
+    ),
+    text: `${body.join("\n\n")}\n${opts.portalUrl}`,
+  };
+}
+
+/** To the account exec: a client asked for changes. */
+export function changesRequestedEmail(opts: {
+  to: string;
+  name: string;
+  clientName: string;
+  what: string;
+  comment: string;
+  link: string;
+}): Email {
+  const body = [
+    `Hi ${opts.name},`,
+    `${opts.clientName} asked for changes to ${opts.what}:`,
+  ];
+  return {
+    to: opts.to,
+    subject: `${opts.clientName} asked for changes to ${opts.what}`,
+    html: layout(
+      "Account Desk",
+      `${paragraphs(body)}<blockquote style="margin:0;padding:10px 14px;border-left:3px solid #B88A35;background:#F4ECDC">${escapeHtml(opts.comment)}</blockquote>${button(opts.link, "Open it")}<p style="font-size:13px;color:#5A6A72">Reply to the client within 48 hours.</p>`,
+    ),
+    text: `${body.join("\n\n")}\n\n"${opts.comment}"\n\n${opts.link}\n\nReply to the client within 48 hours.`,
+  };
+}
+
+/** To a client: their monthly review is ready. */
+export function reviewPublishedEmail(opts: {
+  to: string;
+  name: string;
+  month: string;
+  portalUrl: string;
+  from: string;
+  replyTo?: string;
+}): Email {
+  const body = [
+    `Hi ${opts.name},`,
+    `Your ${opts.month} review is ready: what we posted, how it performed and what we'll do next month.`,
+  ];
+  return {
+    to: opts.to,
+    replyTo: opts.replyTo,
+    subject: `Your ${opts.month} review is ready`,
+    html: layout(
+      "Client portal",
+      paragraphs(body) +
+        button(opts.portalUrl, "Read your review") +
+        signOff(opts.from),
+    ),
+    text: `${body.join("\n\n")}\n${opts.portalUrl}`,
+  };
+}

@@ -8,6 +8,9 @@ export type Email = {
   subject: string;
   html: string;
   text: string;
+  /** Replies go here: the account exec (client emails) or the CEO (invoices). */
+  replyTo?: string;
+  attachments?: { filename: string; content: Buffer }[];
 };
 
 /**
@@ -20,9 +23,22 @@ export async function sendEmail(email: Email): Promise<void> {
   if (outbox) {
     await mkdir(outbox, { recursive: true });
     const file = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`;
+    const { attachments, ...rest } = email;
     await writeFile(
       path.join(outbox, file),
-      JSON.stringify({ ...email, sentAt: new Date().toISOString() }, null, 2),
+      JSON.stringify(
+        {
+          ...rest,
+          attachments: attachments?.map((a) => ({
+            filename: a.filename,
+            bytes: a.content.length,
+            pdf: a.content.subarray(0, 5).toString() === "%PDF-",
+          })),
+          sentAt: new Date().toISOString(),
+        },
+        null,
+        2,
+      ),
     );
     return;
   }

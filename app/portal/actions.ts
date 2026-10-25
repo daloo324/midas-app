@@ -4,7 +4,12 @@ import { z } from "zod";
 import { fieldErrorsFrom, type ActionState } from "@/lib/auth/action-state";
 import { setPasswordSchema } from "@/lib/validation/auth";
 import { getCurrentUser } from "@/lib/auth/session";
+import { appUrl } from "@/lib/auth/links";
+import { monthLabel } from "@/lib/content/constants";
 import { friendlyError } from "@/lib/data/errors";
+import { getPortalClient } from "@/lib/data/portal";
+import { sendEmail } from "@/lib/email/send";
+import { changesRequestedEmail } from "@/lib/email/templates";
 import { createClient } from "@/lib/supabase/server";
 
 // The client's answers in the portal. The database checks it's their own
@@ -23,6 +28,60 @@ async function isClient() {
 }
 
 const SENT = "Sent. Midas replies within 48 hours.";
+
+type Asked =
+  | { kind: "item"; id: string }
+  | { kind: "calendar"; id: string }
+  | { kind: "brief"; id: string }
+  | { kind: "kit" };
+
+/** Emails the account exec what the client asked to change. Best effort. */
+async function emailChangesRequested(asked: Asked, comment: string) {
+  try {
+    const user = await getCurrentUser();
+    if (user?.kind !== "client") return;
+    const client = await getPortalClient(user.clientId);
+    if (!client?.account_exec_email) return;
+    const supabase = await createClient();
+    const base = `${appUrl()}/accounts/clients/${client.id}`;
+    let what = "the brand kit";
+    let link = base;
+    if (asked.kind === "item") {
+      const { data } = await supabase
+        .from("portal_items")
+        .select("slot_code, month")
+        .eq("id", asked.id)
+        .maybeSingle();
+      what = data?.slot_code ?? "a post";
+      link = `${base}/calendar${data?.month ? `?month=${data.month.slice(0, 7)}` : ""}#${asked.id}`;
+    } else if (asked.kind === "calendar") {
+      const { data } = await supabase
+        .from("portal_months")
+        .select("month")
+        .eq("id", asked.id)
+        .maybeSingle();
+      what = data?.month
+        ? `the ${monthLabel(data.month)} content calendar`
+        : "the content calendar";
+      link = `${base}/calendar${data?.month ? `?month=${data.month.slice(0, 7)}` : ""}`;
+    } else if (asked.kind === "brief") {
+      what = "the campaign brief";
+      link = `${base}/campaign`;
+    }
+    await sendEmail(
+      changesRequestedEmail({
+        to: client.account_exec_email,
+        name: (client.account_exec_name ?? "").split(/\s+/)[0] || "there",
+        clientName: client.name,
+        what,
+        comment,
+        link,
+      }),
+    );
+  } catch (e) {
+    console.error("Changes-requested email failed", e);
+  }
+}
 const APPROVED = "Approved. Midas has been notified.";
 
 export async function respondToCalendarAction(
@@ -45,6 +104,11 @@ export async function respondToCalendarAction(
     return {
       error: friendlyError(error, "Your answer didn't send. Try again."),
     };
+  if (!parsed.data.approve)
+    await emailChangesRequested(
+      { kind: "calendar", id: parsed.data.id },
+      parsed.data.note,
+    );
   return { ok: parsed.data.approve ? APPROVED : SENT };
 }
 
@@ -68,6 +132,11 @@ export async function respondToBriefAction(
     return {
       error: friendlyError(error, "Your answer didn't send. Try again."),
     };
+  if (!parsed.data.approve)
+    await emailChangesRequested(
+      { kind: "brief", id: parsed.data.id },
+      parsed.data.note,
+    );
   return { ok: parsed.data.approve ? APPROVED : SENT };
 }
 
@@ -91,6 +160,8 @@ export async function respondToKitAction(input: unknown): Promise<ActionState> {
     return {
       error: friendlyError(error, "Your answer didn't send. Try again."),
     };
+  if (!parsed.data.approve)
+    await emailChangesRequested({ kind: "kit" }, parsed.data.note);
   return {
     ok: parsed.data.approve
       ? "Signed off. Your brand assets are in the Brand assets tab now."
@@ -168,5 +239,10 @@ export async function respondToItemAction(
     return {
       error: friendlyError(error, "Your answer didn't send. Try again."),
     };
+  if (!parsed.data.approve)
+    await emailChangesRequested(
+      { kind: "item", id: parsed.data.id },
+      parsed.data.note,
+    );
   return { ok: parsed.data.approve ? APPROVED : SENT };
 }

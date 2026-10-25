@@ -47,7 +47,7 @@ export default async function PreviewPage({
     case "reports":
       return <ReportsPage viewer={viewer} monthParamValue={str(sp.month)} />;
     case "invoices":
-      return <InvoicesPage viewer={viewer} />;
+      return <InvoicesPage viewer={viewer} view={str(sp.view)} />;
     case "assets":
       return <AssetsPage viewer={viewer} />;
     case "account":

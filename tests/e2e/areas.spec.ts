@@ -102,11 +102,3 @@ test("signing out ends the session", async ({ page }) => {
   await page.goto("/creative");
   await expect(page).toHaveURL(/\/login\?next=/);
 });
-
-test("planned pages say which phase they arrive in", async ({ page }) => {
-  await signInStaff(page, STAFF.ceo);
-  await page.goto("/admin/invoices");
-  await expect(
-    page.getByRole("heading", { name: "Coming in Phase 5" }),
-  ).toBeVisible();
-});
